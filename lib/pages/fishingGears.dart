@@ -1,0 +1,419 @@
+
+import 'package:database/models/fishingGear.dart';
+import 'package:database/services/database_service.dart';
+import 'package:flutter/material.dart';
+
+class FishingGears extends StatefulWidget {
+  const FishingGears({super.key});
+
+  @override
+  State<FishingGears> createState() => _FishingGearsState();
+}
+
+class _FishingGearsState extends State<FishingGears> {
+  late Future<List<Gear>> _gears;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  String _selectedOrder = 'Name'; 
+  String _sortOrder = 'asc'; 
+
+
+  @override
+  void initState() {
+    super.initState();
+    _gears = DatabaseService.instance.readAll(tableName: 'Gear', fromMap: Gear.fromMap);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xff16425B),
+      appBar: AppBar(
+        backgroundColor: const Color(0xff16425B),
+        foregroundColor: const Color(0xffd9dcd6),
+      ),
+      body: Column(
+        children: [
+          _searchField(),
+          const SizedBox(height: 16),
+          _orderByDropdown(), 
+          const SizedBox(height: 16),
+          Expanded(
+            child: _results(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _orderByDropdown() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xffd9dcd6).withOpacity(0.1), // background color 
+                borderRadius: BorderRadius.circular(10), // Rounded corners
+              ),
+              child: DropdownButton<String>(
+                value: _selectedOrder,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedOrder = value ?? 'Name'; // Default to 'Name' if value is null
+                  });
+                },
+                style: const TextStyle(
+                  color: Color(0xffd9dcd6), // Text color in the button
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'Name', child: Text('Order by Name')),
+                  DropdownMenuItem(value: 'Code', child: Text('Order by Code')),
+                  DropdownMenuItem(value: 'System', child: Text('Order by System')),
+                ],
+                underline: Container(), // Remove the underline in the button
+                icon: const Icon(
+                  Icons.arrow_drop_down,
+                  color: Color(0xffd9dcd6), 
+                  size: 30,
+                ),
+                dropdownColor: const Color(0xff16425B), // Background color of the dropdown
+                menuMaxHeight: 200, // Optional: Max height of the dropdown menu
+                isExpanded: true, // Make the dropdown span the full width
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          IconButton(
+            icon: Icon(
+              _sortOrder == 'asc' ? Icons.arrow_circle_up : Icons.arrow_circle_down,
+              color: const Color(0xffd9dcd6),
+              size: 40,
+            ),
+            onPressed: () {
+              setState(() {
+                // Toggle sort order between 'asc' and 'desc'
+                _sortOrder = _sortOrder == 'asc' ? 'desc' : 'asc';
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _results() {
+    return FutureBuilder<List<Gear>>(
+      future: _gears,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Color(0xffd9dcd6),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error loading fishing gears: ${snapshot.error}',
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        }
+
+        final gears = snapshot.data ?? [];
+
+        // Filter by search query
+        final filteredFishingGears = gears.where((gear) =>  
+          _searchQuery.isEmpty || 
+          (gear.fishingGearName?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false) ||
+          (gear.fishingGearCode?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false) ||
+          (gear.fishingGearCodeType?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false)
+        ).toList();
+
+        // Apply sorting logic based on selected order and sort order (asc/desc)
+        filteredFishingGears.sort((a, b) {
+          int comparison = 0;
+          if (_selectedOrder == 'Name') {
+            comparison = a.fishingGearName?.compareTo(b.fishingGearName ?? '') ?? 0;
+          } else if (_selectedOrder == 'Code') {
+            comparison = a.fishingGearCode?.compareTo(b.fishingGearCode ?? '') ?? 0;
+          } else if (_selectedOrder == 'System') {
+            comparison = a.fishingGearCodeType?.compareTo(b.fishingGearCodeType ?? '') ?? 0;
+          }
+
+          // If descending, invert the comparison result
+          return _sortOrder == 'asc' ? comparison : -comparison;
+        });
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xffd9dcd6).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: filteredFishingGears.isEmpty
+            ? const Center(
+                child: Text(
+                  'No fishing gears found',
+                  style: TextStyle(color: Color(0xffd9dcd6)),
+                ),
+              )
+            : ListView.builder(
+                itemCount: filteredFishingGears.length,
+                itemBuilder: (context, index) {
+                  final gear = filteredFishingGears[index];
+                  return _listViewItem(
+                    g : gear,
+                  );
+                },
+              ),
+        );
+      },
+    );
+  }
+
+  Widget _searchField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value;
+          });
+        },
+        style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
+          contentPadding: const EdgeInsets.all(15),
+          hintText: 'Search Fishing Gear',
+          hintStyle: const TextStyle(
+            color: Color(0xffd9dcd6),
+            fontSize: 14,
+          ),
+          prefixIcon: const Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(
+              Icons.search,
+              color: Color(0xffd9dcd6),
+            ),
+          ),
+          suffixIcon: GestureDetector(
+            onTap: () {
+              _searchController.clear();
+              setState(() {
+                _searchQuery = '';
+              });
+            },
+            child: const Padding(
+              padding: EdgeInsets.all(10),
+              child: Icon(
+                Icons.cancel,
+                color: Color(0xffd9dcd6),
+              ),
+            ),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _listViewItem({required Gear g}) {
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xffd9dcd6),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Name',
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const SizedBox(height: 1),
+            Text(
+              g.fishingGearName ?? 'No Name',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.bold,
+              ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+            const SizedBox(height: 1),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Code',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xff16425B),
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const SizedBox(height: 1),
+                      Text(
+                        g.fishingGearCode ?? 'No Code',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xff16425B),
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.visible,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 5),
+                Flexible(
+                  flex: 1,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'System',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xff16425B),
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        g.fishingGearCodeType ?? 'No System',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Color(0xff16425B),
+                          fontWeight: FontWeight.w500,
+                        ),
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                // Show popup dialog
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    backgroundColor: const Color(0xffd9dcd6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10), // Rounded edges
+                    ),
+                    content: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.8, // 80% of screen width
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min, // Adjusts height to content
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              // Action for Related Stocks
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xff16425B),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            ),
+                            child: const Text(
+                              'Related Stocks List',
+                              style: TextStyle(fontSize: 14, color: Color(0xffd9dcd6)),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              // Action for Related Fisheries
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xff16425B),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            ),
+                            child: const Text(
+                              'Related Fisheries List',
+                              style: TextStyle(fontSize: 14, color: Color(0xffd9dcd6)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: const Text(
+                          'Close',
+                          style: TextStyle(color: Color(0xff16425B)),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff16425B), // Background color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8), // Rounded edges
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Button padding
+              ),
+              child: const Text(
+                'Show Relations',
+                style: TextStyle(
+                  fontSize: 14,
+                  color:  Color(0xffd9dcd6),// Text color
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+}
