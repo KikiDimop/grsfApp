@@ -1,5 +1,6 @@
 
 import 'package:database/pages/areas.dart';
+import 'package:database/pages/fisherySearch.dart';
 import 'package:database/pages/fishingGears.dart';
 import 'package:database/pages/sync.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +65,7 @@ class HomePage extends StatelessWidget {
                     children: [
                       buildImageButton(context,'assets/icons/area.png', 'Areas', const Areas()),
                       buildImageButton(context,'assets/icons/species.png', 'Species', const UpdateDataScreen()),
-                      buildImageButton(context,'assets/icons/fisheries.png', 'Fisheries', const UpdateDataScreen()),
+                      buildImageButton(context,'assets/icons/fisheries.png', 'Fisheries', const SearchFishery()),
                       buildImageButton(context,'assets/icons/stocks.png', 'Stocks', const UpdateDataScreen()),
                       buildImageButton(context,'assets/icons/gear.png', 'Fishing Gear', const FishingGears()),
                       buildImageButton(context,'assets/icons/sync.png', 'Sync Data', const UpdateDataScreen()),

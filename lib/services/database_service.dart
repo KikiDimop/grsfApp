@@ -118,13 +118,16 @@ class DatabaseService {
         print('StockOwner table created');
 
         await db.execute('''
-        CREATE TABLE Gear ( 
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          fishing_gear_code TEXT,
-          fishing_gear_code_type TEXT,
-          fishing_gear_name TEXT,
-          occurrences TEXT
-        )
+          CREATE TABLE Gear (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fishing_gear_type TEXT,
+            fishing_gear_id TEXT,
+            fishing_gear_abbreviation TEXT,
+            fishing_gear_name TEXT,
+            fishing_gear_group_type TEXT,
+            fishing_gear_group_id TEXT,
+            fishing_gear_group_name TEXT
+          )
         ''');
         print('Gear table created');
 

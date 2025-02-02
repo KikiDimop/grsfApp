@@ -1,4 +1,3 @@
-
 import 'package:database/models/fishingGear.dart';
 import 'package:database/services/database_service.dart';
 import 'package:flutter/material.dart';
@@ -14,14 +13,14 @@ class _FishingGearsState extends State<FishingGears> {
   late Future<List<Gear>> _gears;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  String _selectedOrder = 'Name'; 
-  String _sortOrder = 'asc'; 
-
+  String _selectedOrder = 'Name';
+  String _sortOrder = 'asc';
 
   @override
   void initState() {
     super.initState();
-    _gears = DatabaseService.instance.readAll(tableName: 'Gear', fromMap: Gear.fromMap);
+    _gears = DatabaseService.instance
+        .readAll(tableName: 'Gear', fromMap: Gear.fromMap);
   }
 
   @override
@@ -36,7 +35,7 @@ class _FishingGearsState extends State<FishingGears> {
         children: [
           _searchField(),
           const SizedBox(height: 16),
-          _orderByDropdown(), 
+          _orderByDropdown(),
           const SizedBox(height: 16),
           Expanded(
             child: _results(),
@@ -55,14 +54,16 @@ class _FishingGearsState extends State<FishingGears> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
-                color: const Color(0xffd9dcd6).withOpacity(0.1), // background color 
+                color: const Color(0xffd9dcd6)
+                    .withOpacity(0.1), // background color
                 borderRadius: BorderRadius.circular(10), // Rounded corners
               ),
               child: DropdownButton<String>(
                 value: _selectedOrder,
                 onChanged: (value) {
                   setState(() {
-                    _selectedOrder = value ?? 'Name'; // Default to 'Name' if value is null
+                    _selectedOrder =
+                        value ?? 'Name'; // Default to 'Name' if value is null
                   });
                 },
                 style: const TextStyle(
@@ -73,15 +74,17 @@ class _FishingGearsState extends State<FishingGears> {
                 items: const [
                   DropdownMenuItem(value: 'Name', child: Text('Order by Name')),
                   DropdownMenuItem(value: 'Code', child: Text('Order by Code')),
-                  DropdownMenuItem(value: 'System', child: Text('Order by System')),
+                  DropdownMenuItem(
+                      value: 'System', child: Text('Order by System')),
                 ],
                 underline: Container(), // Remove the underline in the button
                 icon: const Icon(
                   Icons.arrow_drop_down,
-                  color: Color(0xffd9dcd6), 
+                  color: Color(0xffd9dcd6),
                   size: 30,
                 ),
-                dropdownColor: const Color(0xff16425B), // Background color of the dropdown
+                dropdownColor:
+                    const Color(0xff16425B), // Background color of the dropdown
                 menuMaxHeight: 200, // Optional: Max height of the dropdown menu
                 isExpanded: true, // Make the dropdown span the full width
               ),
@@ -90,7 +93,9 @@ class _FishingGearsState extends State<FishingGears> {
           const SizedBox(width: 10),
           IconButton(
             icon: Icon(
-              _sortOrder == 'asc' ? Icons.arrow_circle_up : Icons.arrow_circle_down,
+              _sortOrder == 'asc'
+                  ? Icons.arrow_circle_up
+                  : Icons.arrow_circle_down,
               color: const Color(0xffd9dcd6),
               size: 40,
             ),
@@ -130,22 +135,46 @@ class _FishingGearsState extends State<FishingGears> {
         final gears = snapshot.data ?? [];
 
         // Filter by search query
-        final filteredFishingGears = gears.where((gear) =>  
-          _searchQuery.isEmpty || 
-          (gear.fishingGearName?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false) ||
-          (gear.fishingGearCode?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false) ||
-          (gear.fishingGearCodeType?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false)
-        ).toList();
+        final filteredFishingGears = gears
+            .where((gear) =>
+                _searchQuery.isEmpty ||
+                (gear.fishingGearName
+                        ?.toLowerCase()
+                        .contains(_searchQuery.toLowerCase()) ??
+                    false) ||
+                (gear.fishingGearId
+                        ?.toLowerCase()
+                        .contains(_searchQuery.toLowerCase()) ??
+                    false) ||
+                (gear.fishingGearGroupId
+                        ?.toLowerCase()
+                        .contains(_searchQuery.toLowerCase()) ??
+                    false) ||
+                (gear.fishingGearGroupName
+                        ?.toLowerCase()
+                        .contains(_searchQuery.toLowerCase()) ??
+                    false) ||
+                (gear.fishingGearAbbreviation
+                        ?.toLowerCase()
+                        .contains(_searchQuery.toLowerCase()) ??
+                    false) ||
+                (gear.fishingGearType
+                        ?.toLowerCase()
+                        .contains(_searchQuery.toLowerCase()) ??
+                    false))
+            .toList();
 
         // Apply sorting logic based on selected order and sort order (asc/desc)
         filteredFishingGears.sort((a, b) {
           int comparison = 0;
           if (_selectedOrder == 'Name') {
-            comparison = a.fishingGearName?.compareTo(b.fishingGearName ?? '') ?? 0;
+            comparison =
+                a.fishingGearName?.compareTo(b.fishingGearName ?? '') ?? 0;
           } else if (_selectedOrder == 'Code') {
-            comparison = a.fishingGearCode?.compareTo(b.fishingGearCode ?? '') ?? 0;
+            comparison = a.fishingGearId?.compareTo(b.fishingGearId ?? '') ?? 0;
           } else if (_selectedOrder == 'System') {
-            comparison = a.fishingGearCodeType?.compareTo(b.fishingGearCodeType ?? '') ?? 0;
+            comparison =
+                a.fishingGearType?.compareTo(b.fishingGearType ?? '') ?? 0;
           }
 
           // If descending, invert the comparison result
@@ -160,21 +189,21 @@ class _FishingGearsState extends State<FishingGears> {
             borderRadius: BorderRadius.circular(12),
           ),
           child: filteredFishingGears.isEmpty
-            ? const Center(
-                child: Text(
-                  'No fishing gears found',
-                  style: TextStyle(color: Color(0xffd9dcd6)),
+              ? const Center(
+                  child: Text(
+                    'No fishing gears found',
+                    style: TextStyle(color: Color(0xffd9dcd6)),
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: filteredFishingGears.length,
+                  itemBuilder: (context, index) {
+                    final gear = filteredFishingGears[index];
+                    return _listViewItem(
+                      g: gear,
+                    );
+                  },
                 ),
-              )
-            : ListView.builder(
-                itemCount: filteredFishingGears.length,
-                itemBuilder: (context, index) {
-                  final gear = filteredFishingGears[index];
-                  return _listViewItem(
-                    g : gear,
-                  );
-                },
-              ),
         );
       },
     );
@@ -267,146 +296,255 @@ class _FishingGearsState extends State<FishingGears> {
               overflow: TextOverflow.visible,
             ),
             const SizedBox(height: 1),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+            // This is the section that will be displayed in columns
+            Column(
               children: [
-                Flexible(
-                  flex: 1,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Code',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xff16425B),
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      const SizedBox(height: 1),
-                      Text(
-                        g.fishingGearCode ?? 'No Code',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xff16425B),
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.visible,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 5),
-                Flexible(
-                  flex: 1,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'System',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xff16425B),
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        g.fishingGearCodeType ?? 'No System',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          color: Color(0xff16425B),
-                          fontWeight: FontWeight.w500,
-                        ),
-                        softWrap: true,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {
-                // Show popup dialog
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    backgroundColor: const Color(0xffd9dcd6),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10), // Rounded edges
-                    ),
-                    content: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.8, // 80% of screen width
+                // First Column: Code & System
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // "Code" Section
+                    Expanded(
                       child: Column(
-                        mainAxisSize: MainAxisSize.min, // Adjusts height to content
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              // Action for Related Stocks
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xff16425B),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            ),
-                            child: const Text(
-                              'Related Stocks List',
-                              style: TextStyle(fontSize: 14, color: Color(0xffd9dcd6)),
+                          const Text(
+                            'Code',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xff16425B),
+                              fontWeight: FontWeight.normal,
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Action for Related Fisheries
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xff16425B),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          const SizedBox(height: 1),
+                          Text(
+                            g.fishingGearId ?? 'No Code',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xff16425B),
+                              fontWeight: FontWeight.w500,
                             ),
-                            child: const Text(
-                              'Related Fisheries List',
-                              style: TextStyle(fontSize: 14, color: Color(0xffd9dcd6)),
-                            ),
+                            overflow: TextOverflow.visible,
                           ),
                         ],
                       ),
                     ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(); // Close the dialog
-                        },
-                        child: const Text(
-                          'Close',
-                          style: TextStyle(color: Color(0xff16425B)),
+                    const SizedBox(width: 5),
+
+                    // "System" Section
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'System',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xff16425B),
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            g.fishingGearType ?? 'No System',
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Color(0xff16425B),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 5),
+
+                // Second Column: Group Code & Group Name (if available)
+                if (g.fishingGearGroupId != null)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // "Group Code" Section
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Group Code',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xff16425B),
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            const SizedBox(height: 1),
+                            Text(
+                              g.fishingGearGroupId ?? 'No Group Code',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xff16425B),
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.visible,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+
+                      // "Group Name" Section
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Group Name',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Color(0xff16425B),
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              g.fishingGearGroupName ?? 'No Group Name',
+                              style: const TextStyle(
+                                fontSize: 15,
+                                color: Color(0xff16425B),
+                                fontWeight: FontWeight.w500,
+                              ),
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                       ),
                     ],
-                  );
-                },
-              );
+                  ),
 
+                const SizedBox(height: 5),
+              ],
+            ),
+            if (g.fishingGearAbbreviation != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Abbreviation',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xff16425B),
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    g.fishingGearAbbreviation ?? 'No Abbreviation',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xff16425B),
+                      fontWeight: FontWeight.bold,
+                    ),
+                    softWrap: true,
+                    overflow: TextOverflow.visible,
+                  ),
+                ],
+              ),
+            const SizedBox(height: 5),
+
+            // Show Relations Button
+            ElevatedButton(
+              onPressed: () {
+                // Show popup dialog
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      backgroundColor: const Color(0xffd9dcd6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(10), // Rounded edges
+                      ),
+                      content: SizedBox(
+                        width: MediaQuery.of(context).size.width *
+                            0.8, // 80% of screen width
+                        child: Column(
+                          mainAxisSize:
+                              MainAxisSize.min, // Adjusts height to content
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                // Action for Related Stocks
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xff16425B),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                              ),
+                              child: const Text(
+                                'Related Stocks List',
+                                style: TextStyle(
+                                    fontSize: 14, color: Color(0xffd9dcd6)),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                // Action for Related Fisheries
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xff16425B),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                              ),
+                              child: const Text(
+                                'Related Fisheries List',
+                                style: TextStyle(
+                                    fontSize: 14, color: Color(0xffd9dcd6)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: const Text(
+                            'Close',
+                            style: TextStyle(color: Color(0xff16425B)),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xff16425B), // Background color
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8), // Rounded edges
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Button padding
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 8), // Button padding
               ),
               child: const Text(
                 'Show Relations',
                 style: TextStyle(
                   fontSize: 14,
-                  color:  Color(0xffd9dcd6),// Text color
+                  color: Color(0xffd9dcd6), // Text color
                 ),
               ),
             ),
@@ -415,5 +553,4 @@ class _FishingGearsState extends State<FishingGears> {
       ),
     );
   }
-
 }

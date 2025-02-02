@@ -126,7 +126,7 @@ class TabBarDemo extends StatelessWidget {
                 tableName: 'Gear',
                 itemBuilder: (gear) {
                   return ListTile(
-                    title: Text(gear.fishingGearCode ?? 'No code'),
+                    title: Text(gear.fishingGearId ?? 'No code'),
                     subtitle: Text(gear.fishingGearName ?? 'No Name'),
                   );
                 },
