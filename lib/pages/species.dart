@@ -1,0 +1,305 @@
+import 'package:database/models/species.dart';
+import 'package:database/pages/speciesDetails.dart';
+import 'package:database/services/database_service.dart';
+import 'package:flutter/material.dart';
+
+class DisplaySpecies extends StatefulWidget {
+  const DisplaySpecies({super.key});
+
+  @override
+  State<DisplaySpecies> createState() => _DisplaySpeciesState();
+}
+
+class _DisplaySpeciesState extends State<DisplaySpecies> {
+  late Future<List<Species>> _species;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  String _selectedOrder = 'Name';
+  String _sortOrder = 'asc';
+
+  @override
+  void initState() {
+    super.initState();
+    _species = DatabaseService.instance
+        .readAll(tableName: 'Species', fromMap: Species.fromMap);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xff16425B),
+      appBar: AppBar(
+        backgroundColor: const Color(0xff16425B),
+        foregroundColor: const Color(0xffd9dcd6),
+      ),
+      body: Column(
+        children: [
+          _searchField(),
+          const SizedBox(height: 16),
+          _orderByDropdown(),
+          const SizedBox(height: 16),
+          Expanded(
+            child: _results(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _orderByDropdown() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xffd9dcd6)
+                    .withOpacity(0.1), // background color
+                borderRadius: BorderRadius.circular(10), // Rounded corners
+              ),
+              child: DropdownButton<String>(
+                value: _selectedOrder,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedOrder =
+                        value ?? 'Name'; // Default to 'Name' if value is null
+                  });
+                },
+                style: const TextStyle(
+                  color: Color(0xffd9dcd6), // Text color in the button
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'Name', child: Text('Order by Name')),
+                  DropdownMenuItem(value: 'Code', child: Text('Order by Code')),
+                  DropdownMenuItem(value: 'System', child: Text('Order by System')),
+                ],
+                underline: Container(), // Remove the underline in the button
+                icon: const Icon(
+                  Icons.arrow_drop_down,
+                  color: Color(0xffd9dcd6),
+                  size: 30,
+                ),
+                dropdownColor:
+                    const Color(0xff16425B), // Background color of the dropdown
+                menuMaxHeight: 200, // Optional: Max height of the dropdown menu
+                isExpanded: true, // Make the dropdown span the full width
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          IconButton(
+            icon: Icon(
+              _sortOrder == 'asc'
+                  ? Icons.arrow_circle_up
+                  : Icons.arrow_circle_down,
+              color: const Color(0xffd9dcd6),
+              size: 40,
+            ),
+            onPressed: () {
+              setState(() {
+                // Toggle sort order between 'asc' and 'desc'
+                _sortOrder = _sortOrder == 'asc' ? 'desc' : 'asc';
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _results() {
+    return FutureBuilder<List<Species>>(
+      future: _species,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Color(0xffd9dcd6),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error loading species: ${snapshot.error}',
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        }
+
+        final species = snapshot.data ?? [];
+
+        // Filter by search query
+        final filteredSpecies = species
+            .where((sp) =>
+                _searchQuery.isEmpty ||
+                (sp.scientificName
+                        .toLowerCase()
+                        .contains(_searchQuery.toLowerCase())
+/*                    false) ||
+                (sp.speciesCode
+                        ?.toLowerCase()
+                        .contains(_searchQuery.toLowerCase()) ??
+                    false) ||
+                (sp.speciesCodeType
+                        ?.toLowerCase()
+                        .contains(_searchQuery.toLowerCase()) ?? */
+                    ))
+            .toList();
+
+        // Apply sorting logic based on selected order and sort order (asc/desc)
+        filteredSpecies.sort((a, b) {
+          int comparison = 0;
+          if (_selectedOrder == 'Name') {
+            comparison = a.scientificName.compareTo(b.scientificName ) ;
+          } /*else if (_selectedOrder == 'Code') {
+            comparison = a.speciesCode?.compareTo(b.speciesCode ?? '') ?? 0;
+          } else if (_selectedOrder == 'System') {
+            comparison =
+                a.speciesCodeType?.compareTo(b.speciesCodeType ?? '') ?? 0;
+          } */
+
+          // If descending, invert the comparison result
+          return _sortOrder == 'asc' ? comparison : -comparison;
+        });
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: const Color(0xffd9dcd6).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: filteredSpecies.isEmpty
+              ? const Center(
+                  child: Text(
+                    'No species found',
+                    style: TextStyle(color: Color(0xffd9dcd6)),
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: filteredSpecies.length,
+                  itemBuilder: (context, index) {
+                    final gear = filteredSpecies[index];
+                    return _listViewItem(
+                      s: gear,
+                    );
+                  },
+                ),
+        );
+      },
+    );
+  }
+
+  Widget _searchField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value;
+          });
+        },
+        style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
+          contentPadding: const EdgeInsets.all(15),
+          hintText: 'Search Species',
+          hintStyle: const TextStyle(
+            color: Color(0xffd9dcd6),
+            fontSize: 14,
+          ),
+          prefixIcon: const Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(
+              Icons.search,
+              color: Color(0xffd9dcd6),
+            ),
+          ),
+          suffixIcon: GestureDetector(
+            onTap: () {
+              _searchController.clear();
+              setState(() {
+                _searchQuery = '';
+              });
+            },
+            child: const Padding(
+              padding: EdgeInsets.all(10),
+              child: Icon(
+                Icons.cancel,
+                color: Color(0xffd9dcd6),
+              ),
+            ),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _listViewItem({required Species s}) {
+  return GestureDetector(
+    onTap: () {
+      // Define what happens when the item is clicked
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SpeciesDetailsScreen(species: s),
+        ),
+      );
+    },
+    child: Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xffd9dcd6),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Scientific Name',
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const SizedBox(height: 1),
+            Text(
+              s.scientificName,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.bold,
+              ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+            const SizedBox(height: 1),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+
+
+}

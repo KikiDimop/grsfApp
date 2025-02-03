@@ -106,7 +106,6 @@ class DatabaseService {
         ''');
         print('AreasForStock table created');
 
-
         await db.execute('''
         CREATE TABLE StockOwner (     
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -132,15 +131,19 @@ class DatabaseService {
         print('Gear table created');
 
         await db.execute('''
-        CREATE TABLE Species (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          species_code TEXT,
-          species_code_type TEXT,
-          species_name TEXT,
-          total_occurrences TEXT,
-          stock_occurrences TEXT,
-          fishery_occurrences TEXT
-        )
+          CREATE TABLE Species (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            scientific_name TEXT,
+            asfis_id TEXT,
+            aphia_id TEXT,
+            fishbase_id TEXT,
+            tsn_id TEXT,
+            gbif_id TEXT,
+            taxonomic_id TEXT,
+            iucn_id TEXT,
+            iucn_characterization TEXT,
+            common_names TEXT
+          )
         ''');
         print('Species table created');
 
@@ -160,7 +163,6 @@ class DatabaseService {
     );
   }
 
-
   Future<List<T>> readAll<T>({
     required String tableName,
     required T Function(Map<String, dynamic>) fromMap,
@@ -179,25 +181,25 @@ class DatabaseService {
     }
   }
 
-    //Batch processing with transaction
-  Future<void> batchInsertData(List<Map<String, dynamic>> data, tableName) async {
+  //Batch processing with transaction
+  Future<void> batchInsertData(
+      List<Map<String, dynamic>> data, tableName) async {
     final Database db = await database;
-    
+
     await db.transaction((txn) async {
       var batch = txn.batch();
-      
+
       for (var row in data) {
         batch.insert('$tableName', row);
       }
-      
+
       await batch.commit(noResult: true);
     });
   }
 
-
   Future<int> delete(int id, String tableName) async {
     final db = await instance.database;
-    
+
     return await db.delete(
       tableName,
       where: 'id = ?',
@@ -217,7 +219,7 @@ class DatabaseService {
       return 0; // Return 0 on error
     }
   }
-  
+
   Future<int> deleteAllRows(tableName) async {
     final db = await instance.database;
     return await db.delete('$tableName');
