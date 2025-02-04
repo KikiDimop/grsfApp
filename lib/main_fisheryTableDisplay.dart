@@ -93,7 +93,7 @@ class _FisheryListScreenState extends State<FisheryListScreen> {
       List<Map<String, dynamic>> csvData = [];
 
       await CsvService.downloadCsvData(Fishery.urlCsv);
-      List<Map<String, dynamic>> data = await CsvService.loadCsvData('data/user/0/com.example.database/app_flutter/data.csv');
+      List<Map<String, dynamic>> data = await CsvService.loadCsvData('data/user/0/com.example.grsfApp/app_flutter/data.csv');
       csvData = data;
 
       if (csvData.isEmpty) {

@@ -34,7 +34,7 @@ class _UpdateDataScreenState extends State<UpdateDataScreen> {
       // Download and process CSV data
       await CsvService.downloadCsvData(urlCsv);
       List<Map<String, dynamic>> csvData = await CsvService.loadCsvData(
-        'data/user/0/com.example.database/app_flutter/data.csv',
+        'data/user/0/com.example.grsfApp/app_flutter/data.csv',
       );
 
       if (csvData.isNotEmpty) {
