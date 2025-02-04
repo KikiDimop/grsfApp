@@ -36,75 +36,8 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
         children: [
           _searchField(),
           const SizedBox(height: 16),
-          _orderByDropdown(),
-          const SizedBox(height: 16),
           Expanded(
             child: _results(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _orderByDropdown() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xffd9dcd6)
-                    .withOpacity(0.1), // background color
-                borderRadius: BorderRadius.circular(10), // Rounded corners
-              ),
-              child: DropdownButton<String>(
-                value: _selectedOrder,
-                onChanged: (value) {
-                  setState(() {
-                    _selectedOrder =
-                        value ?? 'Name'; // Default to 'Name' if value is null
-                  });
-                },
-                style: const TextStyle(
-                  color: Color(0xffd9dcd6), // Text color in the button
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-                items: const [
-                  DropdownMenuItem(value: 'Name', child: Text('Order by Name')),
-                  DropdownMenuItem(value: 'Code', child: Text('Order by Code')),
-                  DropdownMenuItem(value: 'System', child: Text('Order by System')),
-                ],
-                underline: Container(), // Remove the underline in the button
-                icon: const Icon(
-                  Icons.arrow_drop_down,
-                  color: Color(0xffd9dcd6),
-                  size: 30,
-                ),
-                dropdownColor:
-                    const Color(0xff16425B), // Background color of the dropdown
-                menuMaxHeight: 200, // Optional: Max height of the dropdown menu
-                isExpanded: true, // Make the dropdown span the full width
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          IconButton(
-            icon: Icon(
-              _sortOrder == 'asc'
-                  ? Icons.arrow_circle_up
-                  : Icons.arrow_circle_down,
-              color: const Color(0xffd9dcd6),
-              size: 40,
-            ),
-            onPressed: () {
-              setState(() {
-                // Toggle sort order between 'asc' and 'desc'
-                _sortOrder = _sortOrder == 'asc' ? 'desc' : 'asc';
-              });
-            },
           ),
         ],
       ),
@@ -135,34 +68,26 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
         final species = snapshot.data ?? [];
 
         // Filter by search query
-        final filteredSpecies = species
-            .where((sp) =>
-                _searchQuery.isEmpty ||
-                (sp.scientificName
-                        .toLowerCase()
-                        .contains(_searchQuery.toLowerCase())
-/*                    false) ||
-                (sp.speciesCode
-                        ?.toLowerCase()
-                        .contains(_searchQuery.toLowerCase()) ??
-                    false) ||
-                (sp.speciesCodeType
-                        ?.toLowerCase()
-                        .contains(_searchQuery.toLowerCase()) ?? */
-                    ))
-            .toList();
+        final filteredSpecies = species.where((sp) {
+          final query = _searchQuery.toLowerCase();
+          
+          return _searchQuery.isEmpty ||
+              sp.scientificName.toLowerCase().contains(query) ||
+              (sp.aphiaId?.toLowerCase().contains(query) ?? false) ||
+              (sp.asfisId?.toLowerCase().contains(query) ?? false) ||
+              (sp.gbifId?.toLowerCase().contains(query) ?? false) ||
+              (sp.iucnId?.toLowerCase().contains(query) ?? false) ||
+              (sp.taxonomicId?.toLowerCase().contains(query) ?? false) ||
+              (sp.tsnId?.toLowerCase().contains(query) ?? false) ||
+              (sp.fishbaseId?.toLowerCase().contains(query) ?? false);
+        }).toList();
 
         // Apply sorting logic based on selected order and sort order (asc/desc)
         filteredSpecies.sort((a, b) {
           int comparison = 0;
           if (_selectedOrder == 'Name') {
             comparison = a.scientificName.compareTo(b.scientificName ) ;
-          } /*else if (_selectedOrder == 'Code') {
-            comparison = a.speciesCode?.compareTo(b.speciesCode ?? '') ?? 0;
-          } else if (_selectedOrder == 'System') {
-            comparison =
-                a.speciesCodeType?.compareTo(b.speciesCodeType ?? '') ?? 0;
-          } */
+          } 
 
           // If descending, invert the comparison result
           return _sortOrder == 'asc' ? comparison : -comparison;
@@ -199,50 +124,73 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
   Widget _searchField() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: TextField(
-        controller: _searchController,
-        onChanged: (value) {
-          setState(() {
-            _searchQuery = value;
-          });
-        },
-        style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
-          contentPadding: const EdgeInsets.all(15),
-          hintText: 'Search Species',
-          hintStyle: const TextStyle(
-            color: Color(0xffd9dcd6),
-            fontSize: 14,
-          ),
-          prefixIcon: const Padding(
-            padding: EdgeInsets.all(10),
-            child: Icon(
-              Icons.search,
-              color: Color(0xffd9dcd6),
-            ),
-          ),
-          suffixIcon: GestureDetector(
-            onTap: () {
-              _searchController.clear();
-              setState(() {
-                _searchQuery = '';
-              });
-            },
-            child: const Padding(
-              padding: EdgeInsets.all(10),
-              child: Icon(
-                Icons.cancel,
-                color: Color(0xffd9dcd6),
+      child: Row(
+        children: [
+          // Search Field (Expanded to take remaining space)
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+              style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
+                contentPadding: const EdgeInsets.all(15),
+                hintText: 'Search Species',
+                hintStyle: const TextStyle(
+                  color: Color(0xffd9dcd6),
+                  fontSize: 14,
+                ),
+                prefixIcon: const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Icon(
+                    Icons.search,
+                    color: Color(0xffd9dcd6),
+                  ),
+                ),
+                suffixIcon: GestureDetector(
+                  onTap: () {
+                    _searchController.clear();
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Icon(
+                      Icons.cancel,
+                      color: Color(0xffd9dcd6),
+                    ),
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
           ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
+          const SizedBox(width: 10),
+          // Sorting Button (Now placed next to Search)
+          IconButton(
+            icon: Icon(
+              _sortOrder == 'asc'
+                  ? Icons.arrow_circle_up
+                  : Icons.arrow_circle_down,
+              color: const Color(0xffd9dcd6),
+              size: 40,
+            ),
+            onPressed: () {
+              setState(() {
+                _sortOrder = _sortOrder == 'asc' ? 'desc' : 'asc';
+              });
+            },
           ),
-        ),
+        ],
       ),
     );
   }
