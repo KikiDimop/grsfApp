@@ -229,4 +229,12 @@ class DatabaseService {
     final db = await instance.database;
     db.close();
   }
+
+  Future<List<String>> getDistinctSpeciesTypes() async {
+    final db = await database;
+    final result = await db.rawQuery('SELECT DISTINCT species_type FROM SpeciesForStock');
+
+    return result.map((row) => row['species_type'] as String).toList();
+  }
+
 }
