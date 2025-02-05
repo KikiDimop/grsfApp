@@ -68,6 +68,7 @@ class SpeciesDetailsScreen extends StatelessWidget {
               collapsedBackgroundColor: const Color(0xffd9dcd6),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              iconColor: const Color(0xff16425B),
               title: Text(
                 title,
                 style: const TextStyle(

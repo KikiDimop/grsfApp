@@ -83,8 +83,8 @@ class HomePage extends StatelessWidget {
   Widget buildImageButton(BuildContext context, String imagePath, String title, Widget destinationPage) {
     return Padding(
       padding: const EdgeInsets.only(
-        left: 80.0,
-        right: 80.0,
+        left: 70.0,
+        right: 70.0,
         top: 20.0,
         bottom: 20.0),
       child: Container(
