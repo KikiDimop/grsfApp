@@ -1,6 +1,7 @@
 import 'package:database/models/area.dart';
 import 'package:database/services/database_service.dart';
 import 'package:flutter/material.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 class Areas extends StatefulWidget {
   const Areas({super.key});
@@ -45,6 +46,7 @@ class _AreasState extends State<Areas> {
     );
   }
 
+
   Widget _orderByDropdown() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -54,35 +56,40 @@ class _AreasState extends State<Areas> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
-                color: const Color(0xffd9dcd6).withOpacity(0.1), // background color 
-                borderRadius: BorderRadius.circular(10), // Rounded corners
+                color: const Color(0xffd9dcd6).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: DropdownButton<String>(
-                value: _selectedOrder,
-                onChanged: (value) {
-                  setState(() {
-                    _selectedOrder = value ?? 'Name'; // Default to 'Name' if value is null
-                  });
-                },
-                style: const TextStyle(
-                  color: Color(0xffd9dcd6), // Text color in the button
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  value: _selectedOrder,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedOrder = value ?? 'Name';
+                    });
+                  },
+                  buttonStyleData: const ButtonStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                  ),
+                  dropdownStyleData: DropdownStyleData(
+                    maxHeight: 200,
+                    offset: const Offset(0, 8), // Ensures a consistent dropdown position
+                    decoration: BoxDecoration(
+                      color: Color(0xff16425B),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  iconStyleData: const IconStyleData(
+                    icon: Icon(Icons.arrow_drop_down, color: Color(0xffd9dcd6), size: 30),
+                  ),
+                  menuItemStyleData: const MenuItemStyleData(
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'Name', child: Text('Order by Name', style: TextStyle( color: Color(0xffd9dcd6)),)),
+                    DropdownMenuItem(value: 'Code', child: Text('Order by Code', style: TextStyle( color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(value: 'System', child: Text('Order by System', style: TextStyle( color: Color(0xffd9dcd6)))),
+                  ],
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'Name', child: Text('Order by Name')),
-                  DropdownMenuItem(value: 'Code', child: Text('Order by Code')),
-                  DropdownMenuItem(value: 'System', child: Text('Order by System')),
-                ],
-                underline: Container(), // Remove the underline in the button
-                icon: const Icon(
-                  Icons.arrow_drop_down,
-                  color: Color(0xffd9dcd6), 
-                  size: 30,
-                ),
-                dropdownColor: const Color(0xff16425B), // Background color of the dropdown
-                menuMaxHeight: 200, // Optional: Max height of the dropdown menu
-                isExpanded: true, // Make the dropdown span the full width
               ),
             ),
           ),
@@ -95,7 +102,6 @@ class _AreasState extends State<Areas> {
             ),
             onPressed: () {
               setState(() {
-                // Toggle sort order between 'asc' and 'desc'
                 _sortOrder = _sortOrder == 'asc' ? 'desc' : 'asc';
               });
             },
@@ -104,7 +110,7 @@ class _AreasState extends State<Areas> {
       ),
     );
   }
-
+  
   Widget _results() {
     return FutureBuilder<List<Area>>(
       future: _areas,

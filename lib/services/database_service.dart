@@ -230,11 +230,86 @@ class DatabaseService {
     db.close();
   }
 
-  Future<List<String>> getDistinctSpeciesTypes() async {
+  Future<List<String>> getDistinct(String field, String table) async {
     final db = await database;
-    final result = await db.rawQuery('SELECT DISTINCT species_type FROM SpeciesForStock');
+    final result = await db.rawQuery('SELECT DISTINCT $field FROM $table WHERE $field IS NOT NULL');
 
-    return result.map((row) => row['species_type'] as String).toList();
+    return result.map( (row) => row[field] as String ).toList();
   }
+
+  Future<List<Map<String, dynamic>>> searchStock({
+    String? selectedSpeciesSystem,
+    String? speciesCode,
+    String? speciesName,
+    String? selectedAreaSystem,
+    String? areaCode,
+    String? areaName,
+    String? selectedFAOMajorArea,
+    String? selectedResourceType,
+    String? selectedResourceStatus,
+  }) async {
+
+    final db = await instance.database;
+
+    // Base query string
+    String query = '''
+      SELECT * 
+      FROM Stock s
+      LEFT JOIN AreasForStock a ON s.uuid = a.uuid
+      LEFT JOIN SpeciesForStock sp ON s.uuid = sp.uuid
+      WHERE 1=1
+    ''';
+
+    // List to hold the query parameters dynamically
+    List<String> conditions = [];
+    List<dynamic> parameters = [];
+
+    // Append conditions based on provided search inputs
+    if (selectedSpeciesSystem != null && selectedSpeciesSystem.isNotEmpty) {
+      conditions.add("sp.species_type LIKE ? ");
+      parameters.add(selectedSpeciesSystem.replaceAll('All', '%'));
+    }
+    if (speciesCode != null && speciesCode.isNotEmpty) {
+      conditions.add("sp.species_code LIKE ?");
+      parameters.add(speciesCode);
+    }
+    if (speciesName != null && speciesName.isNotEmpty) {
+      conditions.add("sp.species_name LIKE ?");
+      parameters.add(speciesName);
+    }
+    if (selectedAreaSystem != null && selectedAreaSystem.isNotEmpty) {
+      conditions.add("a.area_type LIKE ?");
+      parameters.add(selectedAreaSystem.replaceAll('All', '%'));
+    }
+    if (areaCode != null && areaCode.isNotEmpty) {
+      conditions.add("a.area_code LIKE ?");
+      parameters.add(areaCode);
+    }
+    if (areaName != null && areaName.isNotEmpty) {
+      conditions.add("a.area_name LIKE ?");
+      parameters.add(areaName);
+    }
+    if (selectedFAOMajorArea != null && selectedFAOMajorArea.isNotEmpty) {
+      conditions.add("s.parent_areas LIKE ?");
+      parameters.add(selectedFAOMajorArea.replaceAll('All', '%'));
+    }
+    if (selectedResourceType != null && selectedResourceType.isNotEmpty) {
+      conditions.add("s.type LIKE ?");
+      parameters.add(selectedResourceType.replaceAll('All', '%'));
+    }
+    if (selectedResourceStatus != null && selectedResourceStatus.isNotEmpty) {
+      conditions.add("s.status LIKE ?");
+      parameters.add(selectedResourceStatus.replaceAll('All', '%'));
+    }
+    
+    if (conditions.isNotEmpty) {
+      query += " AND ${conditions.join(" AND ")}";
+    }
+
+    List<Map<String, dynamic>> result = await db.rawQuery(query, parameters);
+    return result;
+  }
+
+
 
 }
