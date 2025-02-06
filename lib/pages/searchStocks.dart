@@ -1,3 +1,4 @@
+import 'package:database/pages/stocks.dart';
 import 'package:database/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -111,7 +112,7 @@ class _SearchstocksState extends State<Searchstocks> {
 
         // Execute the search query
         final dbService = DatabaseService.instance;
-        List<Map<String, dynamic>> searchResults = await dbService.searchStock(
+        List<Map<String, dynamic>> searchResults = (await dbService.searchStock(
           selectedSpeciesSystem: selectedSpeciesSystem,
           speciesCode: speciesCodeController.text,
           speciesName: speciesNameController.text,
@@ -121,9 +122,24 @@ class _SearchstocksState extends State<Searchstocks> {
           selectedFAOMajorArea: selectedFAOMajorArea,
           selectedResourceType: selectedResourceType,
           selectedResourceStatus: selectedResourceStatus,
-        );
+        )).cast<Map<String, dynamic>>().toList();
 
         print(searchResults.length.toString());
+
+        // Navigate to the new page and pass the search results
+        if (searchResults.isNotEmpty) {
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => SearchResultsPage(searchResults: searchResults),
+          //   ),
+          // );
+        } else {
+          // Show a message if no results found
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('No results found')),
+          );
+        }
 
       },
       style: ElevatedButton.styleFrom(

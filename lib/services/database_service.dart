@@ -1,3 +1,4 @@
+import 'package:database/models/stock.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -237,7 +238,7 @@ class DatabaseService {
     return result.map( (row) => row[field] as String ).toList();
   }
 
-  Future<List<Map<String, dynamic>>> searchStock({
+  Future<List<Stock>> searchStock({
     String? selectedSpeciesSystem,
     String? speciesCode,
     String? speciesName,
@@ -301,13 +302,14 @@ class DatabaseService {
       conditions.add("s.status LIKE ?");
       parameters.add(selectedResourceStatus.replaceAll('All', '%'));
     }
-    
+
     if (conditions.isNotEmpty) {
       query += " AND ${conditions.join(" AND ")}";
     }
 
     List<Map<String, dynamic>> result = await db.rawQuery(query, parameters);
-    return result;
+
+    return result.map((map) => Stock.fromMap(map)).toList();
   }
 
 
