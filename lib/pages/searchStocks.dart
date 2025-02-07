@@ -1,3 +1,4 @@
+import 'package:database/models/stock.dart';
 import 'package:database/pages/stocks.dart';
 import 'package:database/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -108,40 +109,44 @@ class _SearchstocksState extends State<Searchstocks> {
 
   ElevatedButton _searchButton(BuildContext context) {
     return ElevatedButton(
-      onPressed: () async {
+      onPressed: () {
+            // Navigate to the destination page
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Stocks()),
+            );
+          },
+      // onPressed: () async {
 
-        // Execute the search query
-        final dbService = DatabaseService.instance;
-        List<Map<String, dynamic>> searchResults = (await dbService.searchStock(
-          selectedSpeciesSystem: selectedSpeciesSystem,
-          speciesCode: speciesCodeController.text,
-          speciesName: speciesNameController.text,
-          selectedAreaSystem: selectedAreaSystem,
-          areaCode: areaCodeController.text,
-          areaName: areaNameController.text,
-          selectedFAOMajorArea: selectedFAOMajorArea,
-          selectedResourceType: selectedResourceType,
-          selectedResourceStatus: selectedResourceStatus,
-        )).cast<Map<String, dynamic>>().toList();
+      //   Future<List<Stock>> searchResults = (await DatabaseService.instance.searchStock(
+      //     selectedSpeciesSystem: selectedSpeciesSystem,
+      //     speciesCode: speciesCodeController.text,
+      //     speciesName: speciesNameController.text,
+      //     selectedAreaSystem: selectedAreaSystem,
+      //     areaCode: areaCodeController.text,
+      //     areaName: areaNameController.text,
+      //     selectedFAOMajorArea: selectedFAOMajorArea,
+      //     selectedResourceType: selectedResourceType,
+      //     selectedResourceStatus: selectedResourceStatus,
+      //     fromMap: Stock.fromMap
+      //   )) as Future<List<Stock>>;
 
-        print(searchResults.length.toString());
+      //   // Navigate to the new page and pass the search results
+      //   if (searchResults.isNotEmpty) {
+      //     // Navigator.push(
+      //     //   context,
+      //     //   MaterialPageRoute(
+      //     //     builder: (context) => SearchResultsPage(searchResults: searchResults),
+      //     //   ),
+      //     // );
+      //   } else {
+      //     // Show a message if no results found
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       SnackBar(content: Text('No results found')),
+      //     );
+      //   }
 
-        // Navigate to the new page and pass the search results
-        if (searchResults.isNotEmpty) {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => SearchResultsPage(searchResults: searchResults),
-          //   ),
-          // );
-        } else {
-          // Show a message if no results found
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No results found')),
-          );
-        }
-
-      },
+      // },
       style: ElevatedButton.styleFrom(
         foregroundColor: const Color(0xff16425B),
         backgroundColor: const Color(0xffd9dcd6),

@@ -248,6 +248,7 @@ class DatabaseService {
     String? selectedFAOMajorArea,
     String? selectedResourceType,
     String? selectedResourceStatus,
+    required Stock Function(Map<String, dynamic>) fromMap,
   }) async {
 
     final db = await instance.database;
@@ -307,9 +308,13 @@ class DatabaseService {
       query += " AND ${conditions.join(" AND ")}";
     }
 
-    List<Map<String, dynamic>> result = await db.rawQuery(query, parameters);
+    final result = await db.rawQuery(query, parameters);
+    
+    return result.map((json) => fromMap(json)).toList();
 
-    return result.map((map) => Stock.fromMap(map)).toList();
+    //List<Map<String, dynamic>> result = await db.rawQuery(query, parameters);
+
+    //return result.map((map) => Stock.fromMap(map)).toList();
   }
 
 

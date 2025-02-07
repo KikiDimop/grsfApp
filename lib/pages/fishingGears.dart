@@ -71,22 +71,35 @@ class _FishingGearsState extends State<FishingGears> {
                   ),
                   dropdownStyleData: DropdownStyleData(
                     maxHeight: 200,
-                    offset: const Offset(0, 8), // Ensures a consistent dropdown position
+                    offset: const Offset(
+                        0, 8), // Ensures a consistent dropdown position
                     decoration: BoxDecoration(
                       color: Color(0xff16425B),
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   iconStyleData: const IconStyleData(
-                    icon: Icon(Icons.arrow_drop_down, color: Color(0xffd9dcd6), size: 30),
+                    icon: Icon(Icons.arrow_drop_down,
+                        color: Color(0xffd9dcd6), size: 30),
                   ),
                   menuItemStyleData: const MenuItemStyleData(
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                   ),
                   items: const [
-                    DropdownMenuItem(value: 'Name', child: Text('Order by Name', style: TextStyle( color: Color(0xffd9dcd6)),)),
-                    DropdownMenuItem(value: 'Code', child: Text('Order by Code', style: TextStyle( color: Color(0xffd9dcd6)))),
-                    DropdownMenuItem(value: 'System', child: Text('Order by System', style: TextStyle( color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(
+                        value: 'Name',
+                        child: Text(
+                          'Order by Name',
+                          style: TextStyle(color: Color(0xffd9dcd6)),
+                        )),
+                    DropdownMenuItem(
+                        value: 'Code',
+                        child: Text('Order by Code',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(
+                        value: 'System',
+                        child: Text('Order by System',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
                   ],
                 ),
               ),
@@ -95,7 +108,9 @@ class _FishingGearsState extends State<FishingGears> {
           const SizedBox(width: 10),
           IconButton(
             icon: Icon(
-              _sortOrder == 'asc' ? Icons.arrow_circle_up : Icons.arrow_circle_down,
+              _sortOrder == 'asc'
+                  ? Icons.arrow_circle_up
+                  : Icons.arrow_circle_down,
               color: const Color(0xffd9dcd6),
               size: 40,
             ),
@@ -109,7 +124,7 @@ class _FishingGearsState extends State<FishingGears> {
       ),
     );
   }
-  
+
   Widget _results() {
     return FutureBuilder<List<Gear>>(
       future: _gears,
