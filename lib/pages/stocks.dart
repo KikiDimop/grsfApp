@@ -1,10 +1,16 @@
+import 'package:database/models/searchStock.dart';
 import 'package:database/models/stock.dart';
 import 'package:database/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
 class Stocks extends StatefulWidget {
-  const Stocks({super.key});
+  final SearchStock search;
+
+  const Stocks({
+    super.key,
+    required this.search,
+  });
 
   @override
   State<Stocks> createState() => _StocksState();
@@ -22,8 +28,8 @@ class _StocksState extends State<Stocks> {
   }
 
   void _fetchStocks() {
-    _stocks = DatabaseService.instance.readAll(
-      tableName: 'Stock',
+    _stocks = DatabaseService.instance.searchStock(
+      fields: widget.search,
       fromMap: Stock.fromMap,
     );
   }
@@ -124,60 +130,60 @@ class _StocksState extends State<Stocks> {
     );
   }
 
-Column addItem(Stock item) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Align(
-        alignment: Alignment.centerRight,
-        child: Text(
-          item.status ?? '',
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: item.getColor(),
+  Column addItem(Stock item) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+            item.status ?? '',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: item.getColor(),
+            ),
           ),
         ),
-      ),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Short Name',
-            style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          Text(
-            item.shortName ?? 'No Short Name',
-            style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.bold),
-            softWrap: true,
-            overflow: TextOverflow.visible,
-          ),
-        ],
-      ),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Semantic ID',
-            style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          Text(
-            item.grsfSemanticID ?? 'No Semantic ID',
-            style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.bold),
-            softWrap: true,
-            overflow: TextOverflow.visible,
-          ),
-        ],
-      ),
-    ],
-  );
-}
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Short Name',
+              style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
+            ),
+            Text(
+              item.shortName ?? 'No Short Name',
+              style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xff16425B),
+                  fontWeight: FontWeight.bold),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+          ],
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Semantic ID',
+              style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
+            ),
+            Text(
+              item.grsfSemanticID ?? 'No Semantic ID',
+              style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xff16425B),
+                  fontWeight: FontWeight.bold),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 
   Widget _orderByDropdown() {
     return Padding(

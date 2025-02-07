@@ -1,3 +1,4 @@
+import 'package:database/models/searchStock.dart';
 import 'package:database/models/stock.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -233,24 +234,16 @@ class DatabaseService {
 
   Future<List<String>> getDistinct(String field, String table) async {
     final db = await database;
-    final result = await db.rawQuery('SELECT DISTINCT $field FROM $table WHERE $field IS NOT NULL');
+    final result = await db.rawQuery(
+        'SELECT DISTINCT $field FROM $table WHERE $field IS NOT NULL');
 
-    return result.map( (row) => row[field] as String ).toList();
+    return result.map((row) => row[field] as String).toList();
   }
 
   Future<List<Stock>> searchStock({
-    String? selectedSpeciesSystem,
-    String? speciesCode,
-    String? speciesName,
-    String? selectedAreaSystem,
-    String? areaCode,
-    String? areaName,
-    String? selectedFAOMajorArea,
-    String? selectedResourceType,
-    String? selectedResourceStatus,
+    SearchStock? fields,
     required Stock Function(Map<String, dynamic>) fromMap,
   }) async {
-
     final db = await instance.database;
 
     // Base query string
@@ -267,41 +260,46 @@ class DatabaseService {
     List<dynamic> parameters = [];
 
     // Append conditions based on provided search inputs
-    if (selectedSpeciesSystem != null && selectedSpeciesSystem.isNotEmpty) {
+    if (fields?.selectedSpeciesSystem != null &&
+        fields!.selectedSpeciesSystem.isNotEmpty) {
       conditions.add("sp.species_type LIKE ? ");
-      parameters.add(selectedSpeciesSystem.replaceAll('All', '%'));
+      parameters.add(fields?.selectedSpeciesSystem.replaceAll('All', '%'));
     }
-    if (speciesCode != null && speciesCode.isNotEmpty) {
+    if (fields?.speciesCode != null && fields!.speciesCode.isNotEmpty) {
       conditions.add("sp.species_code LIKE ?");
-      parameters.add(speciesCode);
+      parameters.add(fields?.speciesCode);
     }
-    if (speciesName != null && speciesName.isNotEmpty) {
+    if (fields?.speciesName != null && fields!.speciesName.isNotEmpty) {
       conditions.add("sp.species_name LIKE ?");
-      parameters.add(speciesName);
+      parameters.add(fields?.speciesName);
     }
-    if (selectedAreaSystem != null && selectedAreaSystem.isNotEmpty) {
+    if (fields?.selectedAreaSystem != null &&
+        fields!.selectedAreaSystem.isNotEmpty) {
       conditions.add("a.area_type LIKE ?");
-      parameters.add(selectedAreaSystem.replaceAll('All', '%'));
+      parameters.add(fields?.selectedAreaSystem.replaceAll('All', '%'));
     }
-    if (areaCode != null && areaCode.isNotEmpty) {
+    if (fields?.areaCode != null && fields!.areaCode.isNotEmpty) {
       conditions.add("a.area_code LIKE ?");
-      parameters.add(areaCode);
+      parameters.add(fields?.areaCode);
     }
-    if (areaName != null && areaName.isNotEmpty) {
+    if (fields?.areaName != null && fields!.areaName.isNotEmpty) {
       conditions.add("a.area_name LIKE ?");
-      parameters.add(areaName);
+      parameters.add(fields?.areaName);
     }
-    if (selectedFAOMajorArea != null && selectedFAOMajorArea.isNotEmpty) {
+    if (fields?.selectedFAOMajorArea != null &&
+        fields!.selectedFAOMajorArea.isNotEmpty) {
       conditions.add("s.parent_areas LIKE ?");
-      parameters.add(selectedFAOMajorArea.replaceAll('All', '%'));
+      parameters.add(fields?.selectedFAOMajorArea.replaceAll('All', '%'));
     }
-    if (selectedResourceType != null && selectedResourceType.isNotEmpty) {
+    if (fields?.selectedResourceType != null &&
+        fields!.selectedResourceType.isNotEmpty) {
       conditions.add("s.type LIKE ?");
-      parameters.add(selectedResourceType.replaceAll('All', '%'));
+      parameters.add(fields?.selectedResourceType.replaceAll('All', '%'));
     }
-    if (selectedResourceStatus != null && selectedResourceStatus.isNotEmpty) {
+    if (fields?.selectedResourceStatus != null &&
+        fields!.selectedResourceStatus.isNotEmpty) {
       conditions.add("s.status LIKE ?");
-      parameters.add(selectedResourceStatus.replaceAll('All', '%'));
+      parameters.add(fields?.selectedResourceStatus.replaceAll('All', '%'));
     }
 
     if (conditions.isNotEmpty) {
@@ -309,14 +307,7 @@ class DatabaseService {
     }
 
     final result = await db.rawQuery(query, parameters);
-    
+
     return result.map((json) => fromMap(json)).toList();
-
-    //List<Map<String, dynamic>> result = await db.rawQuery(query, parameters);
-
-    //return result.map((map) => Stock.fromMap(map)).toList();
   }
-
-
-
 }

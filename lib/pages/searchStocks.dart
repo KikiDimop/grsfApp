@@ -1,3 +1,4 @@
+import 'package:database/models/searchStock.dart';
 import 'package:database/models/stock.dart';
 import 'package:database/pages/stocks.dart';
 import 'package:database/services/database_service.dart';
@@ -107,54 +108,39 @@ class _SearchstocksState extends State<Searchstocks> {
     );
   }
 
-  ElevatedButton _searchButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-            // Navigate to the destination page
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Stocks()),
-            );
-          },
-      // onPressed: () async {
+ElevatedButton _searchButton(BuildContext context) {
+  return ElevatedButton(
+    onPressed: () {
+      // Create SearchStock object
+      SearchStock searchStock = SearchStock(
+        selectedSpeciesSystem ?? 'All',
+        speciesCodeController.text,
+        speciesNameController.text,
+        selectedAreaSystem ?? 'All',
+        areaCodeController.text,
+        areaNameController.text,
+        selectedFAOMajorArea ?? 'All',
+        selectedResourceType ?? 'All',
+        selectedResourceStatus ?? 'All',
+      );
 
-      //   Future<List<Stock>> searchResults = (await DatabaseService.instance.searchStock(
-      //     selectedSpeciesSystem: selectedSpeciesSystem,
-      //     speciesCode: speciesCodeController.text,
-      //     speciesName: speciesNameController.text,
-      //     selectedAreaSystem: selectedAreaSystem,
-      //     areaCode: areaCodeController.text,
-      //     areaName: areaNameController.text,
-      //     selectedFAOMajorArea: selectedFAOMajorArea,
-      //     selectedResourceType: selectedResourceType,
-      //     selectedResourceStatus: selectedResourceStatus,
-      //     fromMap: Stock.fromMap
-      //   )) as Future<List<Stock>>;
+      // Navigate to Stocks page and pass the searchStock object
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Stocks(search: searchStock),
+        ),
+      );
+    },
+    style: ElevatedButton.styleFrom(
+      foregroundColor: const Color(0xff16425B),
+      backgroundColor: const Color(0xffd9dcd6),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+    ),
+    child: const Text("Search"),
+  );
+}
 
-      //   // Navigate to the new page and pass the search results
-      //   if (searchResults.isNotEmpty) {
-      //     // Navigator.push(
-      //     //   context,
-      //     //   MaterialPageRoute(
-      //     //     builder: (context) => SearchResultsPage(searchResults: searchResults),
-      //     //   ),
-      //     // );
-      //   } else {
-      //     // Show a message if no results found
-      //     ScaffoldMessenger.of(context).showSnackBar(
-      //       SnackBar(content: Text('No results found')),
-      //     );
-      //   }
-
-      // },
-      style: ElevatedButton.styleFrom(
-        foregroundColor: const Color(0xff16425B),
-        backgroundColor: const Color(0xffd9dcd6),
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-      ),
-      child: const Text("Search"),
-    );
-  }
 
   Widget _speciesSection() {
     return Column(
