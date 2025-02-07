@@ -1,5 +1,6 @@
 import 'package:database/models/searchStock.dart';
 import 'package:database/models/stock.dart';
+import 'package:database/pages/stockDetails.dart';
 import 'package:database/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -96,7 +97,7 @@ class _StocksState extends State<Stocks> {
             child: stocks.isEmpty
                 ? const Center(
                     child: Text(
-                      'No fishing gears found',
+                      'No stocks found',
                       style: TextStyle(color: Color(0xffd9dcd6)),
                     ),
                   )
@@ -111,7 +112,17 @@ class _StocksState extends State<Stocks> {
   }
 
   Widget _listViewItem({required Stock item}) {
-    return Card(
+    return GestureDetector(
+    onTap: () {
+      // Define what happens when the item is clicked
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => StockDetailsScreen(stock: item),
+        ),
+      );
+    },
+    child: Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 5),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -127,6 +138,7 @@ class _StocksState extends State<Stocks> {
         ),
         child: addItem(item),
       ),
+    ),
     );
   }
 

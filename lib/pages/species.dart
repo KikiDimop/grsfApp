@@ -14,7 +14,7 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
   late Future<List<Species>> _species;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  String _selectedOrder = 'Name';
+  final String _selectedOrder = 'Name';
   String _sortOrder = 'asc';
 
   @override
