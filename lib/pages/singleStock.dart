@@ -1,16 +1,41 @@
+import 'package:database/models/areasForStock.dart';
+import 'package:database/models/speciesForStock.dart';
 import 'package:database/models/stock.dart';
+import 'package:database/models/stockOwner.dart';
+import 'package:database/services/database_service.dart';
 import 'package:flutter/material.dart';
 
-class StockDetailsScreen extends StatelessWidget {
+class DisplaySingleStock extends StatefulWidget{
   final Stock stock;
-  const StockDetailsScreen({super.key, required this.stock});
+  const DisplaySingleStock({super.key, required this.stock});
 
+  @override
+  State<DisplaySingleStock> createState() => _DisplaySingleStockState();
+}
+
+class _DisplaySingleStockState extends State<DisplaySingleStock> {
+  
+  late Future<List<AreasForStock>> _areaForStock;
+  late Future<List<SpeciesForStock>> _speciesForStock;
+  late Future<List<StockOwner>> _stockOwner;
+
+  @override
+  void initState() {
+    super.initState();
+
+    String? whereStr = 'uuid = "${widget.stock.uuid}"';
+    _areaForStock = DatabaseService.instance.readAll(tableName: 'AreasForStock', where : whereStr, fromMap: AreasForStock.fromMap);
+    _speciesForStock = DatabaseService.instance.readAll(tableName: 'SpeciesForStock', where : whereStr, fromMap: SpeciesForStock.fromMap);
+    _stockOwner = DatabaseService.instance.readAll(tableName: 'StockOwner', where : whereStr, fromMap: StockOwner.fromMap);
+    
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff16425B),
       appBar: AppBar(
-        title: Text(stock.shortName ?? 'N/A'),
+        title: Text(widget.stock.shortName ?? 'N/A'),
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
       ),
@@ -55,24 +80,12 @@ class StockDetailsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      stock.status ?? '',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: stock.getColor(),
-                      ),
-                    ),
-                  ),
-                  simpleDisplay('Short Name', stock.shortName ?? '',
-                      isBold: true),
-                  simpleDisplay('Semantic ID', stock.grsfSemanticID ?? '',
-                      isBold: true),
-                  simpleDisplay('Semantic Title', 'N/A', isBold: true),
-                  simpleDisplay('UUID', stock.uuid ?? '', isBold: true),
-                  simpleDisplay('Type', stock.type ?? '', isBold: true),
+                  statusDisplay(),
+                  simpleDisplay('Short Name', widget.stock.shortName ?? ''),
+                  simpleDisplay('Semantic ID', widget.stock.grsfSemanticID ?? ''),
+                  simpleDisplay('Semantic Title', widget.stock.grsfName ?? ''),
+                  simpleDisplay('UUID', widget.stock.uuid ?? ''),
+                  simpleDisplay('Type', widget.stock.type ?? ''),
                 ],
               ),
             ),
@@ -82,7 +95,21 @@ class StockDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget simpleDisplay(String title, String value, {bool isBold = false}) {
+  Align statusDisplay() {
+    return Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    widget.stock.status ?? '',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: widget.stock.getColor(),
+                    ),
+                  ),
+                );
+  }
+
+  Widget simpleDisplay(String title, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4), // Spacing between items
       child: Column(
@@ -97,7 +124,7 @@ class StockDetailsScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               color: const Color(0xff16425B),
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+              fontWeight: FontWeight.bold,
             ),
             softWrap: true,
           ),

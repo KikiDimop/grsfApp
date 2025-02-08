@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:database/models/searchStock.dart';
 import 'package:database/models/stock.dart';
 import 'package:path/path.dart';
@@ -167,15 +169,17 @@ class DatabaseService {
 
   Future<List<T>> readAll<T>({
     required String tableName,
+    String? where,
     required T Function(Map<String, dynamic>) fromMap,
   }) async {
     try {
       final db = await database;
-      final result = await db.query(tableName);
+      final result = await db.query(tableName,where: where ?? '');
 
-      int count = await getRecordCount(tableName);
-      print('Number of records in $tableName: $count');
-
+      //int count = await getRecordCount(tableName);
+      //print('Number of records in $tableName: $count');
+      
+      // print(result.toString());
       return result.map((json) => fromMap(json)).toList();
     } catch (e) {
       print("Error in readAll for table $tableName: $e");
@@ -234,8 +238,7 @@ class DatabaseService {
 
   Future<List<String>> getDistinct(String field, String table) async {
     final db = await database;
-    final result = await db.rawQuery(
-        'SELECT DISTINCT $field FROM $table WHERE $field IS NOT NULL');
+    final result = await db.rawQuery('SELECT DISTINCT $field FROM $table WHERE $field IS NOT NULL');
 
     return result.map((row) => row[field] as String).toList();
   }
