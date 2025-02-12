@@ -18,6 +18,11 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   late Future<List<AreasForStock>> _areaForStock;
   late Future<List<SpeciesForStock>> _speciesForStock;
   late Future<List<StockOwner>> _stockOwner;
+
+  late List<AreasForStock> areas;
+  late List<StockOwner> owners;
+  late List<SpeciesForStock> species;
+
   String _selectedOrder = 'Name';
   String _sortOrder = 'asc';
 
@@ -39,20 +44,21 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   }
 
   bool _showDetails = true;
-  bool _showSpecies = false;
+  bool _showListView = false;
+  String _currentListTitle = '';
+  List<dynamic> _currentData = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff16425B),
       appBar: AppBar(
-        //title: Text(widget.stock.shortName ?? 'N/A'),
         leading: IconButton(
           onPressed: () {
-            if (!_showDetails) {
+            if (_showListView) {
               setState(() {
                 _showDetails = true;
-                _showSpecies = false;
+                _showListView = false;
               });
             } else {
               Navigator.pop(context);
@@ -63,9 +69,12 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
         actions: [
-          IconButton(onPressed: (){
-            Navigator.popUntil(context, (route) => route.isFirst);
-          }, icon: const Icon(Icons.home_filled),),
+          IconButton(
+            onPressed: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            icon: const Icon(Icons.home_filled),
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -75,135 +84,77 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
             _identitySection(context),
             const SizedBox(height: 5),
             if (_showDetails) _detailsSection(context),
-            if (_showSpecies) _speciesSection(context),
+            if (_showListView) _listSection(context),
           ],
         ),
       ),
     );
   }
 
-  Column _speciesSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            'Stock Species List',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xffd9dcd6),
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center, // Center the white box
-          children: [
-            dropdown(context),
-            const SizedBox(
-              height: 15,
-            )
-          ],
-        ),
-      ],
-    );
-  }
-
-  Container dropdown(BuildContext context) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.9, // Make it responsive
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xffd9dcd6).withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _orderByDropdown() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xffd9dcd6).withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton2<String>(
-                        value: _selectedOrder,
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedOrder = value ?? 'Name';
-                          });
-                        },
-                        buttonStyleData: const ButtonStyleData(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                        ),
-                        dropdownStyleData: DropdownStyleData(
-                          maxHeight: 200,
-                          offset: const Offset(
-                              0, 8), // Ensures a consistent dropdown position
-                          decoration: BoxDecoration(
-                            color: Color(0xff16425B),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        iconStyleData: const IconStyleData(
-                          icon: Icon(Icons.arrow_drop_down,
-                              color: Color(0xffd9dcd6), size: 30),
-                        ),
-                        menuItemStyleData: const MenuItemStyleData(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 15),
-                        ),
-                        items: const [
-                          DropdownMenuItem(
-                              value: 'Name',
-                              child: Text(
-                                'Order by Name',
-                                style: TextStyle(color: Color(0xffd9dcd6)),
-                              )),
-                          DropdownMenuItem(
-                              value: 'Code',
-                              child: Text('Order by Code',
-                                  style: TextStyle(color: Color(0xffd9dcd6)))),
-                          DropdownMenuItem(
-                              value: 'System',
-                              child: Text('Order by System',
-                                  style: TextStyle(color: Color(0xffd9dcd6)))),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                IconButton(
-                  icon: Icon(
-                    _sortOrder == 'asc'
-                        ? Icons.arrow_circle_up
-                        : Icons.arrow_circle_down,
-                    color: const Color(0xffd9dcd6),
-                    size: 40,
-                  ),
-                  onPressed: () {
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xff16425B),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  value: _selectedOrder,
+                  onChanged: (value) {
                     setState(() {
-                      _sortOrder = _sortOrder == 'asc' ? 'desc' : 'asc';
+                      _selectedOrder = value ?? 'Name';
                     });
                   },
+                  buttonStyleData: const ButtonStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                  ),
+                  dropdownStyleData: DropdownStyleData(
+                    maxHeight: 200,
+                    offset: const Offset(0, 8), // Ensures a consistent dropdown position
+                    decoration: BoxDecoration(
+                      color: Color(0xff16425B),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  iconStyleData: const IconStyleData(
+                    icon: Icon(Icons.arrow_drop_down, color: Color(0xffd9dcd6), size: 30),
+                  ),
+                  menuItemStyleData: const MenuItemStyleData(
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'Name', child: Text('Order by Name', style: TextStyle( color: Color(0xffd9dcd6)),)),
+                    DropdownMenuItem(value: 'Code', child: Text('Order by Code', style: TextStyle( color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(value: 'System', child: Text('Order by System', style: TextStyle( color: Color(0xffd9dcd6)))),
+                  ],
                 ),
-              ],
+              ),
             ),
-          )
+          ),
+          const SizedBox(width: 10),
+          IconButton(
+            icon: Icon(
+              _sortOrder == 'asc' ? Icons.arrow_circle_up : Icons.arrow_circle_down,
+              color: const Color(0xffd9dcd6),
+              size: 40,
+            ),
+            onPressed: () {
+              setState(() {
+                _sortOrder = _sortOrder == 'asc' ? 'desc' : 'asc';
+              });
+            },
+          ),
         ],
       ),
     );
   }
-
+  
   Widget _identitySection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,11 +218,10 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
         ),
         const SizedBox(height: 10),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center, // Center the white box
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width:
-                  MediaQuery.of(context).size.width * 0.9, // Make it responsive
+              width: MediaQuery.of(context).size.width * 0.9,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: const Color(0xffd9dcd6),
@@ -304,10 +254,9 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
           return const Text('No data found');
         }
 
-        List<AreasForStock> areas = snapshot.data![0] as List<AreasForStock>;
-        List<StockOwner> owners = snapshot.data![1] as List<StockOwner>;
-        List<SpeciesForStock> species =
-            snapshot.data![2] as List<SpeciesForStock>;
+        areas = snapshot.data![0] as List<AreasForStock>;
+        owners = snapshot.data![1] as List<StockOwner>;
+        species = snapshot.data![2] as List<SpeciesForStock>;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -373,41 +322,40 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                     label: 'Species List',
                     onPressed: () {
                       setState(() {
-                        _showDetails = !_showDetails;
-                        _showSpecies = !_showSpecies;
+                        _showDetails = false;
+                        _showListView = true;
+                        _currentListTitle = 'Stock Species List';
+                        _currentData = species;
                       });
-
-                      //showDataList(context, 'Species List', species);
                     },
                   ),
-                const SizedBox(
-                  width: 5,
-                ),
+                  const SizedBox(width: 10,),
                 if (areas.length > 1)
                   _button(
                     label: 'View Areas',
                     onPressed: () {
                       setState(() {
-                        _showDetails = !_showDetails;
-                        _showSpecies = !_showSpecies;
+                        _showDetails = false;
+                        _showListView = true;
+                        _currentListTitle = 'Assessment Areas List';
+                        _currentData = areas;
                       });
-                      //showDataList(context, 'Assessment Areas', areas);
                     },
                   ),
-                const SizedBox(
-                  width: 5,
-                ),
+                  const SizedBox(width: 10,),
                 if (owners.length > 1)
                   _button(
                     label: 'View Owners',
                     onPressed: () {
                       setState(() {
-                        _showDetails = !_showDetails;
-                        _showSpecies = !_showSpecies;
+                        _showDetails = false;
+                        _showListView = true;
+                        _currentListTitle = 'Data Owners List';
+                        _currentData = owners;
                       });
-                      //showDataList(context, 'Data Owners', owners);
                     },
                   ),
+                  const SizedBox(width: 10,),
               ],
             ),
           ],
@@ -416,39 +364,50 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     );
   }
 
-  void showDataList(BuildContext context, String title, List<dynamic> data) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: data.map((item) {
-                // Extract the name of each item based on the type of object
-                String displayName = '';
-                if (item is SpeciesForStock) {
-                  displayName = item.speciesName ?? 'No Name';
-                } else if (item is AreasForStock) {
-                  displayName = item.areaName ?? 'No Name';
-                } else if (item is StockOwner) {
-                  displayName = item.owner ?? 'No Name';
-                }
-                return Text(displayName);
-              }).toList(),
+  Widget _listSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            _currentListTitle,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xffd9dcd6),
             ),
           ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Close'),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width * 0.9,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xffd9dcd6).withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  if (!_currentListTitle.contains('Owner')) _orderByDropdown(),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _currentData.length,
+                    itemBuilder: (context, index) {
+                      final item = _currentData[index];
+                      return _listViewItem(item: item);
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
-        );
-      },
+        ),
+      ],
     );
   }
 
@@ -537,14 +496,132 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
           ),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
-              color: const Color(0xff16425B),
+              color: Color(0xff16425B),
               fontWeight: FontWeight.bold,
             ),
             softWrap: true,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _listViewItem({required dynamic item}) {
+    String name = '';
+    String system = '';
+    String code = '';
+
+    if (item is SpeciesForStock) {
+      name = item.speciesName ?? 'No Name';
+      system = item.speciesType ?? 'No System';
+      code = item.speciesCode ?? 'No Code';
+    } else if (item is AreasForStock) {
+      name = item.areaName ?? 'No Name';
+      system = item.areaType ?? 'No System';
+      code = item.areaCode ?? 'No Code';
+    } else if (item is StockOwner) {
+      name = item.owner ?? 'No Name';
+    }
+
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xffd9dcd6),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Name',
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const SizedBox(height: 1),
+            Text(
+              name,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.bold,
+              ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+            const SizedBox(height: 1),
+            if (system.isNotEmpty && code.isNotEmpty) // Fixed condition here
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Code',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xff16425B),
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          code,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xff16425B),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.visible,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  Flexible(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'System',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xff16425B),
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          system,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Color(0xff16425B),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }

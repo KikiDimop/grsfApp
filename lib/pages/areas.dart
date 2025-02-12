@@ -190,57 +190,6 @@ class _AreasState extends State<Areas> {
     );
   }
 
-  Widget _searchField() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: TextField(
-        controller: _searchController,
-        onChanged: (value) {
-          setState(() {
-            _searchQuery = value;
-          });
-        },
-        style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
-          contentPadding: const EdgeInsets.all(15),
-          hintText: 'Search Area',
-          hintStyle: const TextStyle(
-            color: Color(0xffd9dcd6),
-            fontSize: 14,
-          ),
-          prefixIcon: const Padding(
-            padding: EdgeInsets.all(10),
-            child: Icon(
-              Icons.search,
-              color: Color(0xffd9dcd6),
-            ),
-          ),
-          suffixIcon: GestureDetector(
-            onTap: () {
-              _searchController.clear();
-              setState(() {
-                _searchQuery = '';
-              });
-            },
-            child: const Padding(
-              padding: EdgeInsets.all(10),
-              child: Icon(
-                Icons.cancel,
-                color: Color(0xffd9dcd6),
-              ),
-            ),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _listViewItem({required Area a}) {
     return Card(
       elevation: 4,
@@ -421,6 +370,57 @@ class _AreasState extends State<Areas> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _searchField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value;
+          });
+        },
+        style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
+          contentPadding: const EdgeInsets.all(15),
+          hintText: 'Search Area',
+          hintStyle: const TextStyle(
+            color: Color(0xffd9dcd6),
+            fontSize: 14,
+          ),
+          prefixIcon: const Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(
+              Icons.search,
+              color: Color(0xffd9dcd6),
+            ),
+          ),
+          suffixIcon: GestureDetector(
+            onTap: () {
+              _searchController.clear();
+              setState(() {
+                _searchQuery = '';
+              });
+            },
+            child: const Padding(
+              padding: EdgeInsets.all(10),
+              child: Icon(
+                Icons.cancel,
+                color: Color(0xffd9dcd6),
+              ),
+            ),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
         ),
       ),
     );
