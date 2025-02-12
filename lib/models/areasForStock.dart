@@ -6,37 +6,38 @@ class AreasForStock {
   
   final int? id;
   final String? uuid;
-  final String? areasType;
-  final String? areasCode;
-  final String? areasName;
+  final String? areaType;
+  final String? areaCode;
+  final String? areaName;
 
   AreasForStock({
     this.id,
     this.uuid,
-    this.areasType,
-    this.areasCode,
-    this.areasName,
+    this.areaType,
+    this.areaCode,
+    this.areaName,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'uuid': uuid,
-      'areasType': areasType,
-      'areasCode': areasCode,
-      'areasName': areasName,
+      'area_type': areaType,
+      'area_code': areaCode,
+      'area_name': areaName,
     };
   }
 
   factory AreasForStock.fromMap(Map<String, dynamic> map) {
-    return AreasForStock(
-      id: map['id'],
-      uuid: map['uuid'],
-      areasType: map['areas_type'],
-      areasCode: map['areas_code'],
-      areasName: map['areas_name'],
-    );
-  }
+  return AreasForStock(
+    id: map['id'],
+    uuid: map['uuid'],
+    areaType: map['area_type'],
+    areaCode: map['area_code'],
+    areaName: map['area_name'],
+  );
+}
+
 
   AreasForStock copyWith({
     int? id,
@@ -48,9 +49,9 @@ class AreasForStock {
     return AreasForStock(
       id: id ?? this.id,
       uuid: uuid ?? this.uuid,
-      areasType: areasType ?? this.areasType,
-      areasCode: areasCode ?? this.areasCode,
-      areasName: areasName ?? this.areasName,
+      areaType: areasType ?? areaType,
+      areaCode: areasCode ?? areaCode,
+      areaName: areasName ?? areaName,
     );
   }
 }

@@ -31,6 +31,11 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
       appBar: AppBar(
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
+        actions: [
+          IconButton(onPressed: (){
+            Navigator.popUntil(context, (route) => route.isFirst);
+          }, icon: const Icon(Icons.home_filled),),
+        ],
       ),
       body: Column(
         children: [
@@ -70,7 +75,7 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
         // Filter by search query
         final filteredSpecies = species.where((sp) {
           final query = _searchQuery.toLowerCase();
-          
+
           return _searchQuery.isEmpty ||
               sp.scientificName.toLowerCase().contains(query) ||
               (sp.aphiaId?.toLowerCase().contains(query) ?? false) ||
@@ -86,8 +91,8 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
         filteredSpecies.sort((a, b) {
           int comparison = 0;
           if (_selectedOrder == 'Name') {
-            comparison = a.scientificName.compareTo(b.scientificName ) ;
-          } 
+            comparison = a.scientificName.compareTo(b.scientificName);
+          }
 
           // If descending, invert the comparison result
           return _sortOrder == 'asc' ? comparison : -comparison;
@@ -110,9 +115,9 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
               : ListView.builder(
                   itemCount: filteredSpecies.length,
                   itemBuilder: (context, index) {
-                    final gear = filteredSpecies[index];
+                    final sp = filteredSpecies[index];
                     return _listViewItem(
-                      s: gear,
+                      s: sp,
                     );
                   },
                 ),
@@ -196,58 +201,56 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
   }
 
   Widget _listViewItem({required Species s}) {
-  return GestureDetector(
-    onTap: () {
-      // Define what happens when the item is clicked
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SpeciesDetailsScreen(species: s),
-        ),
-      );
-    },
-    child: Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xffd9dcd6),
+    return GestureDetector(
+      onTap: () {
+        // Define what happens when the item is clicked
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SpeciesDetailsScreen(species: s),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 4,
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Scientific Name',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.normal,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xffd9dcd6),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Scientific Name',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xff16425B),
+                  fontWeight: FontWeight.normal,
+                ),
               ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              s.scientificName,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 1),
+              Text(
+                s.scientificName,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xff16425B),
+                  fontWeight: FontWeight.bold,
+                ),
+                softWrap: true,
+                overflow: TextOverflow.visible,
               ),
-              softWrap: true,
-              overflow: TextOverflow.visible,
-            ),
-            const SizedBox(height: 1),
-          ],
+              const SizedBox(height: 1),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
-
-
+    );
+  }
 
 }

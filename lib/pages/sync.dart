@@ -133,6 +133,11 @@ class _UpdateDataScreenState extends State<UpdateDataScreen> {
         title: const Text('Update All Tables'),
         backgroundColor: const Color(0xff16425B),
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(onPressed: (){
+            Navigator.popUntil(context, (route) => route.isFirst);
+          }, icon: const Icon(Icons.home_filled),),
+        ],
       ),
       body: Center(
         child: _isLoading

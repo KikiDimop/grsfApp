@@ -13,6 +13,11 @@ class SpeciesDetailsScreen extends StatelessWidget {
         title: Text(species.scientificName),
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
+        actions: [
+          IconButton(onPressed: (){
+            Navigator.popUntil(context, (route) => route.isFirst);
+          }, icon: const Icon(Icons.home_filled),),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

@@ -89,6 +89,11 @@ class _SearchstocksState extends State<Searchstocks> {
         title: const Text('Search Stock'),
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
+        actions: [
+          IconButton(onPressed: (){
+            Navigator.popUntil(context, (route) => route.isFirst);
+          }, icon: const Icon(Icons.home_filled),),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(

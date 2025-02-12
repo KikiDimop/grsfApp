@@ -31,6 +31,11 @@ class _FishingGearsState extends State<FishingGears> {
       appBar: AppBar(
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
+        actions: [
+          IconButton(onPressed: (){
+            Navigator.popUntil(context, (route) => route.isFirst);
+          }, icon: const Icon(Icons.home_filled),),
+        ],
       ),
       body: Column(
         children: [

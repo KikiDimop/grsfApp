@@ -31,6 +31,11 @@ class _AreasState extends State<Areas> {
       appBar: AppBar(
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
+        actions: [
+          IconButton(onPressed: (){
+            Navigator.popUntil(context, (route) => route.isFirst);
+          }, icon: const Icon(Icons.home_filled),),
+        ],
       ),
       body: Column(
         children: [
@@ -185,7 +190,6 @@ class _AreasState extends State<Areas> {
     );
   }
 
-  // Search field
   Widget _searchField() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),

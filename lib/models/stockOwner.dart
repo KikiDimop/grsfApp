@@ -29,7 +29,7 @@ class StockOwner {
     return StockOwner(
       id: map['id'],
       uuid: map['uuid'],
-      owner: map['areas_type'],
+      owner: map['owner'],
       sourceName: map['source_name'],
     );
   }

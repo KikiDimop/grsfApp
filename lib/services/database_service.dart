@@ -174,12 +174,8 @@ class DatabaseService {
   }) async {
     try {
       final db = await database;
-      final result = await db.query(tableName,where: where ?? '');
-
-      //int count = await getRecordCount(tableName);
-      //print('Number of records in $tableName: $count');
-      
-      // print(result.toString());
+      final result = await db.query(tableName,where: where ?? '1=1');
+      //print(result);
       return result.map((json) => fromMap(json)).toList();
     } catch (e) {
       print("Error in readAll for table $tableName: $e");
