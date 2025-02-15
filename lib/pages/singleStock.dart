@@ -2,6 +2,7 @@ import 'package:database/models/areasForStock.dart';
 import 'package:database/models/speciesForStock.dart';
 import 'package:database/models/stock.dart';
 import 'package:database/models/stockOwner.dart';
+import 'package:database/pages/areaForStockDisplay.dart';
 import 'package:database/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,8 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   late List<AreasForStock> areas;
   late List<StockOwner> owners;
   late List<SpeciesForStock> species;
-
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
   String _selectedOrder = 'Name';
   String _sortOrder = 'asc';
 
@@ -44,52 +46,97 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   }
 
   bool _showDetails = true;
-  bool _showListView = false;
-  String _currentListTitle = '';
-  List<dynamic> _currentData = [];
+  bool _showAreasList = false;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: const Color(0xff16425B),
+    appBar: AppBar(
+      leading: IconButton(
+        onPressed: () {
+          if (_showAreasList) {
+            setState(() {
+              _showDetails = true;
+              _showAreasList = false;
+            });
+          } else {
+            Navigator.pop(context);
+          }
+        },
+        icon: const Icon(Icons.arrow_back),
+      ),
       backgroundColor: const Color(0xff16425B),
-      appBar: AppBar(
-        leading: IconButton(
+      foregroundColor: const Color(0xffd9dcd6),
+      actions: [
+        IconButton(
           onPressed: () {
-            if (_showListView) {
-              setState(() {
-                _showDetails = true;
-                _showListView = false;
-              });
-            } else {
-              Navigator.pop(context);
-            }
+            Navigator.popUntil(context, (route) => route.isFirst);
           },
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.home_filled),
         ),
-        backgroundColor: const Color(0xff16425B),
-        foregroundColor: const Color(0xffd9dcd6),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.popUntil(context, (route) => route.isFirst);
-            },
-            icon: const Icon(Icons.home_filled),
+      ],
+    ),
+    body: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _identitySection(context),
+        const SizedBox(height: 5),
+        if (_showDetails) 
+          _detailsSection(context)
+        else if (_showAreasList) 
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _listTitle(title: 'Assessment Areas'),
+                const SizedBox(height: 5),
+                _displayList(searchHint: 'Search Area'),
+              ],
+            ),
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 5),
-            _identitySection(context),
-            const SizedBox(height: 5),
-            if (_showDetails) _detailsSection(context),
-            if (_showListView) _listSection(context),
-          ],
+      ],
+    ),
+  );
+}
+
+Padding _listTitle({required String title}) {
+  return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Color(0xffd9dcd6),
+          ),
         ),
-      ),
-    );
-  }
+      );
+}
+
+Expanded _displayList({required String searchHint}) {
+  return Expanded(
+        child: Container(
+          margin: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xffd9dcd6).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              _searchField(hint: searchHint),
+              const SizedBox(height: 16),
+              _orderByDropdown(),
+              const SizedBox(height: 16),
+              Expanded(
+                child: _results(),
+              ),
+            ],
+          ),
+        ),
+      );
+}
 
   Widget _orderByDropdown() {
     return Padding(
@@ -116,22 +163,35 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                   ),
                   dropdownStyleData: DropdownStyleData(
                     maxHeight: 200,
-                    offset: const Offset(0, 8), // Ensures a consistent dropdown position
+                    offset: const Offset(
+                        0, 8), // Ensures a consistent dropdown position
                     decoration: BoxDecoration(
                       color: Color(0xff16425B),
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   iconStyleData: const IconStyleData(
-                    icon: Icon(Icons.arrow_drop_down, color: Color(0xffd9dcd6), size: 30),
+                    icon: Icon(Icons.arrow_drop_down,
+                        color: Color(0xffd9dcd6), size: 30),
                   ),
                   menuItemStyleData: const MenuItemStyleData(
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                   ),
                   items: const [
-                    DropdownMenuItem(value: 'Name', child: Text('Order by Name', style: TextStyle( color: Color(0xffd9dcd6)),)),
-                    DropdownMenuItem(value: 'Code', child: Text('Order by Code', style: TextStyle( color: Color(0xffd9dcd6)))),
-                    DropdownMenuItem(value: 'System', child: Text('Order by System', style: TextStyle( color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(
+                        value: 'Name',
+                        child: Text(
+                          'Order by Name',
+                          style: TextStyle(color: Color(0xffd9dcd6)),
+                        )),
+                    DropdownMenuItem(
+                        value: 'Code',
+                        child: Text('Order by Code',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(
+                        value: 'System',
+                        child: Text('Order by System',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
                   ],
                 ),
               ),
@@ -140,7 +200,9 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
           const SizedBox(width: 10),
           IconButton(
             icon: Icon(
-              _sortOrder == 'asc' ? Icons.arrow_circle_up : Icons.arrow_circle_down,
+              _sortOrder == 'asc'
+                  ? Icons.arrow_circle_up
+                  : Icons.arrow_circle_down,
               color: const Color(0xffd9dcd6),
               size: 40,
             ),
@@ -154,7 +216,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
       ),
     );
   }
-  
+
   Widget _identitySection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,91 +385,49 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                     onPressed: () {
                       setState(() {
                         _showDetails = false;
-                        _showListView = true;
-                        _currentListTitle = 'Stock Species List';
-                        _currentData = species;
+                        
                       });
                     },
                   ),
-                  const SizedBox(width: 10,),
+                const SizedBox(
+                  width: 10,
+                ),
                 if (areas.length > 1)
                   _button(
                     label: 'View Areas',
                     onPressed: () {
                       setState(() {
                         _showDetails = false;
-                        _showListView = true;
-                        _currentListTitle = 'Assessment Areas List';
-                        _currentData = areas;
+                        _showAreasList = true;
                       });
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => AreasForStoc(uuid: widget.stock.uuid ?? ''),
+                      //   ),
+                      // );
                     },
                   ),
-                  const SizedBox(width: 10,),
+                const SizedBox(
+                  width: 10,
+                ),
                 if (owners.length > 1)
                   _button(
                     label: 'View Owners',
                     onPressed: () {
                       setState(() {
                         _showDetails = false;
-                        _showListView = true;
-                        _currentListTitle = 'Data Owners List';
-                        _currentData = owners;
                       });
                     },
                   ),
-                  const SizedBox(width: 10,),
+                const SizedBox(
+                  width: 10,
+                ),
               ],
             ),
           ],
         );
       },
-    );
-  }
-
-  Widget _listSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            _currentListTitle,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xffd9dcd6),
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width * 0.9,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xffd9dcd6).withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  if (!_currentListTitle.contains('Owner')) _orderByDropdown(),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _currentData.length,
-                    itemBuilder: (context, index) {
-                      final item = _currentData[index];
-                      return _listViewItem(item: item);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 
@@ -625,4 +645,137 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
       ),
     );
   }
+
+  Widget _searchField({required String hint}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (value) {
+          setState(() {
+            _searchQuery = value;
+          });
+        },
+        style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: const Color(0xff16425B),
+          contentPadding: const EdgeInsets.all(15),
+          hintText: hint,
+          hintStyle: const TextStyle(
+            color: Color(0xffd9dcd6),
+            fontSize: 14,
+          ),
+          prefixIcon: const Padding(
+            padding: EdgeInsets.all(10),
+            child: Icon(
+              Icons.search,
+              color: Color(0xffd9dcd6),
+            ),
+          ),
+          suffixIcon: GestureDetector(
+            onTap: () {
+              _searchController.clear();
+              setState(() {
+                _searchQuery = '';
+              });
+            },
+            child: const Padding(
+              padding: EdgeInsets.all(10),
+              child: Icon(
+                Icons.cancel,
+                color: Color(0xffd9dcd6),
+              ),
+            ),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+        ),
+      ),
+    );
+  }
+ 
+  Widget _results() {
+    return FutureBuilder<List<dynamic>>(
+      future: _areaForStock,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(
+              color: Color(0xffd9dcd6),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              'Error loading areas: ${snapshot.error}',
+              style: const TextStyle(color: Colors.red),
+            ),
+          );
+        }
+
+        final areas = snapshot.data ?? [];
+
+        // Filter by search query
+        final filteredAreas = areas
+            .where((area) =>
+                _searchQuery.isEmpty ||
+                (area.areaName
+                        ?.toLowerCase()
+                        .contains(_searchQuery.toLowerCase()) ??
+                    false) ||
+                (area.areaCode
+                        ?.toLowerCase()
+                        .contains(_searchQuery.toLowerCase()) ??
+                    false) ||
+                (area.areaType
+                        ?.toLowerCase()
+                        .contains(_searchQuery.toLowerCase()) ??
+                    false))
+            .toList();
+
+        // Apply sorting logic based on selected order and sort order (asc/desc)
+        filteredAreas.sort((a, b) {
+          int comparison = 0;
+          if (_selectedOrder == 'Name') {
+            comparison = a.areaName?.compareTo(b.areaName ?? '') ?? 0;
+          } else if (_selectedOrder == 'Code') {
+            comparison = a.areaCode?.compareTo(b.areaCode ?? '') ?? 0;
+          } else if (_selectedOrder == 'System') {
+            comparison = a.areaType?.compareTo(b.areaType ?? '') ?? 0;
+          }
+
+          // If descending, invert the comparison result
+          return _sortOrder == 'asc' ? comparison : -comparison;
+        });
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 5),
+          padding: const EdgeInsets.all(10),
+          child: filteredAreas.isEmpty
+              ? const Center(
+                  child: Text(
+                    'No areas found',
+                    style: TextStyle(color: Color(0xffd9dcd6)),
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: filteredAreas.length,
+                  itemBuilder: (context, index) {
+                    final area = filteredAreas[index];
+                    return _listViewItem(
+                      item : area,
+                    );
+                  },
+                ),
+        );
+      },
+    );
+  }
+
+
 }
