@@ -1,3 +1,5 @@
+import 'package:database/models/global.dart';
+import 'package:database/pages/fisheries.dart';
 import 'package:database/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -14,14 +16,18 @@ class _SearchfisheriesState extends State<Searchfisheries> {
   TextEditingController speciesNameController = TextEditingController();
   TextEditingController areaCodeController = TextEditingController();
   TextEditingController areaNameController = TextEditingController();
+  TextEditingController gearCodeController = TextEditingController();
+  TextEditingController gearNameController = TextEditingController();
   String? selectedSpeciesSystem;
   String? selectedAreaSystem;
+  String? selectedGearSystem;
   String? selectedFAOMajorArea;
   String? selectedResourceType;
   String? selectedResourceStatus;
 
   List<String> speciesTypes = [];
   List<String> areaTypes = [];
+  List<String> gearTypes = [];
   List<String> faoMajorAreas = [];
   List<String> resourceType = [];
   List<String> resourceStatus = [];
@@ -38,6 +44,8 @@ class _SearchfisheriesState extends State<Searchfisheries> {
         await dbService.getDistinct('species_type', 'SpeciesForStock');
     final List<String> fetchedAreaTypes =
         await dbService.getDistinct('area_type', 'AreasForStock');
+    final List<String> fetchedGearTypes =
+        await dbService.getDistinct('gear_type', 'Fishery');
     final List<String> fetchedFAOMajorAreas =
         await dbService.getDistinct('parent_areas', 'Stock');
     final List<String> fetchedResourceType =
@@ -56,6 +64,12 @@ class _SearchfisheriesState extends State<Searchfisheries> {
       areaTypes.add('All');
       if (areaTypes.isNotEmpty) {
         selectedAreaSystem = areaTypes.last;
+      }
+
+      gearTypes = fetchedGearTypes;
+      gearTypes.add('All');
+      if (gearTypes.isNotEmpty) {
+        selectedGearSystem = gearTypes.last;
       }
 
       faoMajorAreas = fetchedFAOMajorAreas;
@@ -115,26 +129,28 @@ class _SearchfisheriesState extends State<Searchfisheries> {
 ElevatedButton _searchButton(BuildContext context) {
   return ElevatedButton(
     onPressed: () {
-      // Create SearchStock object
-      // SearchFishery searchStock = SearchFishery(
-      //   selectedSpeciesSystem ?? 'All',
-      //   speciesCodeController.text,
-      //   speciesNameController.text,
-      //   selectedAreaSystem ?? 'All',
-      //   areaCodeController.text,
-      //   areaNameController.text,
-      //   selectedFAOMajorArea ?? 'All',
-      //   selectedResourceType ?? 'All',
-      //   selectedResourceStatus ?? 'All',
-      // );
+      SearchFishery searchFishery = SearchFishery(
+        selectedSpeciesSystem ?? 'All',
+        speciesCodeController.text,
+        speciesNameController.text,
+        selectedAreaSystem ?? 'All',
+        areaCodeController.text,
+        areaNameController.text,
+        selectedGearSystem ?? 'All',
+        gearCodeController.text,
+        gearNameController.text,
+        selectedFAOMajorArea ?? 'All',
+        selectedResourceType ?? 'All',
+        selectedResourceStatus ?? 'All'
+      );
 
-      // // Navigate to fisheries page and pass the searchStock object
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder: (context) => Fisheries(search: searchStock),
-      //   ),
-      // );
+      // Navigate to fisheries page and pass the searchStock object
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Fisheries(search: searchFishery),
+        ),
+      );
     },
     style: ElevatedButton.styleFrom(
       foregroundColor: const Color(0xff16425B),
@@ -283,21 +299,21 @@ ElevatedButton _searchButton(BuildContext context) {
                 children: [
                   Expanded(
                     child: _dropdownField(
-                        'Fishing Gear System', speciesTypes, selectedSpeciesSystem,
+                        'Fishing Gear System', gearTypes, selectedGearSystem,
                         (value) {
                       setState(() {
-                        selectedSpeciesSystem = value;
+                        selectedGearSystem = value;
                       });
                     }),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _textField("Fishing Gear Code", speciesCodeController),
+                    child: _textField("Fishing Gear Code", gearCodeController),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              _textField("Fishing Gear Name", speciesNameController),
+              _textField("Fishing Gear Name", gearNameController),
             ],
           ),
         ),

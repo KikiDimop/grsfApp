@@ -39,16 +39,6 @@ class Stock {
     this.questionnaireCode,
   });
 
-  Color getColor() {
-    return status == 'pending'
-        ? const Color(0xff5779A9)
-        : status == 'approved'
-            ? const Color(0xff138A36)
-            : status == 'rejected'
-                ? const Color(0xffB3001B)
-                : const Color(0xffA9A9A9);
-  }
-
   Map<String, dynamic> toMap() {
     return {
       'id': id,

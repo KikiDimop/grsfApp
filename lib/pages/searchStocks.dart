@@ -1,5 +1,4 @@
-import 'package:database/models/searchStock.dart';
-import 'package:database/models/stock.dart';
+import 'package:database/models/global.dart';
 import 'package:database/pages/stocks.dart';
 import 'package:database/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';

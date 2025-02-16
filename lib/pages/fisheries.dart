@@ -1,24 +1,25 @@
+import 'package:database/models/fishery.dart';
 import 'package:database/models/global.dart';
-import 'package:database/models/stock.dart';
+import 'package:database/pages/singleFishery.dart';
 import 'package:database/pages/singleStock.dart';
 import 'package:database/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
-class Stocks extends StatefulWidget {
-  final SearchStock search;
+class Fisheries extends StatefulWidget {
+  final SearchFishery search;
 
-  const Stocks({
+  const Fisheries({
     super.key,
     required this.search,
   });
 
   @override
-  State<Stocks> createState() => _StocksState();
+  State<Fisheries> createState() => _FisheriesState();
 }
 
-class _StocksState extends State<Stocks> {
-  List<Stock>? stocks;
+class _FisheriesState extends State<Fisheries> {
+  List<Fishery>? fisheries;
   String _selectedOrder = 'Short Name';
   String _sortOrder = 'asc';
   bool isLoading = true;
@@ -30,16 +31,17 @@ class _StocksState extends State<Stocks> {
     _fetchData();
   }
 
-    Future<void> _fetchData() async {
+  Future<void> _fetchData() async {
     try {
-      final results = await Future.wait([DatabaseService.instance.searchStock(
-      fields: widget.search,
-      fromMap: Stock.fromMap,
-    )
+      final results = await Future.wait([
+        DatabaseService.instance.searchFishery(
+          fields: widget.search,
+          fromMap: Fishery.fromMap,
+        )
       ]);
 
       setState(() {
-        stocks = results[0];
+        fisheries = results[0];
       });
     } catch (e) {
       setState(() {
@@ -57,9 +59,12 @@ class _StocksState extends State<Stocks> {
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
         actions: [
-          IconButton(onPressed: (){
-            Navigator.popUntil(context, (route) => route.isFirst);
-          }, icon: const Icon(Icons.home_filled),),
+          IconButton(
+            onPressed: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            icon: const Icon(Icons.home_filled),
+          ),
         ],
       ),
       body: Column(
@@ -73,7 +78,7 @@ class _StocksState extends State<Stocks> {
   }
 
   Widget _results() {
-    if (stocks == null) {
+    if (fisheries == null) {
       return const Center(
         child: Text(
           'No data available',
@@ -81,73 +86,70 @@ class _StocksState extends State<Stocks> {
         ),
       );
     }
-        // Apply sorting
-        stocks!.sort((a, b) {
-          int comparison = 0;
-          if (_selectedOrder == 'Short Name') {
-            comparison = a.shortName?.compareTo(b.shortName ?? '') ?? 0;
-          } else if (_selectedOrder == 'Semantic ID') {
-            comparison =
-                a.grsfSemanticID?.compareTo(b.grsfSemanticID ?? '') ?? 0;
-          }
+    fisheries!.sort((a, b) {
+      int comparison = 0;
+      if (_selectedOrder == 'Short Name') {
+        comparison = a.shortName?.compareTo(b.shortName ?? '') ?? 0;
+      } else if (_selectedOrder == 'Semantic ID') {
+        comparison = a.grsfSemanticID?.compareTo(b.grsfSemanticID ?? '') ?? 0;
+      }
 
-          return _sortOrder == 'asc' ? comparison : -comparison;
-        });
+      return _sortOrder == 'asc' ? comparison : -comparison;
+    });
 
-        return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: const Color(0xffd9dcd6),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: stocks!.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No stocks found',
-                      style: TextStyle(color: Color(0xffd9dcd6)),
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.all(10),
-                    itemCount: stocks!.length,
-                    itemBuilder: (context, index) =>
-                        _listViewItem(item: stocks![index]),
-                  ));
+    return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xffd9dcd6),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: fisheries!.isEmpty
+            ? const Center(
+                child: Text(
+                  'No fisheries found',
+                  style: TextStyle(color: Color(0xffd9dcd6)),
+                ),
+              )
+            : ListView.builder(
+                padding: const EdgeInsets.all(10),
+                itemCount: fisheries!.length,
+                itemBuilder: (context, index) =>
+                    _listViewItem(item: fisheries![index]),
+              ));
   }
 
-  Widget _listViewItem({required Stock item}) {
+  Widget _listViewItem({required Fishery item}) {
     return GestureDetector(
-    onTap: () {
-      // Define what happens when the item is clicked
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => DisplaySingleStock(stock: item),
-        ),
-      );
-    },
-    child: Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 5),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xffF1F5F9),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: getColor(item.status), // Border color
-            width: 2.0, // Border width
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DisplaySingleFishery(fishery: item),
           ),
+        );
+      },
+      child: Card(
+        elevation: 4,
+        margin: const EdgeInsets.symmetric(vertical: 5),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xffF1F5F9),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: getColor(item.status), // Border color
+              width: 2.0, // Border width
+            ),
+          ),
+          child: addItem(item),
         ),
-        child: addItem(item),
       ),
-    ),
     );
   }
 
-  Column addItem(Stock item) {
+  Column addItem(Fishery item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

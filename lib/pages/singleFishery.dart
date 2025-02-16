@@ -1,24 +1,22 @@
-import 'package:database/models/areasForStock.dart';
+import 'package:database/models/areasForFishery.dart';
+import 'package:database/models/fishery.dart';
+import 'package:database/models/fisheryOwner.dart';
 import 'package:database/models/global.dart';
-import 'package:database/models/speciesForStock.dart';
-import 'package:database/models/stock.dart';
-import 'package:database/models/stockOwner.dart';
 import 'package:database/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
-class DisplaySingleStock extends StatefulWidget {
-  final Stock stock;
-  const DisplaySingleStock({super.key, required this.stock});
+class DisplaySingleFishery extends StatefulWidget {
+  final Fishery fishery;
+  const DisplaySingleFishery({super.key, required this.fishery});
 
   @override
-  State<DisplaySingleStock> createState() => _DisplaySingleStockState();
+  State<DisplaySingleFishery> createState() => _DisplaySingleFisheryState();
 }
 
-class _DisplaySingleStockState extends State<DisplaySingleStock> {
-  List<AreasForStock>? areas;
-  List<StockOwner>? owners;
-  List<SpeciesForStock>? species;
+class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
+  List<AreasForFishery>? areas;
+  List<FisheryOwner>? owners;
   bool isLoading = true;
   String? error;
 
@@ -35,30 +33,24 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
 
   Future<void> _fetchData() async {
     try {
-      String whereStr = 'uuid = "${widget.stock.uuid}"';
+      String whereStr = 'uuid = "${widget.fishery.uuid}"';
 
       final results = await Future.wait([
         DatabaseService.instance.readAll(
-          tableName: 'AreasForStock',
+          tableName: 'AreasForFishery',
           where: whereStr,
-          fromMap: AreasForStock.fromMap,
+          fromMap: AreasForFishery.fromMap,
         ),
         DatabaseService.instance.readAll(
-          tableName: 'StockOwner',
+          tableName: 'FisheryOwner',
           where: whereStr,
-          fromMap: StockOwner.fromMap,
-        ),
-        DatabaseService.instance.readAll(
-          tableName: 'SpeciesForStock',
-          where: whereStr,
-          fromMap: SpeciesForStock.fromMap,
+          fromMap: FisheryOwner.fromMap,
         ),
       ]);
 
       setState(() {
-        areas = results[0] as List<AreasForStock>;
-        owners = results[1] as List<StockOwner>;
-        species = results[2] as List<SpeciesForStock>;
+        areas = results[0] as List<AreasForFishery>;
+        owners = results[1] as List<FisheryOwner>;
         isLoading = false;
       });
     } catch (e) {
@@ -71,7 +63,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
 
   bool _showDetails = true;
   bool _showAreasList = false;
-  bool _showSpeciesList = false;
   bool _showOwnerList = false;
 
   @override
@@ -81,11 +72,10 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            if (_showAreasList || _showSpeciesList || _showOwnerList) {
+            if (_showAreasList || _showOwnerList) {
               setState(() {
                 _showDetails = true;
                 _showAreasList = false;
-                _showSpeciesList = false;
                 _showOwnerList = false;
               });
             } else {
@@ -128,20 +118,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                             _displayList(
                               searchHint: 'Search Area',
                               listDisplay: _areasList(),
-                            ),
-                          ],
-                        ),
-                      )
-                    else if (_showSpeciesList)
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _listTitle(title: 'Species'),
-                            const SizedBox(height: 5),
-                            _displayList(
-                              searchHint: 'Search Species',
-                              listDisplay: _speciesList(),
                             ),
                           ],
                         ),
@@ -319,13 +295,13 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   statusDisplay(),
-                  _truncatedDisplay('Short Name', widget.stock.shortName ?? '',40),
+                  _truncatedDisplay('Short Name', widget.fishery.shortName ?? '',40),
                   _truncatedDisplay(
-                      'Semantic ID', widget.stock.grsfSemanticID ?? '',40),
+                      'Semantic ID', widget.fishery.grsfSemanticID ?? '',40),
                   _truncatedDisplay(
-                      'Semantic Title', widget.stock.grsfName ?? '',40),
-                  _truncatedDisplay('UUID', widget.stock.uuid ?? '',40),
-                  _truncatedDisplay('Type', widget.stock.type ?? '',40),
+                      'Semantic Title', widget.fishery.grsfName ?? '',40),
+                  _truncatedDisplay('UUID', widget.fishery.uuid ?? '',40),
+                  _truncatedDisplay('Type', widget.fishery.type ?? '',40),
                 ],
               ),
             ),
@@ -442,7 +418,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   }
 
   Widget _detailsSection(BuildContext context) {
-    if (areas == null || owners == null || species == null) {
+    if (areas == null || owners == null ) {
       return const Center(child: Text('No data available'));
     }
 
@@ -474,8 +450,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (species!.length == 1)
-                    _buildSpeciesDetails(species!.first),
                   if (areas!.length == 1) _buildAreaDetails(areas!.first),
                   if (owners!.length == 1) _buildOwnerDetails(owners!.first),
                   Wrap(
@@ -484,18 +458,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                     runSpacing: 1, // Vertical spacing between rows
                     alignment: WrapAlignment.start,
                     children: [
-                      if (species!.length > 1)
-                        _button(
-                          label: 'Species',
-                          onPressed: () {
-                            setState(() {
-                              _showDetails = false;
-                              _showAreasList = false;
-                              _showOwnerList = false;
-                              _showSpeciesList = true;
-                            });
-                          },
-                        ),
                       if (areas!.length > 1)
                         _button(
                           label: 'Areas',
@@ -504,7 +466,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                               _showDetails = false;
                               _showAreasList = true;
                               _showOwnerList = false;
-                              _showSpeciesList = false;
                             });
                           },
                         ),
@@ -516,7 +477,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                               _showDetails = false;
                               _showAreasList = false;
                               _showOwnerList = true;
-                              _showSpeciesList = false;
                             });
                           },
                         ),
@@ -531,25 +491,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     );
   }
 
-  Widget _buildSpeciesDetails(SpeciesForStock species) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Species',
-            style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          displayRow('Code     : ', species.speciesCode ?? ''),
-          displayRow('System : ', species.speciesType ?? ''),
-          displayRow('Name    : ', species.speciesName ?? ''),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAreaDetails(AreasForStock area) {
+  Widget _buildAreaDetails(AreasForFishery area) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Column(
@@ -567,7 +509,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     );
   }
 
-  Widget _buildOwnerDetails(StockOwner owner) {
+  Widget _buildOwnerDetails(FisheryOwner owner) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Column(
@@ -654,11 +596,11 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     return Align(
       alignment: Alignment.centerRight,
       child: Text(
-        widget.stock.status ?? '',
+        widget.fishery.status ?? '',
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,
-          color: getColor(widget.stock.status),
+          color: getColor(widget.fishery.status),
         ),
       ),
     );
@@ -693,15 +635,11 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     String system = '';
     String code = '';
 
-    if (item is SpeciesForStock) {
-      name = item.speciesName ?? 'No Name';
-      system = item.speciesType ?? 'No System';
-      code = item.speciesCode ?? 'No Code';
-    } else if (item is AreasForStock) {
+    if (item is AreasForFishery) {
       name = item.areaName ?? 'No Name';
       system = item.areaType ?? 'No System';
       code = item.areaCode ?? 'No Code';
-    } else if (item is StockOwner) {
+    } else if (item is FisheryOwner) {
       name = item.owner ?? 'No Name';
     }
 
@@ -911,67 +849,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               itemBuilder: (context, index) {
                 final area = filteredAreas[index];
                 return _listViewItem(item: area);
-              },
-            ),
-    );
-  }
-
-  Widget _speciesList() {
-    if (species == null) {
-      return const Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(color: Color(0xffd9dcd6)),
-        ),
-      );
-    }
-
-    // Filter by search query
-    final filteredSpecies = species!
-        .where((sp) =>
-            _searchQuery.isEmpty ||
-            (sp.speciesName
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (sp.speciesCode
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (sp.speciesType
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false))
-        .toList();
-
-    // Apply sorting logic
-    filteredSpecies.sort((a, b) {
-      int comparison = 0;
-      if (_selectedOrder == 'Name') {
-        comparison = a.speciesName?.compareTo(b.speciesName ?? '') ?? 0;
-      } else if (_selectedOrder == 'Code') {
-        comparison = a.speciesCode?.compareTo(b.speciesCode ?? '') ?? 0;
-      } else if (_selectedOrder == 'System') {
-        comparison = a.speciesType?.compareTo(b.speciesType ?? '') ?? 0;
-      }
-      return _sortOrder == 'asc' ? comparison : -comparison;
-    });
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      padding: const EdgeInsets.all(10),
-      child: filteredSpecies.isEmpty
-          ? const Center(
-              child: Text(
-                'No areas found',
-                style: TextStyle(color: Color(0xffd9dcd6)),
-              ),
-            )
-          : ListView.builder(
-              itemCount: filteredSpecies.length,
-              itemBuilder: (context, index) {
-                final i = filteredSpecies[index];
-                return _listViewItem(item: i);
               },
             ),
     );
