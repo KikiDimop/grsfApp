@@ -11,17 +11,36 @@ class DisplaySpecies extends StatefulWidget {
 }
 
 class _DisplaySpeciesState extends State<DisplaySpecies> {
-  late Future<List<Species>> _species;
+  List<Species>? species;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   final String _selectedOrder = 'Name';
   String _sortOrder = 'asc';
+  bool isLoading = true;
+  String? error;
 
   @override
   void initState() {
     super.initState();
-    _species = DatabaseService.instance
-        .readAll(tableName: 'Species', fromMap: Species.fromMap);
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      final results = await Future.wait([
+        DatabaseService.instance
+            .readAll(tableName: 'Species', fromMap: Species.fromMap)
+      ]);
+
+      setState(() {
+        species = results[0];
+      });
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -32,9 +51,12 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
         actions: [
-          IconButton(onPressed: (){
-            Navigator.popUntil(context, (route) => route.isFirst);
-          }, icon: const Icon(Icons.home_filled),),
+          IconButton(
+            onPressed: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            icon: const Icon(Icons.home_filled),
+          ),
         ],
       ),
       body: Column(
@@ -50,79 +72,63 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
   }
 
   Widget _results() {
-    return FutureBuilder<List<Species>>(
-      future: _species,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: Color(0xffd9dcd6),
+    if (species == null) {
+      return const Center(
+        child: Text(
+          'No data available',
+          style: TextStyle(color: Color(0xffd9dcd6)),
+        ),
+      );
+    }
+    // Filter by search query
+    final filteredSpecies = species!.where((sp) {
+      final query = _searchQuery.toLowerCase();
+
+      return _searchQuery.isEmpty ||
+          sp.scientificName.toLowerCase().contains(query) ||
+          (sp.aphiaId?.toLowerCase().contains(query) ?? false) ||
+          (sp.asfisId?.toLowerCase().contains(query) ?? false) ||
+          (sp.gbifId?.toLowerCase().contains(query) ?? false) ||
+          (sp.iucnId?.toLowerCase().contains(query) ?? false) ||
+          (sp.taxonomicId?.toLowerCase().contains(query) ?? false) ||
+          (sp.tsnId?.toLowerCase().contains(query) ?? false) ||
+          (sp.fishbaseId?.toLowerCase().contains(query) ?? false);
+    }).toList();
+
+    // Apply sorting logic based on selected order and sort order (asc/desc)
+    filteredSpecies.sort((a, b) {
+      int comparison = 0;
+      if (_selectedOrder == 'Name') {
+        comparison = a.scientificName.compareTo(b.scientificName);
+      }
+
+      // If descending, invert the comparison result
+      return _sortOrder == 'asc' ? comparison : -comparison;
+    });
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xffd9dcd6).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: filteredSpecies.isEmpty
+          ? const Center(
+              child: Text(
+                'No species found',
+                style: TextStyle(color: Color(0xffd9dcd6)),
+              ),
+            )
+          : ListView.builder(
+              itemCount: filteredSpecies.length,
+              itemBuilder: (context, index) {
+                final sp = filteredSpecies[index];
+                return _listViewItem(
+                  s: sp,
+                );
+              },
             ),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Error loading species: ${snapshot.error}',
-              style: const TextStyle(color: Colors.red),
-            ),
-          );
-        }
-
-        final species = snapshot.data ?? [];
-
-        // Filter by search query
-        final filteredSpecies = species.where((sp) {
-          final query = _searchQuery.toLowerCase();
-
-          return _searchQuery.isEmpty ||
-              sp.scientificName.toLowerCase().contains(query) ||
-              (sp.aphiaId?.toLowerCase().contains(query) ?? false) ||
-              (sp.asfisId?.toLowerCase().contains(query) ?? false) ||
-              (sp.gbifId?.toLowerCase().contains(query) ?? false) ||
-              (sp.iucnId?.toLowerCase().contains(query) ?? false) ||
-              (sp.taxonomicId?.toLowerCase().contains(query) ?? false) ||
-              (sp.tsnId?.toLowerCase().contains(query) ?? false) ||
-              (sp.fishbaseId?.toLowerCase().contains(query) ?? false);
-        }).toList();
-
-        // Apply sorting logic based on selected order and sort order (asc/desc)
-        filteredSpecies.sort((a, b) {
-          int comparison = 0;
-          if (_selectedOrder == 'Name') {
-            comparison = a.scientificName.compareTo(b.scientificName);
-          }
-
-          // If descending, invert the comparison result
-          return _sortOrder == 'asc' ? comparison : -comparison;
-        });
-
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: const Color(0xffd9dcd6).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: filteredSpecies.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No species found',
-                    style: TextStyle(color: Color(0xffd9dcd6)),
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: filteredSpecies.length,
-                  itemBuilder: (context, index) {
-                    final sp = filteredSpecies[index];
-                    return _listViewItem(
-                      s: sp,
-                    );
-                  },
-                ),
-        );
-      },
     );
   }
 
@@ -252,5 +258,4 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
       ),
     );
   }
-
 }

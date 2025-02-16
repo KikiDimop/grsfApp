@@ -18,21 +18,35 @@ class Stocks extends StatefulWidget {
 }
 
 class _StocksState extends State<Stocks> {
-  late Future<List<Stock>> _stocks;
+  List<Stock>? stocks;
   String _selectedOrder = 'Short Name';
   String _sortOrder = 'asc';
+  bool isLoading = true;
+  String? error;
 
   @override
   void initState() {
     super.initState();
-    _fetchStocks();
+    _fetchData();
   }
 
-  void _fetchStocks() {
-    _stocks = DatabaseService.instance.searchStock(
+    Future<void> _fetchData() async {
+    try {
+      final results = await Future.wait([DatabaseService.instance.searchStock(
       fields: widget.search,
       fromMap: Stock.fromMap,
-    );
+    )
+      ]);
+
+      setState(() {
+        stocks = results[0];
+      });
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -59,28 +73,16 @@ class _StocksState extends State<Stocks> {
   }
 
   Widget _results() {
-    return FutureBuilder<List<Stock>>(
-      future: _stocks,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(color: Color(0xffd9dcd6)),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Error loading stocks: ${snapshot.error}',
-              style: const TextStyle(color: Colors.red),
-            ),
-          );
-        }
-
-        var stocks = snapshot.data ?? [];
-
+    if (stocks == null) {
+      return const Center(
+        child: Text(
+          'No data available',
+          style: TextStyle(color: Color(0xffd9dcd6)),
+        ),
+      );
+    }
         // Apply sorting
-        stocks.sort((a, b) {
+        stocks!.sort((a, b) {
           int comparison = 0;
           if (_selectedOrder == 'Short Name') {
             comparison = a.shortName?.compareTo(b.shortName ?? '') ?? 0;
@@ -99,7 +101,7 @@ class _StocksState extends State<Stocks> {
               color: const Color(0xffd9dcd6),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: stocks.isEmpty
+            child: stocks!.isEmpty
                 ? const Center(
                     child: Text(
                       'No stocks found',
@@ -108,12 +110,10 @@ class _StocksState extends State<Stocks> {
                   )
                 : ListView.builder(
                     padding: const EdgeInsets.all(10),
-                    itemCount: stocks.length,
+                    itemCount: stocks!.length,
                     itemBuilder: (context, index) =>
-                        _listViewItem(item: stocks[index]),
+                        _listViewItem(item: stocks![index]),
                   ));
-      },
-    );
   }
 
   Widget _listViewItem({required Stock item}) {

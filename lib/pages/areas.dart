@@ -11,17 +11,36 @@ class Areas extends StatefulWidget {
 }
 
 class _AreasState extends State<Areas> {
-  late Future<List<Area>> _areas;
+  List<Area>? areas;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  String _selectedOrder = 'Name'; 
-  String _sortOrder = 'asc'; 
-
+  String _selectedOrder = 'Name';
+  String _sortOrder = 'asc';
+  bool isLoading = true;
+  String? error;
 
   @override
   void initState() {
     super.initState();
-    _areas = DatabaseService.instance.readAll(tableName: 'Area', fromMap: Area.fromMap);
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      final results = await Future.wait([
+        DatabaseService.instance
+            .readAll(tableName: 'Area', fromMap: Area.fromMap)
+      ]);
+
+      setState(() {
+        areas = results[0];
+      });
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -32,16 +51,19 @@ class _AreasState extends State<Areas> {
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
         actions: [
-          IconButton(onPressed: (){
-            Navigator.popUntil(context, (route) => route.isFirst);
-          }, icon: const Icon(Icons.home_filled),),
+          IconButton(
+            onPressed: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            icon: const Icon(Icons.home_filled),
+          ),
         ],
       ),
       body: Column(
         children: [
           _searchField(),
           const SizedBox(height: 16),
-          _orderByDropdown(), 
+          _orderByDropdown(),
           const SizedBox(height: 16),
           Expanded(
             child: _results(),
@@ -50,7 +72,6 @@ class _AreasState extends State<Areas> {
       ),
     );
   }
-
 
   Widget _orderByDropdown() {
     return Padding(
@@ -77,22 +98,35 @@ class _AreasState extends State<Areas> {
                   ),
                   dropdownStyleData: DropdownStyleData(
                     maxHeight: 200,
-                    offset: const Offset(0, 8), // Ensures a consistent dropdown position
+                    offset: const Offset(
+                        0, 8), // Ensures a consistent dropdown position
                     decoration: BoxDecoration(
                       color: Color(0xff16425B),
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   iconStyleData: const IconStyleData(
-                    icon: Icon(Icons.arrow_drop_down, color: Color(0xffd9dcd6), size: 30),
+                    icon: Icon(Icons.arrow_drop_down,
+                        color: Color(0xffd9dcd6), size: 30),
                   ),
                   menuItemStyleData: const MenuItemStyleData(
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                   ),
                   items: const [
-                    DropdownMenuItem(value: 'Name', child: Text('Order by Name', style: TextStyle( color: Color(0xffd9dcd6)),)),
-                    DropdownMenuItem(value: 'Code', child: Text('Order by Code', style: TextStyle( color: Color(0xffd9dcd6)))),
-                    DropdownMenuItem(value: 'System', child: Text('Order by System', style: TextStyle( color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(
+                        value: 'Name',
+                        child: Text(
+                          'Order by Name',
+                          style: TextStyle(color: Color(0xffd9dcd6)),
+                        )),
+                    DropdownMenuItem(
+                        value: 'Code',
+                        child: Text('Order by Code',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(
+                        value: 'System',
+                        child: Text('Order by System',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
                   ],
                 ),
               ),
@@ -101,7 +135,9 @@ class _AreasState extends State<Areas> {
           const SizedBox(width: 10),
           IconButton(
             icon: Icon(
-              _sortOrder == 'asc' ? Icons.arrow_circle_up : Icons.arrow_circle_down,
+              _sortOrder == 'asc'
+                  ? Icons.arrow_circle_up
+                  : Icons.arrow_circle_down,
               color: const Color(0xffd9dcd6),
               size: 40,
             ),
@@ -115,78 +151,73 @@ class _AreasState extends State<Areas> {
       ),
     );
   }
-  
+
   Widget _results() {
-    return FutureBuilder<List<Area>>(
-      future: _areas,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: Color(0xffd9dcd6),
-            ),
-          );
-        }
+    if (areas == null) {
+      return const Center(
+        child: Text(
+          'No data available',
+          style: TextStyle(color: Color(0xffd9dcd6)),
+        ),
+      );
+    }
 
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Error loading areas: ${snapshot.error}',
-              style: const TextStyle(color: Colors.red),
-            ),
-          );
-        }
+    // Filter by search query
+    final filteredAreas = areas!
+        .where((area) =>
+            _searchQuery.isEmpty ||
+            (area.areaName
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (area.areaCode
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (area.areaCodeType
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false))
+        .toList();
 
-        final areas = snapshot.data ?? [];
+    // Apply sorting logic based on selected order and sort order (asc/desc)
+    filteredAreas.sort((a, b) {
+      int comparison = 0;
+      if (_selectedOrder == 'Name') {
+        comparison = a.areaName?.compareTo(b.areaName ?? '') ?? 0;
+      } else if (_selectedOrder == 'Code') {
+        comparison = a.areaCode?.compareTo(b.areaCode ?? '') ?? 0;
+      } else if (_selectedOrder == 'System') {
+        comparison = a.areaCodeType?.compareTo(b.areaCodeType ?? '') ?? 0;
+      }
 
-        // Filter by search query
-        final filteredAreas = areas.where((area) =>  
-          _searchQuery.isEmpty || 
-          (area.areaName?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false) ||
-          (area.areaCode?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false) ||
-          (area.areaCodeType?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false)
-        ).toList();
+      // If descending, invert the comparison result
+      return _sortOrder == 'asc' ? comparison : -comparison;
+    });
 
-        // Apply sorting logic based on selected order and sort order (asc/desc)
-        filteredAreas.sort((a, b) {
-          int comparison = 0;
-          if (_selectedOrder == 'Name') {
-            comparison = a.areaName?.compareTo(b.areaName ?? '') ?? 0;
-          } else if (_selectedOrder == 'Code') {
-            comparison = a.areaCode?.compareTo(b.areaCode ?? '') ?? 0;
-          } else if (_selectedOrder == 'System') {
-            comparison = a.areaCodeType?.compareTo(b.areaCodeType ?? '') ?? 0;
-          }
-
-          // If descending, invert the comparison result
-          return _sortOrder == 'asc' ? comparison : -comparison;
-        });
-
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: const Color(0xffd9dcd6).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: filteredAreas.isEmpty
-            ? const Center(
-                child: Text(
-                  'No areas found',
-                  style: TextStyle(color: Color(0xffd9dcd6)),
-                ),
-              )
-            : ListView.builder(
-                itemCount: filteredAreas.length,
-                itemBuilder: (context, index) {
-                  final area = filteredAreas[index];
-                  return _listViewItem(
-                    a : area,
-                  );
-                },
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xffd9dcd6).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: filteredAreas.isEmpty
+          ? const Center(
+              child: Text(
+                'No areas found',
+                style: TextStyle(color: Color(0xffd9dcd6)),
               ),
-        );
-      },
+            )
+          : ListView.builder(
+              itemCount: filteredAreas.length,
+              itemBuilder: (context, index) {
+                final area = filteredAreas[index];
+                return _listViewItem(
+                  a: area,
+                );
+              },
+            ),
     );
   }
 
@@ -289,83 +320,90 @@ class _AreasState extends State<Areas> {
             ElevatedButton(
               onPressed: () {
                 // Show popup dialog
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    backgroundColor: const Color(0xffd9dcd6),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10), // Rounded edges
-                    ),
-                    content: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.8, // 80% of screen width
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min, // Adjusts height to content
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              // Action for Related Stocks
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xff16425B),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            ),
-                            child: const Text(
-                              'Related Stocks List',
-                              style: TextStyle(fontSize: 14, color: Color(0xffd9dcd6)),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Action for Related Fisheries
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xff16425B),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            ),
-                            child: const Text(
-                              'Related Fisheries List',
-                              style: TextStyle(fontSize: 14, color: Color(0xffd9dcd6)),
-                            ),
-                          ),
-                        ],
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      backgroundColor: const Color(0xffd9dcd6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(10), // Rounded edges
                       ),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(); // Close the dialog
-                        },
-                        child: const Text(
-                          'Close',
-                          style: TextStyle(color: Color(0xff16425B)),
+                      content: SizedBox(
+                        width: MediaQuery.of(context).size.width *
+                            0.8, // 80% of screen width
+                        child: Column(
+                          mainAxisSize:
+                              MainAxisSize.min, // Adjusts height to content
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                // Action for Related Stocks
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xff16425B),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                              ),
+                              child: const Text(
+                                'Related Stocks List',
+                                style: TextStyle(
+                                    fontSize: 14, color: Color(0xffd9dcd6)),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                // Action for Related Fisheries
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xff16425B),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
+                              ),
+                              child: const Text(
+                                'Related Fisheries List',
+                                style: TextStyle(
+                                    fontSize: 14, color: Color(0xffd9dcd6)),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  );
-                },
-              );
-
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: const Text(
+                            'Close',
+                            style: TextStyle(color: Color(0xff16425B)),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xff16425B), // Background color
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8), // Rounded edges
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Button padding
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 8), // Button padding
               ),
               child: const Text(
                 'Show Relations',
                 style: TextStyle(
                   fontSize: 14,
-                  color:  Color(0xffd9dcd6),// Text color
+                  color: Color(0xffd9dcd6), // Text color
                 ),
               ),
             ),
@@ -425,5 +463,4 @@ class _AreasState extends State<Areas> {
       ),
     );
   }
-
 }

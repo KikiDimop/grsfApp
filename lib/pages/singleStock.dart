@@ -471,7 +471,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (species!.length == 1)
                     _buildSpeciesDetails(species!.first),
@@ -479,13 +479,13 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                   if (owners!.length == 1) _buildOwnerDetails(owners!.first),
                   Wrap(
                     // Changed from Row to Wrap
-                    spacing: 5, // Horizontal spacing between buttons
-                    runSpacing: 5, // Vertical spacing between rows
-                    alignment: WrapAlignment.center,
+                    spacing: 3, // Horizontal spacing between buttons
+                    runSpacing: 1, // Vertical spacing between rows
+                    alignment: WrapAlignment.start,
                     children: [
                       if (species!.length > 1)
                         _button(
-                          label: 'View Species',
+                          label: 'Species',
                           onPressed: () {
                             setState(() {
                               _showDetails = false;
@@ -497,7 +497,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                         ),
                       if (areas!.length > 1)
                         _button(
-                          label: 'View Areas',
+                          label: 'Areas',
                           onPressed: () {
                             setState(() {
                               _showDetails = false;
@@ -509,7 +509,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                         ),
                       if (owners!.length > 1)
                         _button(
-                          label: 'View Owners',
+                          label: 'Owners',
                           onPressed: () {
                             setState(() {
                               _showDetails = false;
@@ -866,7 +866,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
       );
     }
 
-    // Filter by search query
     final filteredAreas = areas!
         .where((area) =>
             _searchQuery.isEmpty ||
@@ -884,7 +883,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                 false))
         .toList();
 
-    // Apply sorting logic
     filteredAreas.sort((a, b) {
       int comparison = 0;
       if (_selectedOrder == 'Name') {

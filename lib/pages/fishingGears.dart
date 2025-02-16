@@ -11,17 +11,36 @@ class FishingGears extends StatefulWidget {
 }
 
 class _FishingGearsState extends State<FishingGears> {
-  late Future<List<Gear>> _gears;
+  List<Gear>? gears;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedOrder = 'Name';
   String _sortOrder = 'asc';
+  bool isLoading = true;
+  String? error;
 
   @override
   void initState() {
     super.initState();
-    _gears = DatabaseService.instance
-        .readAll(tableName: 'Gear', fromMap: Gear.fromMap);
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      final results = await Future.wait([
+        DatabaseService.instance
+            .readAll(tableName: 'Gear', fromMap: Gear.fromMap)
+      ]);
+
+      setState(() {
+        gears = results[0];
+      });
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -32,9 +51,12 @@ class _FishingGearsState extends State<FishingGears> {
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
         actions: [
-          IconButton(onPressed: (){
-            Navigator.popUntil(context, (route) => route.isFirst);
-          }, icon: const Icon(Icons.home_filled),),
+          IconButton(
+            onPressed: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            icon: const Icon(Icons.home_filled),
+          ),
         ],
       ),
       body: Column(
@@ -131,30 +153,17 @@ class _FishingGearsState extends State<FishingGears> {
   }
 
   Widget _results() {
-    return FutureBuilder<List<Gear>>(
-      future: _gears,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(
-              color: Color(0xffd9dcd6),
-            ),
-          );
-        }
-
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Error loading fishing gears: ${snapshot.error}',
-              style: const TextStyle(color: Colors.red),
-            ),
-          );
-        }
-
-        final gears = snapshot.data ?? [];
-
+    
+    if (gears == null) {
+      return const Center(
+        child: Text(
+          'No data available',
+          style: TextStyle(color: Color(0xffd9dcd6)),
+        ),
+      );
+    }
         // Filter by search query
-        final filteredFishingGears = gears
+        final filteredFishingGears = gears!
             .where((gear) =>
                 _searchQuery.isEmpty ||
                 (gear.fishingGearName
@@ -224,8 +233,6 @@ class _FishingGearsState extends State<FishingGears> {
                   },
                 ),
         );
-      },
-    );
   }
 
   Widget _searchField() {
