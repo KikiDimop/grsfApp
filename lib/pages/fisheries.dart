@@ -78,11 +78,15 @@ class _FisheriesState extends State<Fisheries> {
 
   Widget _results() {
     if (fisheries == null) {
+      // return const Center(
+      //   child: Text(
+      //     'Wait for the data to be loaded',
+      //     style: TextStyle(color: Color(0xffd9dcd6)),
+      //   ),
+      // );
+
       return const Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(color: Color(0xffd9dcd6)),
-        ),
+        child: CircularProgressIndicator(color: Colors.white),
       );
     }
     fisheries!.sort((a, b) {
