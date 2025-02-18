@@ -1,3 +1,6 @@
+import 'package:database/models/global.dart';
+import 'package:database/pages/searchStocks.dart';
+import 'package:database/pages/stocks.dart';
 import 'package:flutter/material.dart';
 import 'package:database/models/species.dart';
 
@@ -14,9 +17,12 @@ class SpeciesDetailsScreen extends StatelessWidget {
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
         actions: [
-          IconButton(onPressed: (){
-            Navigator.popUntil(context, (route) => route.isFirst);
-          }, icon: const Icon(Icons.home_filled),),
+          IconButton(
+            onPressed: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            icon: const Icon(Icons.home_filled),
+          ),
         ],
       ),
       body: Padding(
@@ -35,25 +41,79 @@ class SpeciesDetailsScreen extends StatelessWidget {
                   _buildRow('GBIF ID', species.gbifId),
                   _buildRow('Taxonomic ID', species.taxonomicId),
                   _buildRow('IUCN ID', species.iucnId),
-                  _buildRow('IUCN Characterization', species.iucnCharacterization),
+                  _buildRow(
+                      'IUCN Characterization', species.iucnCharacterization),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-
-            // Display "Common Names" only if the field is not null and not empty
-            if (species.commonNames != null && species.commonNames!.trim().isNotEmpty)
+            if (species.commonNames != null &&
+                species.commonNames!.trim().isNotEmpty)
               _buildExpandableCard(
                 title: "Common Names",
                 content: _buildCommonNamesList(species.commonNames!),
               ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    SearchStockForSpecies searchStock =
+                        SearchStockForSpecies(species.scientificName);
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            Stocks(search: searchStock, forSpecies: true,),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xffd9dcd6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                  child: const Text(
+                    'Related Stocks',
+                    style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+                const Spacer(),
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xffd9dcd6),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                  child: const Text(
+                    'Related Fisheries',
+                    style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.bold),
+                  ),
+                )
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildExpandableCard({required String title, required Widget content}) {
+  Widget _buildExpandableCard(
+      {required String title, required Widget content}) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -63,7 +123,8 @@ class SpeciesDetailsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         child: Card(
           margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           child: Theme(
             data: ThemeData().copyWith(
               dividerColor: Colors.transparent,
@@ -71,8 +132,10 @@ class SpeciesDetailsScreen extends StatelessWidget {
             child: ExpansionTile(
               backgroundColor: const Color(0xffd9dcd6),
               collapsedBackgroundColor: const Color(0xffd9dcd6),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
+              collapsedShape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               iconColor: const Color(0xff16425B),
               title: Text(
                 title,
@@ -84,7 +147,8 @@ class SpeciesDetailsScreen extends StatelessWidget {
               ),
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: content,
                 ),
               ],
@@ -96,7 +160,8 @@ class SpeciesDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildCommonNamesList(String commonNames) {
-    List<String> namesList = commonNames.split(';').map((e) => e.trim()).toList();
+    List<String> namesList =
+        commonNames.split(';').map((e) => e.trim()).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -115,7 +115,6 @@ class _SearchstocksState extends State<Searchstocks> {
 ElevatedButton _searchButton(BuildContext context) {
   return ElevatedButton(
     onPressed: () {
-      // Create SearchStock object
       SearchStock searchStock = SearchStock(
         selectedSpeciesSystem ?? 'All',
         speciesCodeController.text,
@@ -128,11 +127,10 @@ ElevatedButton _searchButton(BuildContext context) {
         selectedResourceStatus ?? 'All',
       );
 
-      // Navigate to Stocks page and pass the searchStock object
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => Stocks(search: searchStock),
+          builder: (context) => Stocks(search: searchStock, forSpecies: false, ),
         ),
       );
     },

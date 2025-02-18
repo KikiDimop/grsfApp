@@ -23,6 +23,20 @@ class SearchStock {
       this.selectedResourceStatus);
 }
 
+class SearchStockForSpecies {
+  final String /* asfisId,
+      aphiaId,
+      fishbaseId,
+      tsnId,
+      gbifId,
+      taxonomicId,
+      iucnId, */
+      speciesName;
+
+  SearchStockForSpecies( /*this.asfisId, this.aphiaId, this.fishbaseId, this.tsnId,
+      this.gbifId, this.taxonomicId, this.iucnId, */ this.speciesName);
+}
+
 class SearchFishery {
   final String selectedSpeciesSystem,
       speciesCode,
@@ -61,4 +75,3 @@ Color getColor(String? status) {
               ? const Color(0xffB3001B)
               : const Color(0xffA9A9A9);
 }
-

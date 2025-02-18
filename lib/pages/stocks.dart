@@ -6,11 +6,13 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
 class Stocks extends StatefulWidget {
-  final SearchStock search;
+  final dynamic search;
+  final bool forSpecies;
 
   const Stocks({
     super.key,
     required this.search,
+    required this.forSpecies,
   });
 
   @override
@@ -35,11 +37,13 @@ class _StocksState extends State<Stocks> {
       final results = await Future.wait([DatabaseService.instance.searchStock(
       fields: widget.search,
       fromMap: Stock.fromMap,
+      forSpecies: widget.forSpecies,
     )
       ]);
 
       setState(() {
         stocks = results[0];
+        if (stocks?.isEmpty ?? true) _showNoResultsDialog();
       });
     } catch (e) {
       setState(() {
@@ -47,6 +51,29 @@ class _StocksState extends State<Stocks> {
         isLoading = false;
       });
     }
+  }
+
+    Future<void> _showNoResultsDialog() async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('No Results'),
+          content: const Text(
+              'No stocks were found matching your search criteria.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); 
+                Navigator.of(context).pop(); 
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

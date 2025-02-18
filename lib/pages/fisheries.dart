@@ -41,6 +41,7 @@ class _FisheriesState extends State<Fisheries> {
 
       setState(() {
         fisheries = results[0];
+        if (fisheries?.isEmpty ?? true) _showNoResultsDialog();
       });
     } catch (e) {
       setState(() {
@@ -76,18 +77,41 @@ class _FisheriesState extends State<Fisheries> {
     );
   }
 
+  Future<void> _showNoResultsDialog() async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('No Results'),
+          content: const Text(
+              'No fisheries were found matching your search criteria.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); 
+                Navigator.of(context).pop(); 
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _results() {
     if (fisheries == null) {
-      // return const Center(
-      //   child: Text(
-      //     'Wait for the data to be loaded',
-      //     style: TextStyle(color: Color(0xffd9dcd6)),
-      //   ),
-      // );
-
       return const Center(
-        child: CircularProgressIndicator(color: Colors.white),
+        child: Text(
+          'Wait for the data to be loaded',
+          style: TextStyle(color: Color(0xffd9dcd6)),
+        ),
       );
+
+      // return const Center(
+      //   child: CircularProgressIndicator(color: Colors.white),
+      // );
     }
     fisheries!.sort((a, b) {
       int comparison = 0;

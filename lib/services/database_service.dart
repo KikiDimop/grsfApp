@@ -175,7 +175,7 @@ class DatabaseService {
   }) async {
     try {
       final db = await database;
-      final result = await db.query(tableName,where: where ?? '1=1');
+      final result = await db.query(tableName, where: where ?? '1=1');
       //print(result);
       return result.map((json) => fromMap(json)).toList();
     } catch (e) {
@@ -235,74 +235,121 @@ class DatabaseService {
 
   Future<List<String>> getDistinct(String field, String table) async {
     final db = await database;
-    final result = await db.rawQuery('SELECT DISTINCT $field FROM $table WHERE $field IS NOT NULL');
+    final result = await db.rawQuery(
+        'SELECT DISTINCT $field FROM $table WHERE $field IS NOT NULL');
 
     return result.map((row) => row[field] as String).toList();
   }
 
   Future<List<Stock>> searchStock({
-    SearchStock? fields,
+    dynamic fields,
     required Stock Function(Map<String, dynamic>) fromMap,
+    required bool forSpecies
   }) async {
+    print(fields.toString());
     final db = await instance.database;
 
-    // Base query string
-    String query = '''
-      SELECT * 
-      FROM Stock s
-      LEFT JOIN AreasForStock a ON s.uuid = a.uuid
-      LEFT JOIN SpeciesForStock sp ON s.uuid = sp.uuid
-      WHERE 1=1
-    ''';
+    String query = ''' SELECT * FROM Stock ''';
 
     List<String> conditions = [];
     List<dynamic> parameters = [];
+    if (!forSpecies) {
+      query += ''' s
+                LEFT JOIN AreasForStock a ON s.uuid = a.uuid
+                LEFT JOIN SpeciesForStock sp ON s.uuid = sp.uuid
+                WHERE 1=1 ''';
 
-    if (fields?.selectedSpeciesSystem != null &&
-        fields!.selectedSpeciesSystem.isNotEmpty) {
-      conditions.add("sp.species_type LIKE ? ");
-      parameters.add(fields?.selectedSpeciesSystem.replaceAll('All', '%'));
-    }
-    if (fields?.speciesCode != null && fields!.speciesCode.isNotEmpty) {
-      conditions.add("sp.species_code LIKE ?");
-      parameters.add(fields?.speciesCode);
-    }
-    if (fields?.speciesName != null && fields!.speciesName.isNotEmpty) {
-      conditions.add("sp.species_name LIKE ?");
-      parameters.add(fields?.speciesName);
-    }
-    if (fields?.selectedAreaSystem != null &&
-        fields!.selectedAreaSystem.isNotEmpty) {
-      conditions.add("a.area_type LIKE ?");
-      parameters.add(fields?.selectedAreaSystem.replaceAll('All', '%'));
-    }
-    if (fields?.areaCode != null && fields!.areaCode.isNotEmpty) {
-      conditions.add("a.area_code LIKE ?");
-      parameters.add(fields?.areaCode);
-    }
-    if (fields?.areaName != null && fields!.areaName.isNotEmpty) {
-      conditions.add("a.area_name LIKE ?");
-      parameters.add(fields?.areaName);
-    }
-    if (fields?.selectedFAOMajorArea != null &&
-        fields!.selectedFAOMajorArea.isNotEmpty) {
-      conditions.add("s.parent_areas LIKE ?");
-      parameters.add(fields?.selectedFAOMajorArea.replaceAll('All', '%'));
-    }
-    if (fields?.selectedResourceType != null &&
-        fields!.selectedResourceType.isNotEmpty) {
-      conditions.add("s.type LIKE ?");
-      parameters.add(fields?.selectedResourceType.replaceAll('All', '%'));
-    }
-    if (fields?.selectedResourceStatus != null &&
-        fields!.selectedResourceStatus.isNotEmpty) {
-      conditions.add("s.status LIKE ?");
-      parameters.add(fields?.selectedResourceStatus.replaceAll('All', '%'));
-    }
+      if (fields?.selectedSpeciesSystem != null &&
+          fields!.selectedSpeciesSystem.isNotEmpty) {
+        conditions.add("sp.species_type LIKE ? ");
+        parameters.add(fields?.selectedSpeciesSystem.replaceAll('All', '%'));
+      }
+      if (fields?.speciesCode != null && fields!.speciesCode.isNotEmpty) {
+        conditions.add("sp.species_code LIKE ?");
+        parameters.add(fields?.speciesCode);
+      }
+      if (fields?.speciesName != null && fields!.speciesName.isNotEmpty) {
+        conditions.add("sp.species_name LIKE ?");
+        parameters.add(fields?.speciesName);
+      }
+      if (fields?.selectedAreaSystem != null &&
+          fields!.selectedAreaSystem.isNotEmpty) {
+        conditions.add("a.area_type LIKE ?");
+        parameters.add(fields?.selectedAreaSystem.replaceAll('All', '%'));
+      }
+      if (fields?.areaCode != null && fields!.areaCode.isNotEmpty) {
+        conditions.add("a.area_code LIKE ?");
+        parameters.add(fields?.areaCode);
+      }
+      if (fields?.areaName != null && fields!.areaName.isNotEmpty) {
+        conditions.add("a.area_name LIKE ?");
+        parameters.add(fields?.areaName);
+      }
+      if (fields?.selectedFAOMajorArea != null &&
+          fields!.selectedFAOMajorArea.isNotEmpty) {
+        conditions.add("s.parent_areas LIKE ?");
+        parameters.add(fields?.selectedFAOMajorArea.replaceAll('All', '%'));
+      }
+      if (fields?.selectedResourceType != null &&
+          fields!.selectedResourceType.isNotEmpty) {
+        conditions.add("s.type LIKE ?");
+        parameters.add(fields?.selectedResourceType.replaceAll('All', '%'));
+      }
+      if (fields?.selectedResourceStatus != null &&
+          fields!.selectedResourceStatus.isNotEmpty) {
+        conditions.add("s.status LIKE ?");
+        parameters.add(fields?.selectedResourceStatus.replaceAll('All', '%'));
+      }
 
-    if (conditions.isNotEmpty) {
-      query += " AND ${conditions.join(" AND ")}";
-    }
+      if (conditions.isNotEmpty) {
+        query += " AND ${conditions.join(" AND ")}";
+      }
+    } else {
+      query += ''' WHERE uuid in (
+        SELECT uuid FROM SpeciesForStock WHERE ''';
+
+      if (fields.speciesName.isNotEmpty) {
+        conditions.add("species_name = ?");
+        parameters.add(fields.speciesName); 
+      }
+
+      // if (fields.asfisId.isNotEmpty) {
+      //   conditions.add("( species_type = 'asfis' AND species_code like ? ) ");
+      //   parameters.add(fields.asfisId);
+      // }
+      // if (fields.aphiaId.isNotEmpty) {
+      //   conditions.add("( species_type = 'aphia' AND species_code like ? ) ");
+      //   parameters.add(fields.aphiaId);
+      // }
+      // if (fields.fishbaseId.isNotEmpty) {
+      //   conditions
+      //       .add("( species_type = 'fishbase' AND species_code like ? ) ");
+      //   parameters.add(fields.fishbaseId);
+      // }
+      // if (fields.tsnId.isNotEmpty) {
+      //   conditions.add("( species_type = 'tsn' AND species_code like ? ) ");
+      //   parameters.add(fields.tsnId);
+      // }
+      // if (fields.gbifId.isNotEmpty) {
+      //   conditions.add("( species_type = 'gbif' AND species_code like ? ) ");
+      //   parameters.add(fields.gbifId);
+      // }
+      // if (fields.taxonomicId.isNotEmpty) {
+      //   conditions
+      //       .add("( species_type = 'taxonomic' AND species_code like ? ) ");
+      //   parameters.add(fields.taxonomicId);
+      // }
+      // if (fields.iucnId.isNotEmpty) {
+      //   conditions.add("( species_type = 'iucn' AND species_code like ? ) ");
+      //   parameters.add(fields.iucnId);
+      // }
+
+      if (conditions.isNotEmpty) {
+        query += " ${conditions.join(" ")} ) ";
+      }
+    } 
+
+    print(query);
 
     final result = await db.rawQuery(query, parameters);
 
@@ -310,73 +357,70 @@ class DatabaseService {
   }
 
   Future<List<Fishery>> searchFishery({
-    SearchFishery? fields,
+    dynamic fields,
     required Fishery Function(Map<String, dynamic>) fromMap,
   }) async {
     final db = await instance.database;
 
-    // Base query string
-    String query = '''
-      SELECT * 
-      FROM Fishery f
+    List<String> conditions = [];
+    List<dynamic> parameters = [];
+
+    String query = ''' SELECT * FROM Fishery ''';
+
+    if (fields is SearchFishery) {
+      query += ''' f
       LEFT JOIN AreasForFishery a ON f.uuid = a.uuid
       LEFT JOIN Gear g on f.gear_code = g.fishing_gear_id
       WHERE 1=1
     ''';
+      if (fields.selectedAreaSystem != null &&
+          fields!.selectedAreaSystem.isNotEmpty) {
+        conditions.add("a.area_type LIKE ?");
+        parameters.add(fields.selectedAreaSystem.replaceAll('All', '%'));
+      }
+      if (fields?.areaCode != null && fields!.areaCode.isNotEmpty) {
+        conditions.add("a.area_code LIKE ?");
+        parameters.add(fields.areaCode);
+      }
+      if (fields?.areaName != null && fields!.areaName.isNotEmpty) {
+        conditions.add("a.area_name LIKE ?");
+        parameters.add(fields.areaName);
+      }
+      if (fields?.selectedGearSystem != null &&
+          fields!.selectedGearSystem.isNotEmpty) {
+        conditions.add("f.gear_type LIKE ?");
+        parameters.add(fields.selectedGearSystem.replaceAll('All', '%'));
+      }
+      if (fields?.gearCode != null && fields!.gearCode.isNotEmpty) {
+        conditions.add("f.gear_code LIKE ?");
+        parameters.add(fields.gearCode);
+      }
+      if (fields?.gearName != null && fields!.gearName.isNotEmpty) {
+        conditions.add("g.fishing_gear_name LIKE ?");
+        parameters.add(fields.gearName);
+      }
+      if (fields?.selectedFAOMajorArea != null &&
+          fields!.selectedFAOMajorArea.isNotEmpty) {
+        conditions.add("f.parent_areas LIKE ?");
+        parameters.add(fields.selectedFAOMajorArea.replaceAll('All', '%'));
+      }
+      if (fields?.selectedResourceType != null &&
+          fields!.selectedResourceType.isNotEmpty) {
+        conditions.add("f.type LIKE ?");
+        parameters.add(fields.selectedResourceType.replaceAll('All', '%'));
+      }
+      if (fields?.selectedResourceStatus != null &&
+          fields!.selectedResourceStatus.isNotEmpty) {
+        conditions.add("f.status LIKE ?");
+        parameters.add(fields.selectedResourceStatus.replaceAll('All', '%'));
+      }
 
-    List<String> conditions = [];
-    List<dynamic> parameters = [];
-
-    if (fields?.selectedAreaSystem != null &&
-        fields!.selectedAreaSystem.isNotEmpty) {
-      conditions.add("a.area_type LIKE ?");
-      parameters.add(fields?.selectedAreaSystem.replaceAll('All', '%'));
-    }
-    if (fields?.areaCode != null && fields!.areaCode.isNotEmpty) {
-      conditions.add("a.area_code LIKE ?");
-      parameters.add(fields?.areaCode);
-    }
-    if (fields?.areaName != null && fields!.areaName.isNotEmpty) {
-      conditions.add("a.area_name LIKE ?");
-      parameters.add(fields?.areaName);
-    }    
-    if (fields?.selectedGearSystem != null &&
-        fields!.selectedGearSystem.isNotEmpty) {
-      conditions.add("f.gear_type LIKE ?");
-      parameters.add(fields?.selectedGearSystem.replaceAll('All', '%'));
-    }
-    if (fields?.gearCode != null && fields!.gearCode.isNotEmpty) {
-      conditions.add("f.gear_code LIKE ?");
-      parameters.add(fields?.gearCode);
-    }
-    if (fields?.gearName != null && fields!.gearName.isNotEmpty) {
-      conditions.add("g.fishing_gear_name LIKE ?");
-      parameters.add(fields?.gearName);
-    }
-    if (fields?.selectedFAOMajorArea != null &&
-        fields!.selectedFAOMajorArea.isNotEmpty) {
-      conditions.add("f.parent_areas LIKE ?");
-      parameters.add(fields?.selectedFAOMajorArea.replaceAll('All', '%'));
-    }
-    if (fields?.selectedResourceType != null &&
-        fields!.selectedResourceType.isNotEmpty) {
-      conditions.add("f.type LIKE ?");
-      parameters.add(fields?.selectedResourceType.replaceAll('All', '%'));
-    }
-    if (fields?.selectedResourceStatus != null &&
-        fields!.selectedResourceStatus.isNotEmpty) {
-      conditions.add("f.status LIKE ?");
-      parameters.add(fields?.selectedResourceStatus.replaceAll('All', '%'));
-    }
-
-    if (conditions.isNotEmpty) {
-      query += " AND ${conditions.join(" AND ")}";
+      if (conditions.isNotEmpty) {
+        query += " AND ${conditions.join(" AND ")}";
+      }
     }
 
     final result = await db.rawQuery(query, parameters);
-
     return result.map((json) => fromMap(json)).toList();
   }
-
-
 }

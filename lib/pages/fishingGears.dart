@@ -1,4 +1,6 @@
 import 'package:database/models/fishingGear.dart';
+import 'package:database/models/global.dart';
+import 'package:database/pages/fisheries.dart';
 import 'package:database/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -153,7 +155,6 @@ class _FishingGearsState extends State<FishingGears> {
   }
 
   Widget _results() {
-    
     if (gears == null) {
       return const Center(
         child: Text(
@@ -162,77 +163,75 @@ class _FishingGearsState extends State<FishingGears> {
         ),
       );
     }
-        // Filter by search query
-        final filteredFishingGears = gears!
-            .where((gear) =>
-                _searchQuery.isEmpty ||
-                (gear.fishingGearName
-                        ?.toLowerCase()
-                        .contains(_searchQuery.toLowerCase()) ??
-                    false) ||
-                (gear.fishingGearId
-                        ?.toLowerCase()
-                        .contains(_searchQuery.toLowerCase()) ??
-                    false) ||
-                (gear.fishingGearGroupId
-                        ?.toLowerCase()
-                        .contains(_searchQuery.toLowerCase()) ??
-                    false) ||
-                (gear.fishingGearGroupName
-                        ?.toLowerCase()
-                        .contains(_searchQuery.toLowerCase()) ??
-                    false) ||
-                (gear.fishingGearAbbreviation
-                        ?.toLowerCase()
-                        .contains(_searchQuery.toLowerCase()) ??
-                    false) ||
-                (gear.fishingGearType
-                        ?.toLowerCase()
-                        .contains(_searchQuery.toLowerCase()) ??
-                    false))
-            .toList();
+    // Filter by search query
+    final filteredFishingGears = gears!
+        .where((gear) =>
+            _searchQuery.isEmpty ||
+            (gear.fishingGearName
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (gear.fishingGearId
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (gear.fishingGearGroupId
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (gear.fishingGearGroupName
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (gear.fishingGearAbbreviation
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (gear.fishingGearType
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false))
+        .toList();
 
-        // Apply sorting logic based on selected order and sort order (asc/desc)
-        filteredFishingGears.sort((a, b) {
-          int comparison = 0;
-          if (_selectedOrder == 'Name') {
-            comparison =
-                a.fishingGearName?.compareTo(b.fishingGearName ?? '') ?? 0;
-          } else if (_selectedOrder == 'Code') {
-            comparison = a.fishingGearId?.compareTo(b.fishingGearId ?? '') ?? 0;
-          } else if (_selectedOrder == 'System') {
-            comparison =
-                a.fishingGearType?.compareTo(b.fishingGearType ?? '') ?? 0;
-          }
+    // Apply sorting logic based on selected order and sort order (asc/desc)
+    filteredFishingGears.sort((a, b) {
+      int comparison = 0;
+      if (_selectedOrder == 'Name') {
+        comparison = a.fishingGearName?.compareTo(b.fishingGearName ?? '') ?? 0;
+      } else if (_selectedOrder == 'Code') {
+        comparison = a.fishingGearId?.compareTo(b.fishingGearId ?? '') ?? 0;
+      } else if (_selectedOrder == 'System') {
+        comparison = a.fishingGearType?.compareTo(b.fishingGearType ?? '') ?? 0;
+      }
 
-          // If descending, invert the comparison result
-          return _sortOrder == 'asc' ? comparison : -comparison;
-        });
+      // If descending, invert the comparison result
+      return _sortOrder == 'asc' ? comparison : -comparison;
+    });
 
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: const Color(0xffd9dcd6).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: filteredFishingGears.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No fishing gears found',
-                    style: TextStyle(color: Color(0xffd9dcd6)),
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: filteredFishingGears.length,
-                  itemBuilder: (context, index) {
-                    final gear = filteredFishingGears[index];
-                    return _listViewItem(
-                      g: gear,
-                    );
-                  },
-                ),
-        );
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xffd9dcd6).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: filteredFishingGears.isEmpty
+          ? const Center(
+              child: Text(
+                'No fishing gears found',
+                style: TextStyle(color: Color(0xffd9dcd6)),
+              ),
+            )
+          : ListView.builder(
+              itemCount: filteredFishingGears.length,
+              itemBuilder: (context, index) {
+                final gear = filteredFishingGears[index];
+                return _listViewItem(
+                  g: gear,
+                );
+              },
+            ),
+    );
   }
 
   Widget _searchField() {
@@ -323,14 +322,11 @@ class _FishingGearsState extends State<FishingGears> {
             ),
             const SizedBox(height: 1),
 
-            // This is the section that will be displayed in columns
             Column(
               children: [
-                // First Column: Code & System
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // "Code" Section
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -486,76 +482,25 @@ class _FishingGearsState extends State<FishingGears> {
             // Show Relations Button
             ElevatedButton(
               onPressed: () {
-                // Show popup dialog
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      backgroundColor: const Color(0xffd9dcd6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(10), // Rounded edges
-                      ),
-                      content: SizedBox(
-                        width: MediaQuery.of(context).size.width *
-                            0.8, // 80% of screen width
-                        child: Column(
-                          mainAxisSize:
-                              MainAxisSize.min, // Adjusts height to content
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                // Action for Related Stocks
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xff16425B),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 8),
-                              ),
-                              child: const Text(
-                                'Related Stocks List',
-                                style: TextStyle(
-                                    fontSize: 14, color: Color(0xffd9dcd6)),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () {
-                                // Action for Related Fisheries
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xff16425B),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 8),
-                              ),
-                              child: const Text(
-                                'Related Fisheries List',
-                                style: TextStyle(
-                                    fontSize: 14, color: Color(0xffd9dcd6)),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(); // Close the dialog
-                          },
-                          child: const Text(
-                            'Close',
-                            style: TextStyle(color: Color(0xff16425B)),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+                SearchFishery searchFishery = SearchFishery(
+                    'All',
+                    '',
+                    '',
+                    'All',
+                    '',
+                    '',
+                    'All',
+                    g.fishingGearId ?? '',
+                    g.fishingGearName ?? '',
+                    'All',
+                    'All',
+                    'All');
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Fisheries(search: searchFishery),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -567,7 +512,7 @@ class _FishingGearsState extends State<FishingGears> {
                     horizontal: 16, vertical: 8), // Button padding
               ),
               child: const Text(
-                'Show related resources',
+                'Show related fisheries',
                 style: TextStyle(
                   fontSize: 14,
                   color: Color(0xffd9dcd6), // Text color

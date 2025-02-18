@@ -1,4 +1,7 @@
 import 'package:database/models/area.dart';
+import 'package:database/models/global.dart';
+import 'package:database/pages/fisheries.dart';
+import 'package:database/pages/stocks.dart';
 import 'package:database/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -319,7 +322,6 @@ class _AreasState extends State<Areas> {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
-                // Show popup dialog
                 showDialog(
                   context: context,
                   builder: (context) {
@@ -338,7 +340,25 @@ class _AreasState extends State<Areas> {
                           children: [
                             ElevatedButton(
                               onPressed: () {
-                                // Action for Related Stocks
+                                SearchStock searchStock = SearchStock(
+                                  'All',
+                                  '',
+                                  '',
+                                    a.areaCodeType ?? 'All',
+                                    a.areaCode ?? '',
+                                    a.areaName ?? '',
+                                  'All',
+                                  'All',
+                                  'All',
+                                );
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        Stocks(search: searchStock, forSpecies: false,),
+                                  ),
+                                );
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xff16425B),
@@ -357,7 +377,27 @@ class _AreasState extends State<Areas> {
                             const SizedBox(height: 16),
                             ElevatedButton(
                               onPressed: () {
-                                // Action for Related Fisheries
+                                SearchFishery searchFishery = SearchFishery(
+                                    'All',
+                                    '',
+                                    '',
+                                    a.areaCodeType ?? 'All',
+                                    a.areaCode ?? '',
+                                    a.areaName ?? '',
+                                    'All',
+                                    '',
+                                    '',
+                                    'All',
+                                    'All',
+                                    'All');
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        Fisheries(search: searchFishery),
+                                  ),
+                                );
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xff16425B),
