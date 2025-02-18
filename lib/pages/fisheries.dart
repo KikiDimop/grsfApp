@@ -1,7 +1,6 @@
 import 'package:database/models/fishery.dart';
 import 'package:database/models/global.dart';
 import 'package:database/pages/singleFishery.dart';
-import 'package:database/pages/singleStock.dart';
 import 'package:database/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';

@@ -1,6 +1,7 @@
 import 'package:database/models/areasForFishery.dart';
 import 'package:database/models/fishery.dart';
 import 'package:database/models/fisheryOwner.dart';
+import 'package:database/models/fishingGear.dart';
 import 'package:database/models/global.dart';
 import 'package:database/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -17,6 +18,7 @@ class DisplaySingleFishery extends StatefulWidget {
 class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   List<AreasForFishery>? areas;
   List<FisheryOwner>? owners;
+  List<Gear>? gears;
   bool isLoading = true;
   String? error;
 
@@ -34,6 +36,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   Future<void> _fetchData() async {
     try {
       String whereStr = 'uuid = "${widget.fishery.uuid}"';
+      String whereStrGear = 'fishing_gear_id = "${widget.fishery.gearCode}"';
 
       final results = await Future.wait([
         DatabaseService.instance.readAll(
@@ -46,11 +49,17 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
           where: whereStr,
           fromMap: FisheryOwner.fromMap,
         ),
+        DatabaseService.instance.readAll(
+          tableName: 'Gear',
+          where: whereStrGear,
+          fromMap: Gear.fromMap,
+        ),
       ]);
 
       setState(() {
         areas = results[0] as List<AreasForFishery>;
         owners = results[1] as List<FisheryOwner>;
+        gears = results[2] as List<Gear>;
         isLoading = false;
       });
     } catch (e) {
@@ -64,6 +73,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   bool _showDetails = true;
   bool _showAreasList = false;
   bool _showOwnerList = false;
+  bool _showGearsList = false;
 
   @override
   Widget build(BuildContext context) {
@@ -132,6 +142,20 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                             _displayList(
                               searchHint: 'Search Owner',
                               listDisplay: _ownersList(),
+                            ),
+                          ],
+                        ),
+                      )
+                    else if (_showGearsList)
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _listTitle(title: 'Fishing Gears'),
+                            const SizedBox(height: 5),
+                            _displayList(
+                              searchHint: 'Search Fishing Gear',
+                              listDisplay: _gearsList(),
                             ),
                           ],
                         ),
@@ -268,15 +292,39 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            'Stock Identity',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xffd9dcd6),
-            ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              const Text(
+                'Fishery Identity',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xffd9dcd6),
+                ),
+              ),
+              const Spacer(),
+              ElevatedButton(
+                onPressed: dataInfoDialogDisplay,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xffd9dcd6), // Background color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8), // Rounded edges
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 8), // Button padding
+                ),
+                child: const Text(
+                  'Data Info',
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xff16425B),
+                      fontWeight: FontWeight.bold // Text color
+                      ),
+                ),
+              )
+            ],
           ),
         ),
         const SizedBox(height: 10),
@@ -295,13 +343,14 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   statusDisplay(),
-                  _truncatedDisplay('Short Name', widget.fishery.shortName ?? '',40),
                   _truncatedDisplay(
-                      'Semantic ID', widget.fishery.grsfSemanticID ?? '',40),
+                      'Short Name', widget.fishery.shortName ?? '', 40),
                   _truncatedDisplay(
-                      'Semantic Title', widget.fishery.grsfName ?? '',40),
-                  _truncatedDisplay('UUID', widget.fishery.uuid ?? '',40),
-                  _truncatedDisplay('Type', widget.fishery.type ?? '',40),
+                      'Semantic ID', widget.fishery.grsfSemanticID ?? '', 40),
+                  _truncatedDisplay(
+                      'Semantic Title', widget.fishery.grsfName ?? '', 40),
+                  _truncatedDisplay('UUID', widget.fishery.uuid ?? '', 40),
+                  _truncatedDisplay('Type', widget.fishery.type ?? '', 40),
                 ],
               ),
             ),
@@ -328,7 +377,9 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
             children: [
               Expanded(
                 child: Text(
-                  value.length > maxLength ? '${value.substring(0, maxLength)}...' : value,
+                  value.length > maxLength
+                      ? '${value.substring(0, maxLength)}...'
+                      : value,
                   style: const TextStyle(
                     fontSize: 14,
                     color: Color(0xff16425B),
@@ -418,7 +469,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   }
 
   Widget _detailsSection(BuildContext context) {
-    if (areas == null || owners == null ) {
+    if (areas == null || owners == null || gears == null) {
       return const Center(child: Text('No data available'));
     }
 
@@ -428,7 +479,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: Text(
-            'Stock Details',
+            'Fishery Details',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -452,10 +503,12 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                 children: [
                   if (areas!.length == 1) _buildAreaDetails(areas!.first),
                   if (owners!.length == 1) _buildOwnerDetails(owners!.first),
+                  if (gears!.length == 1) _buildGearDetails(gears!.first),
+                  simpleDisplay('Management Authority',
+                      widget.fishery.managementEntities ?? '-'),
                   Wrap(
-                    // Changed from Row to Wrap
-                    spacing: 3, // Horizontal spacing between buttons
-                    runSpacing: 1, // Vertical spacing between rows
+                    spacing: 3,
+                    runSpacing: 1,
                     alignment: WrapAlignment.start,
                     children: [
                       if (areas!.length > 1)
@@ -466,6 +519,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               _showDetails = false;
                               _showAreasList = true;
                               _showOwnerList = false;
+                              _showGearsList = false;
                             });
                           },
                         ),
@@ -477,6 +531,19 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               _showDetails = false;
                               _showAreasList = false;
                               _showOwnerList = true;
+                              _showGearsList = false;
+                            });
+                          },
+                        ),
+                      if (gears!.length > 1)
+                        _button(
+                          label: 'Fishing Gears',
+                          onPressed: () {
+                            setState(() {
+                              _showDetails = false;
+                              _showAreasList = false;
+                              _showOwnerList = false;
+                              _showGearsList = false;
                             });
                           },
                         ),
@@ -488,6 +555,24 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
           ],
         )
       ],
+    );
+  }
+
+  Widget _buildGearDetails(Gear gear) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Fishing Gear Details',
+            style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
+          ),
+          displayRow('Code     : ', gear.fishingGearId ?? ''),
+          displayRow('System : ', gear.fishingGearType ?? ''),
+          displayRow('Name    : ', gear.fishingGearName ?? ''),
+        ],
+      ),
     );
   }
 
@@ -606,6 +691,79 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     );
   }
 
+  void dataInfoDialogDisplay() {
+          // Show popup dialog
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                backgroundColor: const Color(0xffd9dcd6),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10), // Rounded edges
+                ),
+                content: SizedBox(
+                  width: MediaQuery.of(context).size.width *
+                      0.8, // 80% of screen width
+                  child: Column(
+                    mainAxisSize:
+                        MainAxisSize.min, // Adjusts height to content
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          // Action for Related Stocks
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff16425B),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                        ),
+                        child: const Text(
+                          'Catches',
+                          style: TextStyle(
+                              fontSize: 14, color: Color(0xffd9dcd6)),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Action for Related Fisheries
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff16425B),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                        ),
+                        child: const Text(
+                          'Landings',
+                          style: TextStyle(
+                              fontSize: 14, color: Color(0xffd9dcd6)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                    child: const Text(
+                      'Close',
+                      style: TextStyle(color: Color(0xff16425B)),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+
   Widget simpleDisplay(String title, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4), // Spacing between items
@@ -641,6 +799,10 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
       code = item.areaCode ?? 'No Code';
     } else if (item is FisheryOwner) {
       name = item.owner ?? 'No Name';
+    } else if (item is Gear) {
+      name = item.fishingGearName ?? 'No Name';
+      system = item.fishingGearType ?? 'No System';
+      code = item.fishingGearId ?? 'No ID';
     }
 
     return Card(
@@ -873,15 +1035,74 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
       child: owners!.isEmpty
           ? const Center(
               child: Text(
-                'No areas found',
+                'No owners found',
                 style: TextStyle(color: Color(0xffd9dcd6)),
               ),
             )
           : ListView.builder(
               itemCount: owners!.length,
               itemBuilder: (context, index) {
-                final area = owners![index];
-                return _listViewItem(item: area);
+                final i = owners![index];
+                return _listViewItem(item: i);
+              },
+            ),
+    );
+  }
+
+  Widget _gearsList() {
+    if (gears == null) {
+      return const Center(
+        child: Text(
+          'No data available',
+          style: TextStyle(color: Color(0xffd9dcd6)),
+        ),
+      );
+    }
+
+    final filteredGears = gears!
+        .where((gear) =>
+            _searchQuery.isEmpty ||
+            (gear.fishingGearName
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (gear.fishingGearId
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (gear.fishingGearType
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false))
+        .toList();
+
+    filteredGears.sort((a, b) {
+      int comparison = 0;
+      if (_selectedOrder == 'Name') {
+        comparison = a.fishingGearName?.compareTo(b.fishingGearName ?? '') ?? 0;
+      } else if (_selectedOrder == 'Code') {
+        comparison = a.fishingGearId?.compareTo(b.fishingGearId ?? '') ?? 0;
+      } else if (_selectedOrder == 'System') {
+        comparison = a.fishingGearType?.compareTo(b.fishingGearType ?? '') ?? 0;
+      }
+      return _sortOrder == 'asc' ? comparison : -comparison;
+    });
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      padding: const EdgeInsets.all(10),
+      child: filteredGears.isEmpty
+          ? const Center(
+              child: Text(
+                'No areas found',
+                style: TextStyle(color: Color(0xffd9dcd6)),
+              ),
+            )
+          : ListView.builder(
+              itemCount: filteredGears.length,
+              itemBuilder: (context, index) {
+                final i = filteredGears[index];
+                return _listViewItem(item: i);
               },
             ),
     );

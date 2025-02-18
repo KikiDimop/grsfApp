@@ -567,7 +567,7 @@ class _FishingGearsState extends State<FishingGears> {
                     horizontal: 16, vertical: 8), // Button padding
               ),
               child: const Text(
-                'Show Relations',
+                'Show related resources',
                 style: TextStyle(
                   fontSize: 14,
                   color: Color(0xffd9dcd6), // Text color
