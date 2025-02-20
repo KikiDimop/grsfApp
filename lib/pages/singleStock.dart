@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:database/models/areasForStock.dart';
 import 'package:database/models/global.dart';
 import 'package:database/models/speciesForStock.dart';
@@ -319,13 +321,21 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   statusDisplay(),
-                  _truncatedDisplay('Short Name', widget.stock.shortName ?? '',40),
                   _truncatedDisplay(
-                      'Semantic ID', widget.stock.grsfSemanticID ?? '',40),
+                      'Short Name', widget.stock.shortName ?? '', 40),
                   _truncatedDisplay(
-                      'Semantic Title', widget.stock.grsfName ?? '',40),
-                  _truncatedDisplay('UUID', widget.stock.uuid ?? '',40),
-                  _truncatedDisplay('Type', widget.stock.type ?? '',40),
+                      'Semantic ID', widget.stock.grsfSemanticID ?? '', 40),
+                  _truncatedDisplay(
+                      'Semantic Title', widget.stock.grsfName ?? '', 40),
+                  _truncatedDisplay('UUID', widget.stock.uuid ?? '', 40),
+                  _truncatedDisplay('Type', widget.stock.type ?? '', 40),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: _imageButton(
+                      assetPath: 'assets/icons/map.png',
+                      onPressed: () => _showMap(context, 'Map'),
+                    ),
+                  )
                 ],
               ),
             ),
@@ -352,7 +362,9 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
             children: [
               Expanded(
                 child: Text(
-                  value.length > maxLength ? '${value.substring(0, maxLength)}...' : value,
+                  value.length > maxLength
+                      ? '${value.substring(0, maxLength)}...'
+                      : value,
                   style: const TextStyle(
                     fontSize: 14,
                     color: Color(0xff16425B),
@@ -377,6 +389,60 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showMap(BuildContext context, String title) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xffd9dcd6),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xff16425B),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.close,
+                        color: Color(0xff16425B),
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.6,
+                  ),
+                  child: Image.network(
+                      '$urlStockPng${widget.stock.uuid ?? ''}$urlStockPngEnding'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -647,6 +713,37 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
           color: Color(0xffd9dcd6), // Dynamic text color
         ),
       ),
+    );
+  }
+
+  Widget _imageButton({
+    required VoidCallback onPressed,
+    required String assetPath,
+  }) {
+    return IconButton(
+      onPressed: onPressed,
+      icon: Image.asset(
+        assetPath,
+        width: 24,
+        height: 24,
+        color: const Color(0xff16425B), // Optional: Apply color overlay
+      ),
+      splashRadius: 24,
+    );
+  }
+
+  Widget _iconButton({
+    required VoidCallback onPressed,
+    required IconData icon,
+  }) {
+    return IconButton(
+      onPressed: onPressed,
+      icon: Icon(
+        icon,
+        color: const Color(0xff16425B), // Icon color
+        size: 24, // Icon size
+      ),
+      splashRadius: 24, // Adjusts the splash effect size
     );
   }
 

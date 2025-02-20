@@ -103,7 +103,7 @@ class _StocksState extends State<Stocks> {
     if (stocks == null) {
       return const Center(
         child: Text(
-          'No data available',
+          'Wait for the data to be loaded',
           style: TextStyle(color: Color(0xffd9dcd6)),
         ),
       );
@@ -131,7 +131,7 @@ class _StocksState extends State<Stocks> {
             child: stocks!.isEmpty
                 ? const Center(
                     child: Text(
-                      'No stocks found',
+                      'Wait for the data to be loaded',
                       style: TextStyle(color: Color(0xffd9dcd6)),
                     ),
                   )
