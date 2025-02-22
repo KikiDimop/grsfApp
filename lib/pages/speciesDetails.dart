@@ -1,5 +1,4 @@
 import 'package:database/models/global.dart';
-import 'package:database/pages/searchStocks.dart';
 import 'package:database/pages/stocks.dart';
 import 'package:flutter/material.dart';
 import 'package:database/models/species.dart';

@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 class Fishery {  
   static const String tableName = 'Fishery';

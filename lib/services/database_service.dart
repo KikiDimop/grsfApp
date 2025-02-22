@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:database/models/fishery.dart';
 import 'package:database/models/global.dart';
 import 'package:database/models/stock.dart';
@@ -241,11 +239,10 @@ class DatabaseService {
     return result.map((row) => row[field] as String).toList();
   }
 
-  Future<List<Stock>> searchStock({
-    dynamic fields,
-    required Stock Function(Map<String, dynamic>) fromMap,
-    required bool forSpecies
-  }) async {
+  Future<List<Stock>> searchStock(
+      {dynamic fields,
+      required Stock Function(Map<String, dynamic>) fromMap,
+      required bool forSpecies}) async {
     print(fields.toString());
     final db = await instance.database;
 
@@ -310,7 +307,7 @@ class DatabaseService {
 
       if (fields.speciesName.isNotEmpty) {
         conditions.add("species_name = ?");
-        parameters.add(fields.speciesName); 
+        parameters.add(fields.speciesName);
       }
 
       // if (fields.asfisId.isNotEmpty) {
@@ -347,7 +344,7 @@ class DatabaseService {
       if (conditions.isNotEmpty) {
         query += " ${conditions.join(" ")} ) ";
       }
-    } 
+    }
 
     print(query);
 
@@ -373,44 +370,39 @@ class DatabaseService {
       LEFT JOIN Gear g on f.gear_code = g.fishing_gear_id
       WHERE 1=1
     ''';
-      if (fields.selectedAreaSystem != null &&
-          fields!.selectedAreaSystem.isNotEmpty) {
+      if (fields.selectedAreaSystem.isNotEmpty) {
         conditions.add("a.area_type LIKE ?");
         parameters.add(fields.selectedAreaSystem.replaceAll('All', '%'));
       }
-      if (fields?.areaCode != null && fields!.areaCode.isNotEmpty) {
+      if (fields.areaCode.isNotEmpty) {
         conditions.add("a.area_code LIKE ?");
         parameters.add(fields.areaCode);
       }
-      if (fields?.areaName != null && fields!.areaName.isNotEmpty) {
+      if (fields.areaName.isNotEmpty) {
         conditions.add("a.area_name LIKE ?");
         parameters.add(fields.areaName);
       }
-      if (fields?.selectedGearSystem != null &&
-          fields!.selectedGearSystem.isNotEmpty) {
+      if (fields.selectedGearSystem.isNotEmpty) {
         conditions.add("f.gear_type LIKE ?");
         parameters.add(fields.selectedGearSystem.replaceAll('All', '%'));
       }
-      if (fields?.gearCode != null && fields!.gearCode.isNotEmpty) {
+      if (fields.gearCode.isNotEmpty) {
         conditions.add("f.gear_code LIKE ?");
         parameters.add(fields.gearCode);
       }
-      if (fields?.gearName != null && fields!.gearName.isNotEmpty) {
+      if (fields.gearName.isNotEmpty) {
         conditions.add("g.fishing_gear_name LIKE ?");
         parameters.add(fields.gearName);
       }
-      if (fields?.selectedFAOMajorArea != null &&
-          fields!.selectedFAOMajorArea.isNotEmpty) {
+      if (fields.selectedFAOMajorArea.isNotEmpty) {
         conditions.add("f.parent_areas LIKE ?");
         parameters.add(fields.selectedFAOMajorArea.replaceAll('All', '%'));
       }
-      if (fields?.selectedResourceType != null &&
-          fields!.selectedResourceType.isNotEmpty) {
+      if (fields.selectedResourceType.isNotEmpty) {
         conditions.add("f.type LIKE ?");
         parameters.add(fields.selectedResourceType.replaceAll('All', '%'));
       }
-      if (fields?.selectedResourceStatus != null &&
-          fields!.selectedResourceStatus.isNotEmpty) {
+      if (fields.selectedResourceStatus.isNotEmpty) {
         conditions.add("f.status LIKE ?");
         parameters.add(fields.selectedResourceStatus.replaceAll('All', '%'));
       }

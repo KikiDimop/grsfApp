@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:database/models/areasForStock.dart';
 import 'package:database/models/global.dart';
