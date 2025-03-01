@@ -1,7 +1,7 @@
-import 'package:database/models/global.dart';
-import 'package:database/models/stock.dart';
-import 'package:database/pages/singleStock.dart';
-import 'package:database/services/database_service.dart';
+import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/models/stock.dart';
+import 'package:grsfApp/pages/singleStock.dart';
+import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 

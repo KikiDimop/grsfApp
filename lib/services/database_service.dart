@@ -1,6 +1,6 @@
-import 'package:database/models/fishery.dart';
-import 'package:database/models/global.dart';
-import 'package:database/models/stock.dart';
+import 'package:grsfApp/models/fishery.dart';
+import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/models/stock.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -34,6 +34,9 @@ class DatabaseService {
           type TEXT,
           status TEXT,
           traceability_flag TEXT,
+          species_code TEXT,
+          species_type TEXT, 
+          species_name TEXT,
           gear_type TEXT,
           gear_code TEXT,
           flag_code TEXT,

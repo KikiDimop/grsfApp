@@ -1,9 +1,9 @@
-import 'package:database/pages/areas.dart';
-import 'package:database/pages/fishingGears.dart';
-import 'package:database/pages/searchFisheries.dart';
-import 'package:database/pages/searchStocks.dart';
-import 'package:database/pages/species.dart';
-import 'package:database/pages/sync.dart';
+import 'package:grsfApp/pages/areas.dart';
+import 'package:grsfApp/pages/fishingGears.dart';
+import 'package:grsfApp/pages/searchFisheries.dart';
+import 'package:grsfApp/pages/searchStocks.dart';
+import 'package:grsfApp/pages/species.dart';
+import 'package:grsfApp/pages/sync.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {

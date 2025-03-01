@@ -1,10 +1,10 @@
 
-import 'package:database/models/areasForStock.dart';
-import 'package:database/models/global.dart';
-import 'package:database/models/speciesForStock.dart';
-import 'package:database/models/stock.dart';
-import 'package:database/models/stockOwner.dart';
-import 'package:database/services/database_service.dart';
+import 'package:grsfApp/models/areasForStock.dart';
+import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/models/speciesForStock.dart';
+import 'package:grsfApp/models/stock.dart';
+import 'package:grsfApp/models/stockOwner.dart';
+import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 

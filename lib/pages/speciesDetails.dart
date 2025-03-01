@@ -1,7 +1,7 @@
-import 'package:database/models/global.dart';
-import 'package:database/pages/stocks.dart';
+import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/pages/stocks.dart';
 import 'package:flutter/material.dart';
-import 'package:database/models/species.dart';
+import 'package:grsfApp/models/species.dart';
 
 class SpeciesDetailsScreen extends StatelessWidget {
   final Species species;

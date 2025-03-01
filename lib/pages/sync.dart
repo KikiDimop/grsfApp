@@ -1,15 +1,15 @@
-import 'package:database/models/area.dart';
-import 'package:database/models/areasForFishery.dart';
-import 'package:database/models/areasForStock.dart';
-import 'package:database/models/fishery.dart';
-import 'package:database/models/fisheryOwner.dart';
-import 'package:database/models/fishingGear.dart';
-import 'package:database/models/species.dart';
-import 'package:database/models/speciesForStock.dart';
-import 'package:database/models/stock.dart';
-import 'package:database/models/stockOwner.dart';
-import 'package:database/services/csv_service.dart';
-import 'package:database/services/database_service.dart';
+import 'package:grsfApp/models/area.dart';
+import 'package:grsfApp/models/areasForFishery.dart';
+import 'package:grsfApp/models/areasForStock.dart';
+import 'package:grsfApp/models/fishery.dart';
+import 'package:grsfApp/models/fisheryOwner.dart';
+import 'package:grsfApp/models/fishingGear.dart';
+import 'package:grsfApp/models/species.dart';
+import 'package:grsfApp/models/speciesForStock.dart';
+import 'package:grsfApp/models/stock.dart';
+import 'package:grsfApp/models/stockOwner.dart';
+import 'package:grsfApp/services/csv_service.dart';
+import 'package:grsfApp/services/database_service.dart';
 import 'package:flutter/material.dart';
 
 class UpdateDataScreen extends StatefulWidget {
@@ -38,7 +38,7 @@ class _UpdateDataScreenState extends State<UpdateDataScreen> {
       );
 
       if (csvData.isNotEmpty) {
-        // Update the database table
+        // Update the grsfApp table
         await DatabaseService.instance.deleteAllRows(tableName);
         await DatabaseService.instance.batchInsertData(
           csvData.cast<Map<String, dynamic>>(),

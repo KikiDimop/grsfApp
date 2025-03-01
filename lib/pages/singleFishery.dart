@@ -1,9 +1,9 @@
-import 'package:database/models/areasForFishery.dart';
-import 'package:database/models/fishery.dart';
-import 'package:database/models/fisheryOwner.dart';
-import 'package:database/models/fishingGear.dart';
-import 'package:database/models/global.dart';
-import 'package:database/services/database_service.dart';
+import 'package:grsfApp/models/areasForFishery.dart';
+import 'package:grsfApp/models/fishery.dart';
+import 'package:grsfApp/models/fisheryOwner.dart';
+import 'package:grsfApp/models/fishingGear.dart';
+import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 

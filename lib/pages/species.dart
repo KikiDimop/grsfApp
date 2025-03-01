@@ -1,6 +1,6 @@
-import 'package:database/models/species.dart';
-import 'package:database/pages/speciesDetails.dart';
-import 'package:database/services/database_service.dart';
+import 'package:grsfApp/models/species.dart';
+import 'package:grsfApp/pages/speciesDetails.dart';
+import 'package:grsfApp/services/database_service.dart';
 import 'package:flutter/material.dart';
 
 class DisplaySpecies extends StatefulWidget {
