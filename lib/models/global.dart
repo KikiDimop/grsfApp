@@ -41,6 +41,13 @@ class SearchStockForSpecies {
       this.gbifId, this.taxonomicId, this.iucnId, */ this.speciesName);
 }
 
+class SearchFisheryForSpecies {
+  final String speciesName;
+
+  SearchFisheryForSpecies( this.speciesName);
+}
+
+
 class SearchFishery {
   final String selectedSpeciesSystem,
       speciesCode,

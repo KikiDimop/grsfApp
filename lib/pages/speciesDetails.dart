@@ -1,4 +1,5 @@
 import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/pages/fisheries.dart';
 import 'package:grsfApp/pages/stocks.dart';
 import 'package:flutter/material.dart';
 import 'package:grsfApp/models/species.dart';
@@ -63,8 +64,10 @@ class SpeciesDetailsScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            Stocks(search: searchStock, forSpecies: true,),
+                        builder: (context) => Stocks(
+                          search: searchStock,
+                          forSpecies: true,
+                        ),
                       ),
                     );
                   },
@@ -86,7 +89,29 @@ class SpeciesDetailsScreen extends StatelessWidget {
                 ),
                 const Spacer(),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    SearchFishery searchFishery = SearchFishery(
+                        'All',
+                        '',
+                        species.scientificName,
+                        'All',
+                        '',
+                        '',
+                        'All',
+                        '',
+                        '',
+                        'All',
+                        'All',
+                        'All');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Fisheries(
+                          search: searchFishery,
+                        ),
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xffd9dcd6),
                     shape: RoundedRectangleBorder(

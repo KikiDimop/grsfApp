@@ -6,12 +6,9 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 
 class Fisheries extends StatefulWidget {
-  final SearchFishery search;
+  final dynamic search;
 
-  const Fisheries({
-    super.key,
-    required this.search,
-  });
+  const Fisheries({super.key, required this.search});
 
   @override
   State<Fisheries> createState() => _FisheriesState();
@@ -33,10 +30,8 @@ class _FisheriesState extends State<Fisheries> {
   Future<void> _fetchData() async {
     try {
       final results = await Future.wait([
-        DatabaseService.instance.searchFishery(
-          fields: widget.search,
-          fromMap: Fishery.fromMap,
-        )
+        DatabaseService.instance
+            .searchFishery(fields: widget.search, fromMap: Fishery.fromMap)
       ]);
 
       setState(() {
@@ -90,8 +85,8 @@ class _FisheriesState extends State<Fisheries> {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                Navigator.of(context).pop(); 
-                Navigator.of(context).pop(); 
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
               },
             ),
           ],

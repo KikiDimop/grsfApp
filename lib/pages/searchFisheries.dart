@@ -41,17 +41,17 @@ class _SearchfisheriesState extends State<Searchfisheries> {
   Future<void> _loadDropdownLists() async {
     final dbService = DatabaseService.instance;
     final List<String> fetchedSpeciesTypes =
-        await dbService.getDistinct('species_type', 'SpeciesForStock');
+        await dbService.getDistinct('species_type', 'Fishery');
     final List<String> fetchedAreaTypes =
-        await dbService.getDistinct('area_type', 'AreasForStock');
+        await dbService.getDistinct('area_type', 'AreasForFishery');
     final List<String> fetchedGearTypes =
         await dbService.getDistinct('gear_type', 'Fishery');
     final List<String> fetchedFAOMajorAreas =
-        await dbService.getDistinct('parent_areas', 'Stock');
+        await dbService.getDistinct('parent_areas', 'Fishery');
     final List<String> fetchedResourceType =
-        await dbService.getDistinct('type', 'Stock');
+        await dbService.getDistinct('type', 'Fishery');
     final List<String> fetchedResourceStatus =
-        await dbService.getDistinct('status', 'Stock');
+        await dbService.getDistinct('status', 'Fishery');
 
     setState(() {
       speciesTypes = fetchedSpeciesTypes;
@@ -101,9 +101,12 @@ class _SearchfisheriesState extends State<Searchfisheries> {
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
         actions: [
-          IconButton(onPressed: (){
-            Navigator.popUntil(context, (route) => route.isFirst);
-          }, icon: const Icon(Icons.home_filled),),
+          IconButton(
+            onPressed: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            icon: const Icon(Icons.home_filled),
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -115,52 +118,51 @@ class _SearchfisheriesState extends State<Searchfisheries> {
             _areaSection(),
             const SizedBox(height: 10),
             _fishingGearSection(),
-            const SizedBox(height: 10,),
+            const SizedBox(
+              height: 10,
+            ),
             _resourceSection(),
             const SizedBox(height: 10),
             _searchButton(context),
-
           ],
         ),
       ),
     );
   }
 
-ElevatedButton _searchButton(BuildContext context) {
-  return ElevatedButton(
-    onPressed: () {
-      SearchFishery searchFishery = SearchFishery(
-        selectedSpeciesSystem ?? 'All',
-        speciesCodeController.text,
-        speciesNameController.text,
-        selectedAreaSystem ?? 'All',
-        areaCodeController.text,
-        areaNameController.text,
-        selectedGearSystem ?? 'All',
-        gearCodeController.text,
-        gearNameController.text,
-        selectedFAOMajorArea ?? 'All',
-        selectedResourceType ?? 'All',
-        selectedResourceStatus ?? 'All'
-      );
+  ElevatedButton _searchButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        SearchFishery searchFishery = SearchFishery(
+            selectedSpeciesSystem ?? 'All',
+            speciesCodeController.text,
+            speciesNameController.text,
+            selectedAreaSystem ?? 'All',
+            areaCodeController.text,
+            areaNameController.text,
+            selectedGearSystem ?? 'All',
+            gearCodeController.text,
+            gearNameController.text,
+            selectedFAOMajorArea ?? 'All',
+            selectedResourceType ?? 'All',
+            selectedResourceStatus ?? 'All');
 
-      // Navigate to fisheries page and pass the searchStock object
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Fisheries(search: searchFishery),
-        ),
-      );
-    },
-    style: ElevatedButton.styleFrom(
-      foregroundColor: const Color(0xff16425B),
-      backgroundColor: const Color(0xffd9dcd6),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-    ),
-    child: const Text("Search"),
-  );
-}
-
+        // Navigate to fisheries page and pass the searchStock object
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Fisheries(search: searchFishery),
+          ),
+        );
+      },
+      style: ElevatedButton.styleFrom(
+        foregroundColor: const Color(0xff16425B),
+        backgroundColor: const Color(0xffd9dcd6),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+      ),
+      child: const Text("Search"),
+    );
+  }
 
   Widget _speciesSection() {
     return Column(
@@ -257,7 +259,8 @@ ElevatedButton _searchButton(BuildContext context) {
               const SizedBox(height: 8),
               _textField("Area Name", areaNameController),
               const SizedBox(height: 8),
-              _dropdownField('FAO Major Area', faoMajorAreas, selectedFAOMajorArea,
+              _dropdownField(
+                  'FAO Major Area', faoMajorAreas, selectedFAOMajorArea,
                   (value) {
                 setState(() {
                   selectedFAOMajorArea = value;
@@ -269,8 +272,8 @@ ElevatedButton _searchButton(BuildContext context) {
       ],
     );
   }
-  
-    Widget _fishingGearSection() {
+
+  Widget _fishingGearSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -359,14 +362,12 @@ ElevatedButton _searchButton(BuildContext context) {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _dropdownField(
-                        'Resource Status', resourceStatus, selectedResourceStatus,
-                        (value) {
-                      setState(() {
-                        selectedResourceStatus = value;
-                      });
-                    })
-                  ),
+                      child: _dropdownField('Resource Status', resourceStatus,
+                          selectedResourceStatus, (value) {
+                    setState(() {
+                      selectedResourceStatus = value;
+                    });
+                  })),
                 ],
               ),
             ],

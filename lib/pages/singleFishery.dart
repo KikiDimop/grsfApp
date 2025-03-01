@@ -501,6 +501,25 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Species',
+                          style:
+                              TextStyle(fontSize: 12, color: Color(0xff16425B)),
+                        ),
+                        displayRow(
+                            'Code     : ', widget.fishery.speciesCode ?? ''),
+                        displayRow(
+                            'System : ', widget.fishery.speciesType ?? ''),
+                        displayRow(
+                            'Name    : ', widget.fishery.speciesName ?? ''),
+                      ],
+                    ),
+                  ),
                   if (areas!.length == 1) _buildAreaDetails(areas!.first),
                   if (owners!.length == 1) _buildOwnerDetails(owners!.first),
                   if (gears!.length == 1) _buildGearDetails(gears!.first),
@@ -692,77 +711,74 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   }
 
   void dataInfoDialogDisplay() {
-          // Show popup dialog
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                backgroundColor: const Color(0xffd9dcd6),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10), // Rounded edges
-                ),
-                content: SizedBox(
-                  width: MediaQuery.of(context).size.width *
-                      0.8, // 80% of screen width
-                  child: Column(
-                    mainAxisSize:
-                        MainAxisSize.min, // Adjusts height to content
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          // Action for Related Stocks
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff16425B),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                        ),
-                        child: const Text(
-                          'Catches',
-                          style: TextStyle(
-                              fontSize: 14, color: Color(0xffd9dcd6)),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Action for Related Fisheries
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xff16425B),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                        ),
-                        child: const Text(
-                          'Landings',
-                          style: TextStyle(
-                              fontSize: 14, color: Color(0xffd9dcd6)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close the dialog
-                    },
-                    child: const Text(
-                      'Close',
-                      style: TextStyle(color: Color(0xff16425B)),
+    // Show popup dialog
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xffd9dcd6),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10), // Rounded edges
+          ),
+          content: SizedBox(
+            width:
+                MediaQuery.of(context).size.width * 0.8, // 80% of screen width
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Adjusts height to content
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    // Action for Related Stocks
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff16425B),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   ),
-                ],
-              );
-            },
-          );
-        }
+                  child: const Text(
+                    'Catches',
+                    style: TextStyle(fontSize: 14, color: Color(0xffd9dcd6)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    // Action for Related Fisheries
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff16425B),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                  child: const Text(
+                    'Landings',
+                    style: TextStyle(fontSize: 14, color: Color(0xffd9dcd6)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text(
+                'Close',
+                style: TextStyle(color: Color(0xff16425B)),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Widget simpleDisplay(String title, String value) {
     return Padding(

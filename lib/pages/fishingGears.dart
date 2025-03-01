@@ -499,7 +499,9 @@ class _FishingGearsState extends State<FishingGears> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Fisheries(search: searchFishery),
+                    builder: (context) => Fisheries(
+                      search: searchFishery,
+                    ),
                   ),
                 );
               },

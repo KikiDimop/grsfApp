@@ -367,52 +367,62 @@ class DatabaseService {
 
     String query = ''' SELECT * FROM Fishery ''';
 
-    if (fields is SearchFishery) {
-      query += ''' f
+    query += ''' f
       LEFT JOIN AreasForFishery a ON f.uuid = a.uuid
       LEFT JOIN Gear g on f.gear_code = g.fishing_gear_id
       WHERE 1=1
-    ''';
-      if (fields.selectedAreaSystem.isNotEmpty) {
-        conditions.add("a.area_type LIKE ?");
-        parameters.add(fields.selectedAreaSystem.replaceAll('All', '%'));
-      }
-      if (fields.areaCode.isNotEmpty) {
-        conditions.add("a.area_code LIKE ?");
-        parameters.add(fields.areaCode);
-      }
-      if (fields.areaName.isNotEmpty) {
-        conditions.add("a.area_name LIKE ?");
-        parameters.add(fields.areaName);
-      }
-      if (fields.selectedGearSystem.isNotEmpty) {
-        conditions.add("f.gear_type LIKE ?");
-        parameters.add(fields.selectedGearSystem.replaceAll('All', '%'));
-      }
-      if (fields.gearCode.isNotEmpty) {
-        conditions.add("f.gear_code LIKE ?");
-        parameters.add(fields.gearCode);
-      }
-      if (fields.gearName.isNotEmpty) {
-        conditions.add("g.fishing_gear_name LIKE ?");
-        parameters.add(fields.gearName);
-      }
-      if (fields.selectedFAOMajorArea.isNotEmpty) {
-        conditions.add("f.parent_areas LIKE ?");
-        parameters.add(fields.selectedFAOMajorArea.replaceAll('All', '%'));
-      }
-      if (fields.selectedResourceType.isNotEmpty) {
-        conditions.add("f.type LIKE ?");
-        parameters.add(fields.selectedResourceType.replaceAll('All', '%'));
-      }
-      if (fields.selectedResourceStatus.isNotEmpty) {
-        conditions.add("f.status LIKE ?");
-        parameters.add(fields.selectedResourceStatus.replaceAll('All', '%'));
-      }
+      ''';
+    if (fields.selectedAreaSystem.isNotEmpty) {
+      conditions.add("a.area_type LIKE ?");
+      parameters.add(fields.selectedAreaSystem.replaceAll('All', '%'));
+    }
+    if (fields.areaCode.isNotEmpty) {
+      conditions.add("a.area_code LIKE ?");
+      parameters.add(fields.areaCode);
+    }
+    if (fields.areaName.isNotEmpty) {
+      conditions.add("a.area_name LIKE ?");
+      parameters.add(fields.areaName);
+    }
+    if (fields.selectedSpeciesSystem.isNotEmpty) {
+      conditions.add("f.species_type LIKE ?");
+      parameters.add(fields.selectedSpeciesSystem.replaceAll('All', '%'));
+    }
+    if (fields.speciesCode.isNotEmpty) {
+      conditions.add("f.species_code LIKE ?");
+      parameters.add(fields.speciesCode);
+    }
+    if (fields.speciesName.isNotEmpty) {
+      conditions.add("f.species_name LIKE ?");
+      parameters.add(fields.speciesName);
+    }
+    if (fields.selectedGearSystem.isNotEmpty) {
+      conditions.add("f.gear_type LIKE ?");
+      parameters.add(fields.selectedGearSystem.replaceAll('All', '%'));
+    }
+    if (fields.gearCode.isNotEmpty) {
+      conditions.add("f.gear_code LIKE ?");
+      parameters.add(fields.gearCode);
+    }
+    if (fields.gearName.isNotEmpty) {
+      conditions.add("g.fishing_gear_name LIKE ?");
+      parameters.add(fields.gearName);
+    }
+    if (fields.selectedFAOMajorArea.isNotEmpty) {
+      conditions.add("f.parent_areas LIKE ?");
+      parameters.add(fields.selectedFAOMajorArea.replaceAll('All', '%'));
+    }
+    if (fields.selectedResourceType.isNotEmpty) {
+      conditions.add("f.type LIKE ?");
+      parameters.add(fields.selectedResourceType.replaceAll('All', '%'));
+    }
+    if (fields.selectedResourceStatus.isNotEmpty) {
+      conditions.add("f.status LIKE ?");
+      parameters.add(fields.selectedResourceStatus.replaceAll('All', '%'));
+    }
 
-      if (conditions.isNotEmpty) {
-        query += " AND ${conditions.join(" AND ")}";
-      }
+    if (conditions.isNotEmpty) {
+      query += " AND ${conditions.join(" AND ")}";
     }
 
     final result = await db.rawQuery(query, parameters);
