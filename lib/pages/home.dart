@@ -9,8 +9,6 @@ import 'package:flutter/material.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  get n => null;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,6 +71,7 @@ class HomePage extends StatelessWidget {
                           'Fishing Gear', const FishingGears()),
                       buildImageButton(context, 'assets/icons/sync.png',
                           'Sync Data', const UpdateDataScreen()),
+                      
                     ],
                   ),
                 ),

@@ -103,7 +103,7 @@ class _FishingGearsState extends State<FishingGears> {
                     offset: const Offset(
                         0, 8), // Ensures a consistent dropdown position
                     decoration: BoxDecoration(
-                      color: Color(0xff16425B),
+                      color: const Color(0xff16425B),
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),

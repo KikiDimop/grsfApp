@@ -97,7 +97,7 @@ class _SearchfisheriesState extends State<Searchfisheries> {
     return Scaffold(
       backgroundColor: const Color(0xff16425B),
       appBar: AppBar(
-        title: const Text('Search Stock'),
+        title: const Text('Search Fishery'),
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
         actions: [

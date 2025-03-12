@@ -6,6 +6,9 @@ import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 
 class DisplaySingleFishery extends StatefulWidget {
   final Fishery fishery;
@@ -20,7 +23,9 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   List<FisheryOwner>? owners;
   List<Gear>? gears;
   bool isLoading = true;
+  bool isLoading2 = true;
   String? error;
+  Map<String, dynamic>? _responseData;
 
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -31,6 +36,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   void initState() {
     super.initState();
     _fetchData();
+    _fetchDataFromAPI();
   }
 
   Future<void> _fetchData() async {
@@ -70,10 +76,38 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     }
   }
 
+  Future<void> _fetchDataFromAPI() async {
+    try {
+      final response = await http.get(Uri.parse(
+          'https://isl.ics.forth.gr/grsf/grsf-api/resources/getfishery?uuid=${widget.fishery.uuid}&response_type=JSON'));
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+
+        setState(() {
+          _responseData = data; // Store entire JSON response
+          isLoading2 = false;
+        });
+      } else {
+        setState(() {
+          isLoading2 = false;
+          error = "Failed to load data. Status Code: ${response.statusCode}";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading2 = false;
+        error = "Error fetching data: $e";
+      });
+    }
+  }
+
   bool _showDetails = true;
   bool _showAreasList = false;
   bool _showOwnerList = false;
   bool _showGearsList = false;
+  bool _showManagementUnitsList = false;
+  bool _showCatches = false;
 
   @override
   Widget build(BuildContext context) {
@@ -82,11 +116,16 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            if (_showAreasList || _showOwnerList) {
+            if (_showAreasList ||
+                _showOwnerList ||
+                _showManagementUnitsList ||
+                _showCatches) {
               setState(() {
                 _showDetails = true;
                 _showAreasList = false;
                 _showOwnerList = false;
+                _showManagementUnitsList = false;
+                _showCatches = false;
               });
             } else {
               Navigator.pop(context);
@@ -105,62 +144,111 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
           ),
         ],
       ),
-      body: isLoading
+      body: (isLoading || isLoading2)
           ? const Center(child: CircularProgressIndicator())
           : error != null
               ? Center(
                   child: Text('Error: $error',
                       style: const TextStyle(color: Colors.red)))
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _identitySection(context),
-                    const SizedBox(height: 5),
-                    if (_showDetails)
-                      _detailsSection(context)
-                    else if (_showAreasList)
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _listTitle(title: 'Assessment Areas'),
-                            const SizedBox(height: 5),
-                            _displayList(
-                              searchHint: 'Search Area',
-                              listDisplay: _areasList(),
-                            ),
-                          ],
-                        ),
-                      )
-                    else if (_showOwnerList)
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _listTitle(title: 'Owners'),
-                            const SizedBox(height: 5),
-                            _displayList(
-                              searchHint: 'Search Owner',
-                              listDisplay: _ownersList(),
-                            ),
-                          ],
-                        ),
-                      )
-                    else if (_showGearsList)
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _listTitle(title: 'Fishing Gears'),
-                            const SizedBox(height: 5),
-                            _displayList(
-                              searchHint: 'Search Fishing Gear',
-                              listDisplay: _gearsList(),
-                            ),
-                          ],
-                        ),
-                      )
-                  ],
+              : SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _identitySection(context),
+                      const SizedBox(height: 5),
+                      if (_showDetails)
+                        _detailsSection(context)
+                      else if (_showAreasList)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height *
+                              0.7, // Adjust height as needed
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _listTitle(title: 'Assessment Areas'),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                  searchHint: 'Search Area',
+                                  listDisplay: _areasList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (_showOwnerList)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height *
+                              0.7, // Adjust height as needed
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _listTitle(title: 'Owners'),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                  searchHint: 'Search Owner',
+                                  listDisplay: _ownersList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (_showGearsList)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height *
+                              0.7, // Adjust height as needed
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _listTitle(title: 'Fishing Gears'),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                  searchHint: 'Search Fishing Gears',
+                                  listDisplay: _gearsList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (_showManagementUnitsList)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height *
+                              0.7, // Adjust height as needed
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _listTitle(title: 'Management Units'),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                  searchHint: 'Search Management Unit',
+                                  listDisplay: _managementUnitsList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (_showCatches)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _listTitle(title: 'Catches'),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                  searchHint: 'Search Catch',
+                                  listDisplay: _catchesList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                    ],
+                  ),
                 ),
     );
   }
@@ -351,12 +439,45 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                       'Semantic Title', widget.fishery.grsfName ?? '', 40),
                   _truncatedDisplay('UUID', widget.fishery.uuid ?? '', 40),
                   _truncatedDisplay('Type', widget.fishery.type ?? '', 40),
+                  if (_responseData != null &&
+                      _responseData!["result"]["source_urls"][0] != null)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: _iconButton(
+                        icon: Icons.link,
+                        onPressed: () => _openSourceLink(
+                            _responseData!["result"]["source_urls"][0] ?? ''),
+                      ),
+                    )
                 ],
               ),
             ),
           ],
         ),
       ],
+    );
+  }
+
+  Future<void> _openSourceLink(String link) async {
+    final Uri url = Uri.parse(link);
+
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
+  Widget _iconButton({
+    required VoidCallback onPressed,
+    required IconData icon,
+  }) {
+    return IconButton(
+      onPressed: onPressed,
+      icon: Icon(
+        icon,
+        color: const Color(0xff16425B), // Icon color
+        size: 24, // Icon size
+      ),
+      splashRadius: 24, // Adjusts the splash effect size
     );
   }
 
@@ -506,11 +627,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Species',
-                          style:
-                              TextStyle(fontSize: 12, color: Color(0xff16425B)),
-                        ),
+                        displayTitle('Species'),
                         displayRow(
                             'Code     : ', widget.fishery.speciesCode ?? ''),
                         displayRow(
@@ -523,8 +640,11 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                   if (areas!.length == 1) _buildAreaDetails(areas!.first),
                   if (owners!.length == 1) _buildOwnerDetails(owners!.first),
                   if (gears!.length == 1) _buildGearDetails(gears!.first),
-                  simpleDisplay('Management Authority',
-                      widget.fishery.managementEntities ?? '-'),
+                  (_responseData == null)
+                      ? simpleDisplay('Management Authority',
+                          widget.fishery.managementEntities ?? '-')
+                      : displayManagmentAuthority(),
+                  if (_responseData != null) displayFlagState(),
                   Wrap(
                     spacing: 3,
                     runSpacing: 1,
@@ -539,6 +659,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               _showAreasList = true;
                               _showOwnerList = false;
                               _showGearsList = false;
+                              _showManagementUnitsList = false;
                             });
                           },
                         ),
@@ -551,6 +672,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               _showAreasList = false;
                               _showOwnerList = true;
                               _showGearsList = false;
+                              _showManagementUnitsList = false;
                             });
                           },
                         ),
@@ -562,7 +684,22 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               _showDetails = false;
                               _showAreasList = false;
                               _showOwnerList = false;
+                              _showGearsList = true;
+                              _showManagementUnitsList = false;
+                            });
+                          },
+                        ),
+                      if (_responseData!["result"]["management_units"].length >
+                          1)
+                        _button(
+                          label: 'Management Units',
+                          onPressed: () {
+                            setState(() {
+                              _showDetails = false;
+                              _showAreasList = false;
+                              _showOwnerList = false;
                               _showGearsList = false;
+                              _showManagementUnitsList = true;
                             });
                           },
                         ),
@@ -574,6 +711,70 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
           ],
         )
       ],
+    );
+  }
+
+  Widget displayManagmentAuthority() {
+    if (_responseData!["result"]["management_units"].length == 1) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            displayTitle('Management Authority'),
+            displayRow(
+              'Code     : ',
+              _responseData!["result"]["management_units"][0]
+                      ["management_unit_code"] ??
+                  '',
+            ),
+            displayRow(
+              'System : ',
+              _responseData!["result"]["management_units"][0]
+                      ["management_unit_system"] ??
+                  '',
+            ),
+            displayRow(
+              'Name    : ',
+              _responseData!["result"]["management_units"][0]
+                      ["management_unit_name"] ??
+                  '',
+            ),
+          ],
+        ),
+      );
+    }
+    return SizedBox.shrink();
+  }
+
+  Padding displayFlagState() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          displayTitle('Flag State'),
+          displayRow(
+            'Code     : ',
+            _responseData!["result"]["flag_states"]["flag_state_code"] ?? '',
+          ),
+          displayRow(
+            'System : ',
+            _responseData!["result"]["flag_states"]["flag_state_type"] ?? '',
+          ),
+          displayRow(
+            'Name    : ',
+            _responseData!["result"]["flag_states"]["flag_state_name"] ?? '',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Text displayTitle(String label) {
+    return Text(
+      label,
+      style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
     );
   }
 
@@ -728,7 +929,15 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    // Action for Related Stocks
+                    setState(() {
+                      _showDetails = false;
+                      _showAreasList = false;
+                      _showOwnerList = false;
+                      _showGearsList = false;
+                      _showManagementUnitsList = false;
+                      _showCatches = true;
+                    });
+                    Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff16425B),
@@ -857,6 +1066,109 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
             ),
             const SizedBox(height: 1),
             if (system.isNotEmpty && code.isNotEmpty) // Fixed condition here
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Code',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xff16425B),
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          code,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xff16425B),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.visible,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  Flexible(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'System',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Color(0xff16425B),
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          system,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Color(0xff16425B),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _listViewItemManagementUnit(String name, String system, String code) {
+    if (name == '' && system == '' && code == '') return SizedBox.shrink();
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xffd9dcd6),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Name',
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const SizedBox(height: 1),
+            Text(
+              name,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.bold,
+              ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+            const SizedBox(height: 1),
+            if (system.isNotEmpty && code.isNotEmpty)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -1121,6 +1433,172 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                 return _listViewItem(item: i);
               },
             ),
+    );
+  }
+
+  Widget _managementUnitsList() {
+    if (_responseData == null ||
+        _responseData!["result"] == null ||
+        _responseData!["result"]["management_units"] == null ||
+        _responseData!["result"]["management_units"].isEmpty) {
+      return const Center(
+        child: Text(
+          'No management units available',
+          style: TextStyle(color: Color(0xffd9dcd6)),
+        ),
+      );
+    }
+
+    final List<dynamic> managementUnits =
+        List.from(_responseData!["result"]["management_units"]);
+
+    final filteredUnits = managementUnits
+        .where((unit) =>
+            _searchQuery.isEmpty ||
+            (unit["management_unit_name"]
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (unit["management_unit_code"]
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (unit["management_unit_system"]
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false))
+        .toList();
+
+    filteredUnits.sort((a, b) {
+      int comparison = 0;
+      if (_selectedOrder == 'Name') {
+        comparison = a["management_unit_name"]
+                ?.compareTo(b["management_unit_name"] ?? '') ??
+            0;
+      } else if (_selectedOrder == 'Code') {
+        comparison = a["management_unit_code"]
+                ?.compareTo(b["management_unit_code"] ?? '') ??
+            0;
+      } else if (_selectedOrder == 'System') {
+        comparison = a["management_unit_system"]
+                ?.compareTo(b["management_unit_system"] ?? '') ??
+            0;
+      }
+      return _sortOrder == 'asc' ? comparison : -comparison;
+    });
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      padding: const EdgeInsets.all(10),
+      child: filteredUnits.isEmpty
+          ? const Center(
+              child: Text(
+                'No matching management units found',
+                style: TextStyle(color: Color(0xffd9dcd6)),
+              ),
+            )
+          : ListView.builder(
+              itemCount: filteredUnits.length,
+              itemBuilder: (context, index) {
+                final unit = filteredUnits[index];
+                return _listViewItemManagementUnit(
+                    unit["management_unit_name"] ?? "",
+                    unit["management_unit_system"] ?? "",
+                    unit["management_unit_code"] ?? "");
+              },
+            ),
+    );
+  }
+
+  Widget _catchesList() {
+    if (_responseData == null ||
+        _responseData!["result"] == null ||
+        _responseData!["result"]["catches"] == null ||
+        _responseData!["result"]["catches"].isEmpty) {
+      return const Center(
+        child: Text(
+          'No catch data available',
+          style: TextStyle(color: Color(0xffd9dcd6)),
+        ),
+      );
+    }
+
+    final List<dynamic> catches =
+        List.from(_responseData!["result"]["catches"]);
+
+    final filteredCatches = catches
+        .where((catchData) =>
+            _searchQuery.isEmpty ||
+            (catchData["value"]?.toString().contains(_searchQuery) ?? false) ||
+            (catchData["unit"]
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (catchData["type"]
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (catchData["db_source"]
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (catchData["reporting_year"]?.toString().contains(_searchQuery) ??
+                false) ||
+            (catchData["reference_year"]?.toString().contains(_searchQuery) ??
+                false))
+        .toList();
+
+    filteredCatches.sort((a, b) {
+      int comparison = 0;
+      if (_selectedOrder == 'Year') {
+        comparison =
+            (a["reporting_year"]?.compareTo(b["reporting_year"] ?? '') ?? 0);
+      } else if (_selectedOrder == 'Value') {
+        comparison = (a["value"]?.compareTo(b["value"] ?? 0) ?? 0);
+      } else if (_selectedOrder == 'Source') {
+        comparison = (a["db_source"]?.compareTo(b["db_source"] ?? '') ?? 0);
+      }
+      return _sortOrder == 'asc' ? comparison : -comparison;
+    });
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      padding: const EdgeInsets.all(10),
+      child: filteredCatches.isEmpty
+          ? const Center(
+              child: Text(
+                'No matching catch records found',
+                style: TextStyle(color: Color(0xffd9dcd6)),
+              ),
+            )
+          : ListView.builder(
+              itemCount: filteredCatches.length,
+              itemBuilder: (context, index) {
+                final catchData = filteredCatches[index];
+                return _listViewItemCatch(
+                  catchData["value"]?.toString() ?? "",
+                  catchData["unit"] ?? "",
+                  catchData["type"] ?? "",
+                  catchData["db_source"] ?? "",
+                  catchData["reporting_year"]?.toString() ?? "",
+                  catchData["reference_year"]?.toString() ?? "",
+                );
+              },
+            ),
+    );
+  }
+
+  Widget _listViewItemCatch(String value, String unit, String type,
+      String source, String reportingYear, String referenceYear) {
+    return Card(
+      color: const Color(0xff1a5d7d),
+      child: ListTile(
+        title:
+            Text('$value $unit', style: const TextStyle(color: Colors.white)),
+        subtitle: Text(
+            '$type | $source\nYear: $reportingYear (Ref: $referenceYear)',
+            style: const TextStyle(color: Color(0xffd9dcd6))),
+      ),
     );
   }
 }

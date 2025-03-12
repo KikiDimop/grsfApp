@@ -86,6 +86,7 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
 
       return _searchQuery.isEmpty ||
           sp.scientificName.toLowerCase().contains(query) ||
+          (sp.commonNames?.toLowerCase().contains(query) ?? false) ||
           (sp.aphiaId?.toLowerCase().contains(query) ?? false) ||
           (sp.asfisId?.toLowerCase().contains(query) ?? false) ||
           (sp.gbifId?.toLowerCase().contains(query) ?? false) ||

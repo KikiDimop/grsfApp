@@ -1,5 +1,4 @@
 import 'package:grsfApp/models/fishery.dart';
-import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/models/stock.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
