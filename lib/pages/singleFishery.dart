@@ -171,6 +171,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                                 child: _displayList(
                                   searchHint: 'Search Area',
                                   listDisplay: _areasList(),
+                                  displayDropDown: true,
                                 ),
                               ),
                             ],
@@ -189,6 +190,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                                 child: _displayList(
                                   searchHint: 'Search Owner',
                                   listDisplay: _ownersList(),
+                                  displayDropDown: true,
                                 ),
                               ),
                             ],
@@ -207,6 +209,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                                 child: _displayList(
                                   searchHint: 'Search Fishing Gears',
                                   listDisplay: _gearsList(),
+                                  displayDropDown: true,
                                 ),
                               ),
                             ],
@@ -225,6 +228,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                                 child: _displayList(
                                   searchHint: 'Search Management Unit',
                                   listDisplay: _managementUnitsList(),
+                                  displayDropDown: true,
                                 ),
                               ),
                             ],
@@ -242,6 +246,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                                 child: _displayList(
                                   searchHint: 'Search Catch',
                                   listDisplay: _catchesList(),
+                                  displayDropDown: false,
                                 ),
                               ),
                             ],
@@ -268,7 +273,9 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   }
 
   Expanded _displayList(
-      {required String searchHint, required Widget listDisplay}) {
+      {required String searchHint,
+      required Widget listDisplay,
+      required bool displayDropDown}) {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
@@ -283,9 +290,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
               Column(
                 children: [
                   _searchField(hint: searchHint),
-                  const SizedBox(height: 16),
-                  _orderByDropdown(),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
+                  if (displayDropDown) _orderByDropdown(),
                 ],
               ),
             Expanded(
@@ -417,11 +423,10 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
         ),
         const SizedBox(height: 10),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center, // Center the white box
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width:
-                  MediaQuery.of(context).size.width * 0.9, // Make it responsive
+              width: MediaQuery.of(context).size.width * 0.9,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: const Color(0xffd9dcd6),
@@ -474,10 +479,10 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
       onPressed: onPressed,
       icon: Icon(
         icon,
-        color: const Color(0xff16425B), // Icon color
-        size: 24, // Icon size
+        color: const Color(0xff16425B),
+        size: 24,
       ),
-      splashRadius: 24, // Adjusts the splash effect size
+      splashRadius: 24,
     );
   }
 
@@ -521,6 +526,30 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                     ),
                   ),
                 ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _displayTitleWithIcon(String value, VoidCallback onPressed,
+      {IconData icon = Icons.image}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                value,
+                style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
+              ),
+              _iconButton(
+                onPressed: onPressed,
+                icon: icon, // Pass the icon argument here
+              ),
             ],
           ),
         ],
@@ -625,17 +654,20 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        displayTitle('Species'),
-                        displayRow(
-                            'Code     : ', widget.fishery.speciesCode ?? ''),
-                        displayRow(
-                            'System : ', widget.fishery.speciesType ?? ''),
-                        displayRow(
-                            'Name    : ', widget.fishery.speciesName ?? ''),
-                      ],
-                    ),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          displayTitle('Species'),
+                          displayRow(
+                              'Code     : ', widget.fishery.speciesCode ?? ''),
+                          displayRow(
+                              'System : ', widget.fishery.speciesType ?? ''),
+                          displayRowWithIcon(
+                              'Name    : ',
+                              widget.fishery.speciesName ?? '',
+                              () => _openSourceLink(
+                                  'https://images.google.com/search?tbm=isch&q=${widget.fishery.speciesName ?? ''}'),
+                              Icons.image)
+                        ]),
                   ),
                   if (areas!.length == 1) _buildAreaDetails(areas!.first),
                   if (owners!.length == 1) _buildOwnerDetails(owners!.first),
@@ -790,7 +822,13 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
           ),
           displayRow('Code     : ', gear.fishingGearId ?? ''),
           displayRow('System : ', gear.fishingGearType ?? ''),
-          displayRow('Name    : ', gear.fishingGearName ?? ''),
+          // displayRow('Name    : ', gear.fishingGearName ?? ''),
+          displayRowWithIcon(
+              'Name    : ',
+              gear.fishingGearName ?? '',
+              () => _openSourceLink(
+                  'https://images.google.com/search?tbm=isch&q=${gear.fishingGearName ?? ''}'),
+              Icons.image)
         ],
       ),
     );
@@ -845,7 +883,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Flexible(
-            flex: 2, // Adjusts width based on screen size
+            flex: 2,
             child: Text(
               label,
               style: const TextStyle(
@@ -855,9 +893,9 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
               ),
             ),
           ),
-          const SizedBox(width: 5), // Spacing between label and value
+          const SizedBox(width: 5),
           Expanded(
-            flex: 4, // Allows value to take remaining space
+            flex: 4,
             child: Text(
               value,
               style: const TextStyle(
@@ -865,7 +903,55 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                 color: Color(0xff16425B),
                 fontWeight: FontWeight.bold,
               ),
-              softWrap: true, // Ensures text wraps properly
+              softWrap: true,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget displayRowWithIcon(
+      String label, String value, VoidCallback onIconPressed, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Flexible(
+            flex: 2,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Color(0xff16425B),
+              ),
+            ),
+          ),
+          const SizedBox(width: 5),
+          Expanded(
+            flex: 4,
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.bold,
+              ),
+              softWrap: true,
+            ),
+          ),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: InkWell(
+              onTap: onIconPressed,
+              child: Icon(
+                icon,
+                color: const Color(0xff16425B),
+                size: 20,
+              ),
             ),
           ),
         ],
@@ -1550,13 +1636,14 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
 
     filteredCatches.sort((a, b) {
       int comparison = 0;
-      if (_selectedOrder == 'Year') {
+      if (_selectedOrder == 'Rep. Year') {
         comparison =
             (a["reporting_year"]?.compareTo(b["reporting_year"] ?? '') ?? 0);
       } else if (_selectedOrder == 'Value') {
         comparison = (a["value"]?.compareTo(b["value"] ?? 0) ?? 0);
-      } else if (_selectedOrder == 'Source') {
-        comparison = (a["db_source"]?.compareTo(b["db_source"] ?? '') ?? 0);
+      } else if (_selectedOrder == 'Ref. Year') {
+        comparison =
+            (a["reference_ear"]?.compareTo(b["reference_ear"] ?? '') ?? 0);
       }
       return _sortOrder == 'asc' ? comparison : -comparison;
     });
@@ -1591,13 +1678,173 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   Widget _listViewItemCatch(String value, String unit, String type,
       String source, String reportingYear, String referenceYear) {
     return Card(
-      color: const Color(0xff1a5d7d),
-      child: ListTile(
-        title:
-            Text('$value $unit', style: const TextStyle(color: Colors.white)),
-        subtitle: Text(
-            '$type | $source\nYear: $reportingYear (Ref: $referenceYear)',
-            style: const TextStyle(color: Color(0xffd9dcd6))),
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xffd9dcd6),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // First Row: Value and Unit
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Value',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 16), // Spacing between Value and Unit
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Unit',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      unit,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Data Owner',
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const SizedBox(height: 1),
+            Text(
+              source,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.bold,
+              ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Reference Year',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      referenceYear,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 16), // Spacing between Years
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Reporting Year',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      reportingYear,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 8), // Spacing before Type
+            // Type Section
+            const Text(
+              'Type',
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const SizedBox(height: 1),
+            Text(
+              type,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.bold,
+              ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+          ],
+        ),
       ),
     );
   }
