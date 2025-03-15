@@ -108,6 +108,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   bool _showGearsList = false;
   bool _showManagementUnitsList = false;
   bool _showCatches = false;
+  bool _showLandings = false;
 
   @override
   Widget build(BuildContext context) {
@@ -119,13 +120,15 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
             if (_showAreasList ||
                 _showOwnerList ||
                 _showManagementUnitsList ||
-                _showCatches) {
+                _showCatches ||
+                _showLandings) {
               setState(() {
                 _showDetails = true;
                 _showAreasList = false;
                 _showOwnerList = false;
                 _showManagementUnitsList = false;
                 _showCatches = false;
+                _showLandings = false;
               });
             } else {
               Navigator.pop(context);
@@ -246,6 +249,24 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                                 child: _displayList(
                                   searchHint: 'Search Catch',
                                   listDisplay: _catchesList(),
+                                  displayDropDown: false,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (_showLandings)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _listTitle(title: 'Landings'),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                  searchHint: 'Search Landing',
+                                  listDisplay: _landingsList(),
                                   displayDropDown: false,
                                 ),
                               ),
@@ -437,13 +458,13 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                 children: [
                   statusDisplay(),
                   _truncatedDisplay(
-                      'Short Name', widget.fishery.shortName ?? '', 40),
+                      'Short Name', widget.fishery.shortName ?? '', 35),
                   _truncatedDisplay(
-                      'Semantic ID', widget.fishery.grsfSemanticID ?? '', 40),
+                      'Semantic ID', widget.fishery.grsfSemanticID ?? '', 35),
                   _truncatedDisplay(
-                      'Semantic Title', widget.fishery.grsfName ?? '', 40),
-                  _truncatedDisplay('UUID', widget.fishery.uuid ?? '', 40),
-                  _truncatedDisplay('Type', widget.fishery.type ?? '', 40),
+                      'Semantic Title', widget.fishery.grsfName ?? '', 35),
+                  _truncatedDisplay('UUID', widget.fishery.uuid ?? '', 35),
+                  _truncatedDisplay('Type', widget.fishery.type ?? '', 35),
                   if (_responseData != null &&
                       _responseData!["result"]["source_urls"][0] != null)
                     Align(
@@ -526,30 +547,6 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                     ),
                   ),
                 ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _displayTitleWithIcon(String value, VoidCallback onPressed,
-      {IconData icon = Icons.image}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                value,
-                style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
-              ),
-              _iconButton(
-                onPressed: onPressed,
-                icon: icon, // Pass the icon argument here
-              ),
             ],
           ),
         ],
@@ -776,7 +773,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
         ),
       );
     }
-    return SizedBox.shrink();
+    return const SizedBox.shrink();
   }
 
   Padding displayFlagState() {
@@ -998,7 +995,6 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   }
 
   void dataInfoDialogDisplay() {
-    // Show popup dialog
     showDialog(
       context: context,
       builder: (context) {
@@ -1022,6 +1018,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                       _showGearsList = false;
                       _showManagementUnitsList = false;
                       _showCatches = true;
+                      _showLandings = false;
                     });
                     Navigator.of(context).pop();
                   },
@@ -1041,7 +1038,16 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
-                    // Action for Related Fisheries
+                    setState(() {
+                      _showDetails = false;
+                      _showAreasList = false;
+                      _showOwnerList = false;
+                      _showGearsList = false;
+                      _showManagementUnitsList = false;
+                      _showCatches = false;
+                      _showLandings = true;
+                    });
+                    Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff16425B),
@@ -1669,6 +1675,85 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                   catchData["db_source"] ?? "",
                   catchData["reporting_year"]?.toString() ?? "",
                   catchData["reference_year"]?.toString() ?? "",
+                );
+              },
+            ),
+    );
+  }
+
+  Widget _landingsList() {
+    if (_responseData == null ||
+        _responseData!["result"] == null ||
+        _responseData!["result"]["landings"] == null ||
+        _responseData!["result"]["landings"].isEmpty) {
+      return const Center(
+        child: Text(
+          'No landing data available',
+          style: TextStyle(color: Color(0xffd9dcd6)),
+        ),
+      );
+    }
+
+    final List<dynamic> landings =
+        List.from(_responseData!["result"]["landings"]);
+
+    final filteredCatches = landings
+        .where((landingData) =>
+            _searchQuery.isEmpty ||
+            (landingData["value"]?.toString().contains(_searchQuery) ?? false) ||
+            (landingData["unit"]
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (landingData["type"]
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (landingData["db_source"]
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (landingData["reporting_year"]?.toString().contains(_searchQuery) ??
+                false) ||
+            (landingData["reference_year"]?.toString().contains(_searchQuery) ??
+                false))
+        .toList();
+
+    filteredCatches.sort((a, b) {
+      int comparison = 0;
+      if (_selectedOrder == 'Rep. Year') {
+        comparison =
+            (a["reporting_year"]?.compareTo(b["reporting_year"] ?? '') ?? 0);
+      } else if (_selectedOrder == 'Value') {
+        comparison = (a["value"]?.compareTo(b["value"] ?? 0) ?? 0);
+      } else if (_selectedOrder == 'Ref. Year') {
+        comparison =
+            (a["reference_ear"]?.compareTo(b["reference_ear"] ?? '') ?? 0);
+      }
+      return _sortOrder == 'asc' ? comparison : -comparison;
+    });
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      padding: const EdgeInsets.all(10),
+      child: filteredCatches.isEmpty
+          ? const Center(
+              child: Text(
+                'No matching landing records found',
+                style: TextStyle(color: Color(0xffd9dcd6)),
+              ),
+            )
+          : ListView.builder(
+              itemCount: filteredCatches.length,
+              itemBuilder: (context, index) {
+                final landingData = filteredCatches[index];
+                return _listViewItemCatch(
+                  landingData["value"]?.toString() ?? "",
+                  landingData["unit"] ?? "",
+                  landingData["type"] ?? "",
+                  landingData["db_source"] ?? "",
+                  landingData["reporting_year"]?.toString() ?? "",
+                  landingData["reference_year"]?.toString() ?? "",
                 );
               },
             ),

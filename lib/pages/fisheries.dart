@@ -20,6 +20,8 @@ class _FisheriesState extends State<Fisheries> {
   String _sortOrder = 'asc';
   bool isLoading = true;
   String? error;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
@@ -64,9 +66,71 @@ class _FisheriesState extends State<Fisheries> {
       ),
       body: Column(
         children: [
+          _searchField(),
+          const SizedBox(
+            height: 5,
+          ),
           _orderByDropdown(),
           const SizedBox(height: 5),
           Expanded(child: _results()),
+        ],
+      ),
+    );
+  }
+
+  Widget _searchField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          // Search Field (Expanded to take remaining space)
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+              style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
+                contentPadding: const EdgeInsets.all(15),
+                hintText: 'Search Species',
+                hintStyle: const TextStyle(
+                  color: Color(0xffd9dcd6),
+                  fontSize: 14,
+                ),
+                prefixIcon: const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Icon(
+                    Icons.search,
+                    color: Color(0xffd9dcd6),
+                  ),
+                ),
+                suffixIcon: GestureDetector(
+                  onTap: () {
+                    _searchController.clear();
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Icon(
+                      Icons.cancel,
+                      color: Color(0xffd9dcd6),
+                    ),
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -103,12 +167,17 @@ class _FisheriesState extends State<Fisheries> {
           style: TextStyle(color: Color(0xffd9dcd6)),
         ),
       );
-
-      // return const Center(
-      //   child: CircularProgressIndicator(color: Colors.white),
-      // );
     }
-    fisheries!.sort((a, b) {
+
+    final filteredFisheries = fisheries!.where((f) {
+      final query = _searchQuery.toLowerCase();
+
+      return _searchQuery.isEmpty ||
+          (f.shortName?.toLowerCase().contains(query) ?? false) ||
+          (f.uuid?.toLowerCase().contains(query) ?? false);
+    }).toList();
+
+    filteredFisheries.sort((a, b) {
       int comparison = 0;
       if (_selectedOrder == 'Short Name') {
         comparison = a.shortName?.compareTo(b.shortName ?? '') ?? 0;
@@ -126,7 +195,7 @@ class _FisheriesState extends State<Fisheries> {
           color: const Color(0xffd9dcd6),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: fisheries!.isEmpty
+        child: filteredFisheries!.isEmpty
             ? const Center(
                 child: Text(
                   'No fisheries found',
@@ -135,9 +204,9 @@ class _FisheriesState extends State<Fisheries> {
               )
             : ListView.builder(
                 padding: const EdgeInsets.all(10),
-                itemCount: fisheries!.length,
+                itemCount: filteredFisheries.length,
                 itemBuilder: (context, index) =>
-                    _listViewItem(item: fisheries![index]),
+                    _listViewItem(item: filteredFisheries[index]),
               ));
   }
 
