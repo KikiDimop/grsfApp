@@ -1,4 +1,3 @@
-
 import 'package:grsfApp/models/areasForStock.dart';
 import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/models/speciesForStock.dart';
@@ -7,6 +6,9 @@ import 'package:grsfApp/models/stockOwner.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:url_launcher/url_launcher.dart';
 
 class DisplaySingleStock extends StatefulWidget {
   final Stock stock;
@@ -21,7 +23,12 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   List<StockOwner>? owners;
   List<SpeciesForStock>? species;
   bool isLoading = true;
+  bool isLoading2 = true;
+  bool isExistDataFromAPI = false;
+  bool isExistDataInfoFromAPI = false;
   String? error;
+  Map<String, dynamic>? _responseData;
+  Map<String, dynamic>? _responseDataInfo;
 
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -32,6 +39,8 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   void initState() {
     super.initState();
     _fetchData();
+    _fetchDataFromAPI();
+    _fetchDataInfoFromAPI();
   }
 
   Future<void> _fetchData() async {
@@ -67,6 +76,57 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
         error = e.toString();
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> _fetchDataFromAPI() async {
+    try {
+      final response = await http.get(Uri.parse(
+          'https://isl.ics.forth.gr/grsf/grsf-api/resources/getstockbasic?uuid=${widget.stock.uuid}&response_type=JSON'));
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _responseData = data;
+          isLoading2 = false;
+          isExistDataFromAPI = true;
+        });
+      } else {
+        setState(() {
+          _responseData = null;
+          isLoading2 = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _responseData = null;
+        isLoading2 = false;
+      });
+      print('Error fetching API data: $e');
+    }
+  }
+
+  Future<void> _fetchDataInfoFromAPI() async {
+    try {
+      final response = await http.get(Uri.parse(
+          'https://isl.ics.forth.gr/grsf/grsf-api/resources/getstock?uuid=${widget.stock.uuid}&response_type=JSON'));
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _responseDataInfo = data;
+          isExistDataInfoFromAPI = true;
+        });
+      } else {
+        setState(() {
+          _responseDataInfo = null;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _responseDataInfo = null;
+      });
+      print('Error fetching API data: $e');
     }
   }
 
@@ -106,62 +166,76 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
           ),
         ],
       ),
-      body: isLoading
+      body: (isLoading || isLoading2)
           ? const Center(child: CircularProgressIndicator())
           : error != null
               ? Center(
                   child: Text('Error: $error',
                       style: const TextStyle(color: Colors.red)))
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _identitySection(context),
-                    const SizedBox(height: 5),
-                    if (_showDetails)
-                      _detailsSection(context)
-                    else if (_showAreasList)
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _listTitle(title: 'Assessment Areas'),
-                            const SizedBox(height: 5),
-                            _displayList(
-                              searchHint: 'Search Area',
-                              listDisplay: _areasList(),
-                            ),
-                          ],
+              : SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _identitySection(context),
+                      const SizedBox(height: 5),
+                      if (_showDetails)
+                        _detailsSection(context)
+                      else if (_showAreasList)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _listTitle(title: 'Assessment Areas'),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                  searchHint: 'Search Area',
+                                  listDisplay: _areasList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (_showSpeciesList)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _listTitle(title: 'Species'),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                  searchHint: 'Search Species',
+                                  listDisplay: _speciesList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (_showOwnerList)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _listTitle(title: 'Owners'),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                  searchHint: 'Search Owner',
+                                  listDisplay: _ownersList(),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      )
-                    else if (_showSpeciesList)
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _listTitle(title: 'Species'),
-                            const SizedBox(height: 5),
-                            _displayList(
-                              searchHint: 'Search Species',
-                              listDisplay: _speciesList(),
-                            ),
-                          ],
-                        ),
-                      )
-                    else if (_showOwnerList)
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _listTitle(title: 'Owners'),
-                            const SizedBox(height: 5),
-                            _displayList(
-                              searchHint: 'Search Owner',
-                              listDisplay: _ownersList(),
-                            ),
-                          ],
-                        ),
-                      )
-                  ],
+                      const SizedBox(height: 5),
+                      if (isExistDataInfoFromAPI && _showDetails)
+                        _dataSection(context)
+                    ],
+                  ),
                 ),
     );
   }
@@ -328,12 +402,19 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                       'Semantic Title', widget.stock.grsfName ?? '', 40),
                   _truncatedDisplay('UUID', widget.stock.uuid ?? '', 40),
                   _truncatedDisplay('Type', widget.stock.type ?? '', 40),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: _imageButton(
-                      assetPath: 'assets/icons/map.png',
-                      onPressed: () => _showMap(context, 'Map'),
-                    ),
+                  Row(
+                    children: [
+                      _imageButton(
+                        assetPath: 'assets/icons/map.png',
+                        onPressed: () => _showMap(context, 'Map'),
+                      ),
+                      Spacer(),
+                      if (isExistDataFromAPI)
+                        _iconButton(
+                          icon: Icons.link,
+                          onPressed: () => _sourceLink(),
+                        ),
+                    ],
                   )
                 ],
               ),
@@ -342,6 +423,74 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
         ),
       ],
     );
+  }
+
+  Future<void> _sourceLink() async {
+    List<String> sourceUrls =
+        List<String>.from(_responseData!["result"]["source_urls"] ?? []);
+
+    if (sourceUrls.length == 1) {
+      _openSourceLink(sourceUrls[0]);
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            backgroundColor: const Color(0xffd9dcd6),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: sourceUrls.map((url) {
+                  String siteName = Uri.parse(url).host.replaceAll("www.", "");
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: ElevatedButton(
+                      onPressed: () => _openSourceLink(url),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xff16425B),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                      ),
+                      child: Text(
+                        siteName,
+                        style: const TextStyle(
+                            fontSize: 14, color: Color(0xffd9dcd6)),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text(
+                  'Close',
+                  style: TextStyle(color: Color(0xff16425B)),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> _openSourceLink(String link) async {
+    final Uri url = Uri.parse(link);
+
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $url');
+    }
   }
 
   Widget _truncatedDisplay(String title, String value, int maxLength) {
@@ -592,6 +741,67 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
             ),
           ],
         )
+      ],
+    );
+  }
+
+  Widget _dataSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            'Stock Data',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xffd9dcd6),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width * 0.9,
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: const Color(0xffd9dcd6),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Timeseries Type',
+                          style:
+                              TextStyle(fontSize: 12, color: Color(0xff16425B)),
+                        ),
+                        displayTimeseries(),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget displayTimeseries() {
+    return Column(
+      children: [
+        if(isExistDataInfoFromAPI && _responseDataInfo?["result"]["assessment_methods"].length != 0)
+        const ElevatedButton(onPressed: null, child: Text('Assessment Methods'))
       ],
     );
   }

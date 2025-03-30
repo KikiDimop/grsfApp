@@ -97,7 +97,7 @@ class _FisheriesState extends State<Fisheries> {
                 filled: true,
                 fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
                 contentPadding: const EdgeInsets.all(15),
-                hintText: 'Search Species',
+                hintText: 'Search Fisheries',
                 hintStyle: const TextStyle(
                   color: Color(0xffd9dcd6),
                   fontSize: 14,

@@ -24,8 +24,11 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   List<Gear>? gears;
   bool isLoading = true;
   bool isLoading2 = true;
+  bool isExistDataFromAPI = false;
+  bool isExistDataInfoFromAPI = false;
   String? error;
   Map<String, dynamic>? _responseData;
+  Map<String, dynamic>? _responseDataInfo;
 
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -37,6 +40,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     super.initState();
     _fetchData();
     _fetchDataFromAPI();
+    _fetchDataInfoFromAPI();
   }
 
   Future<void> _fetchData() async {
@@ -79,26 +83,51 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   Future<void> _fetchDataFromAPI() async {
     try {
       final response = await http.get(Uri.parse(
-          'https://isl.ics.forth.gr/grsf/grsf-api/resources/getfishery?uuid=${widget.fishery.uuid}&response_type=JSON'));
+          'https://isl.ics.forth.gr/grsf/grsf-api/resources/getfisherybasic?uuid=${widget.fishery.uuid}&response_type=JSON'));
 
       if (response.statusCode == 200) {
         Map<String, dynamic> data = jsonDecode(response.body);
-
         setState(() {
-          _responseData = data; // Store entire JSON response
+          _responseData = data;
           isLoading2 = false;
+          isExistDataFromAPI = true;
         });
       } else {
         setState(() {
+          _responseData = null;
           isLoading2 = false;
-          error = "Failed to load data. Status Code: ${response.statusCode}";
         });
       }
     } catch (e) {
       setState(() {
+        _responseData = null;
         isLoading2 = false;
-        error = "Error fetching data: $e";
       });
+      print('Error fetching API data: $e');
+    }
+  }
+
+  Future<void> _fetchDataInfoFromAPI() async {
+    try {
+      final response = await http.get(Uri.parse(
+          'https://isl.ics.forth.gr/grsf/grsf-api/resources/getfishery?uuid=${widget.fishery.uuid}&response_type=JSON'));
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _responseDataInfo = data;
+          isExistDataInfoFromAPI = true;
+        });
+      } else {
+        setState(() {
+          _responseDataInfo = null;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _responseDataInfo = null;
+      });
+      print('Error fetching API data: $e');
     }
   }
 
@@ -163,8 +192,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                         _detailsSection(context)
                       else if (_showAreasList)
                         SizedBox(
-                          height: MediaQuery.of(context).size.height *
-                              0.7, // Adjust height as needed
+                          height: MediaQuery.of(context).size.height * 0.7,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -182,8 +210,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                         )
                       else if (_showOwnerList)
                         SizedBox(
-                          height: MediaQuery.of(context).size.height *
-                              0.7, // Adjust height as needed
+                          height: MediaQuery.of(context).size.height * 0.7,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -465,8 +492,9 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                       'Semantic Title', widget.fishery.grsfName ?? '', 35),
                   _truncatedDisplay('UUID', widget.fishery.uuid ?? '', 35),
                   _truncatedDisplay('Type', widget.fishery.type ?? '', 35),
-                  if (_responseData != null &&
-                      _responseData!["result"]["source_urls"][0] != null)
+                  if (isExistDataFromAPI)
+                    // if (_responseData != null &&
+                    //     _responseData!["result"]["source_urls"][0] != null)
                     Align(
                       alignment: Alignment.centerRight,
                       child: _iconButton(
@@ -669,11 +697,14 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                   if (areas!.length == 1) _buildAreaDetails(areas!.first),
                   if (owners!.length == 1) _buildOwnerDetails(owners!.first),
                   if (gears!.length == 1) _buildGearDetails(gears!.first),
-                  (_responseData == null)
-                      ? simpleDisplay('Management Authority',
-                          widget.fishery.managementEntities ?? '-')
-                      : displayManagmentAuthority(),
-                  if (_responseData != null) displayFlagState(),
+                  // (isExistDataFromAPI)
+                  //     //(_responseData == null)
+                  //     ? displayManagmentAuthority()
+                  //     : simpleDisplay('Management Authority', widget.fishery.managementEntities ?? '-'),
+                  //if (_responseData != null) displayFlagState(),
+                  simpleDisplay('Management Authority',
+                      widget.fishery.managementEntities ?? '-'),
+                  if (isExistDataFromAPI) displayFlagState(),
                   Wrap(
                     spacing: 3,
                     runSpacing: 1,
@@ -718,20 +749,22 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                             });
                           },
                         ),
-                      if (_responseData!["result"]["management_units"].length >
-                          1)
-                        _button(
-                          label: 'Management Units',
-                          onPressed: () {
-                            setState(() {
-                              _showDetails = false;
-                              _showAreasList = false;
-                              _showOwnerList = false;
-                              _showGearsList = false;
-                              _showManagementUnitsList = true;
-                            });
-                          },
-                        ),
+                      // if (isExistDataFromAPI)
+                      //   if (_responseData!["result"]["management_units"]
+                      //           .length >
+                      //       1)
+                      //     _button(
+                      //       label: 'Management Units',
+                      //       onPressed: () {
+                      //         setState(() {
+                      //           _showDetails = false;
+                      //           _showAreasList = false;
+                      //           _showOwnerList = false;
+                      //           _showGearsList = false;
+                      //           _showManagementUnitsList = true;
+                      //         });
+                      //       },
+                      //     ),
                     ],
                   ),
                 ],
@@ -1010,18 +1043,21 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
               mainAxisSize: MainAxisSize.min, // Adjusts height to content
               children: [
                 ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _showDetails = false;
-                      _showAreasList = false;
-                      _showOwnerList = false;
-                      _showGearsList = false;
-                      _showManagementUnitsList = false;
-                      _showCatches = true;
-                      _showLandings = false;
-                    });
-                    Navigator.of(context).pop();
-                  },
+                  onPressed: (isExistDataInfoFromAPI &&
+                          _responseDataInfo?["result"]["catches"].length != 0)
+                      ? () {
+                          setState(() {
+                            _showDetails = false;
+                            _showAreasList = false;
+                            _showOwnerList = false;
+                            _showGearsList = false;
+                            _showManagementUnitsList = false;
+                            _showCatches = true;
+                            _showLandings = false;
+                          });
+                          Navigator.of(context).pop();
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff16425B),
                     shape: RoundedRectangleBorder(
@@ -1037,18 +1073,21 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _showDetails = false;
-                      _showAreasList = false;
-                      _showOwnerList = false;
-                      _showGearsList = false;
-                      _showManagementUnitsList = false;
-                      _showCatches = false;
-                      _showLandings = true;
-                    });
-                    Navigator.of(context).pop();
-                  },
+                  onPressed: (isExistDataInfoFromAPI &&
+                          _responseDataInfo?["result"]["landings"].length != 0)
+                      ? () {
+                          setState(() {
+                            _showDetails = false;
+                            _showAreasList = false;
+                            _showOwnerList = false;
+                            _showGearsList = false;
+                            _showManagementUnitsList = false;
+                            _showCatches = false;
+                            _showLandings = true;
+                          });
+                          Navigator.of(context).pop();
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff16425B),
                     shape: RoundedRectangleBorder(
@@ -1603,10 +1642,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   }
 
   Widget _catchesList() {
-    if (_responseData == null ||
-        _responseData!["result"] == null ||
-        _responseData!["result"]["catches"] == null ||
-        _responseData!["result"]["catches"].isEmpty) {
+    if (isExistDataInfoFromAPI &&
+        _responseDataInfo?["result"]["catches"].length == 0) {
       return const Center(
         child: Text(
           'No catch data available',
@@ -1616,7 +1653,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     }
 
     final List<dynamic> catches =
-        List.from(_responseData!["result"]["catches"]);
+        List.from(_responseDataInfo!["result"]["catches"]);
 
     final filteredCatches = catches
         .where((catchData) =>
@@ -1682,10 +1719,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   }
 
   Widget _landingsList() {
-    if (_responseData == null ||
-        _responseData!["result"] == null ||
-        _responseData!["result"]["landings"] == null ||
-        _responseData!["result"]["landings"].isEmpty) {
+    if (isExistDataInfoFromAPI &&
+        _responseDataInfo?["result"]["landings"].length == 0) {
       return const Center(
         child: Text(
           'No landing data available',
@@ -1695,12 +1730,13 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     }
 
     final List<dynamic> landings =
-        List.from(_responseData!["result"]["landings"]);
+        List.from(_responseDataInfo!["result"]["landings"]);
 
     final filteredCatches = landings
         .where((landingData) =>
             _searchQuery.isEmpty ||
-            (landingData["value"]?.toString().contains(_searchQuery) ?? false) ||
+            (landingData["value"]?.toString().contains(_searchQuery) ??
+                false) ||
             (landingData["unit"]
                     ?.toLowerCase()
                     .contains(_searchQuery.toLowerCase()) ??
