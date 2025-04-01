@@ -772,18 +772,18 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
                     padding: EdgeInsets.only(bottom: 4),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Timeseries Type',
-                          style:
-                              TextStyle(fontSize: 12, color: Color(0xff16425B)),
-                        ),
+                        // const Text(
+                        //   'Timeseries Type',
+                        //   style:
+                        //       TextStyle(fontSize: 12, color: Color(0xff16425B)),
+                        // ),
                         displayTimeseries(),
                       ],
                     ),
@@ -797,12 +797,70 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     );
   }
 
+  void display() {
+    print('object');
+  }
+
   Widget displayTimeseries() {
     return Column(
       children: [
-        if(isExistDataInfoFromAPI && _responseDataInfo?["result"]["assessment_methods"].length != 0)
-        const ElevatedButton(onPressed: null, child: Text('Assessment Methods'))
+        if (isExistDataInfoFromAPI &&
+            _responseDataInfo?["result"]["scientific_advices"].length != 0)
+          _button(label: 'scientific_advices', onPressed: display),
+        if (isExistDataInfoFromAPI &&
+            _responseDataInfo?["result"]["assessment_methods"].length != 0)
+          _button(label: 'assessment_methods', onPressed: display),
+        if (isExistDataInfoFromAPI &&
+            _responseDataInfo?["result"]["abundance_level"].length != 0)
+          _button(label: 'abundance_level', onPressed: display),
+        if (isExistDataInfoFromAPI &&
+            _responseDataInfo?["result"]["abundance_level_standard"].length !=
+                0)
+          _button(label: 'abundance_level_standard', onPressed: display),
+        if (isExistDataInfoFromAPI &&
+            _responseDataInfo?["result"]["fishing_pressure"].length != 0)
+          _button(label: 'fishing_pressure', onPressed: display),
+        if (isExistDataInfoFromAPI &&
+            _responseDataInfo?["result"]["fishing_pressure_standard"].length !=
+                0)
+          _button(label: 'fishing_pressure_standard', onPressed: display),
+        if (isExistDataInfoFromAPI &&
+            _responseDataInfo?["result"]["catches"].length != 0)
+          _button(label: 'catches', onPressed: display),
+        if (isExistDataInfoFromAPI &&
+            _responseDataInfo?["result"]["landings"].length != 0)
+          _button(label: 'landings', onPressed: display),
+        if (isExistDataInfoFromAPI &&
+            _responseDataInfo?["result"]["landed_volumes"].length != 0)
+          _button(label: 'landed_volumes', onPressed: display),
+        if (isExistDataInfoFromAPI &&
+            _responseDataInfo?["result"]["biomass"].length != 0)
+          _button(label: 'biomass', onPressed: display),
       ],
+    );
+  }
+
+  Widget _button({
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xff16425B), // Dynamic background color
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8), // Rounded edges
+        ),
+        padding: const EdgeInsets.symmetric(
+            horizontal: 16, vertical: 8), // Dynamic padding
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 14,
+          color: Color(0xffd9dcd6), // Dynamic text color
+        ),
+      ),
     );
   }
 
@@ -897,30 +955,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _button({
-    required String label,
-    required VoidCallback onPressed,
-  }) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xff16425B), // Dynamic background color
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), // Rounded edges
-        ),
-        padding: const EdgeInsets.symmetric(
-            horizontal: 16, vertical: 8), // Dynamic padding
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 14,
-          color: Color(0xffd9dcd6), // Dynamic text color
-        ),
       ),
     );
   }
