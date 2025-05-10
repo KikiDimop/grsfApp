@@ -1,4 +1,5 @@
 import 'package:grsfApp/models/areasForStock.dart';
+import 'package:grsfApp/models/faoMajorArea.dart';
 import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/models/speciesForStock.dart';
 import 'package:grsfApp/models/stock.dart';
@@ -21,6 +22,7 @@ class DisplaySingleStock extends StatefulWidget {
 class _DisplaySingleStockState extends State<DisplaySingleStock> {
   List<AreasForStock>? areas;
   List<StockOwner>? owners;
+  List<FaoMajorArea>? faoAreas;
   List<SpeciesForStock>? species;
   bool isLoading = true;
   bool isLoading2 = true;
@@ -46,7 +48,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   Future<void> _fetchData() async {
     try {
       String whereStr = 'uuid = "${widget.stock.uuid}"';
-
       final results = await Future.wait([
         DatabaseService.instance.readAll(
           tableName: 'AreasForStock',
@@ -63,12 +64,15 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
           where: whereStr,
           fromMap: SpeciesForStock.fromMap,
         ),
+        DatabaseService.instance
+            .getFaoMajorAreas(widget.stock.parentAreas ?? '')
       ]);
 
       setState(() {
         areas = results[0] as List<AreasForStock>;
         owners = results[1] as List<StockOwner>;
         species = results[2] as List<SpeciesForStock>;
+        faoAreas = results[3] as List<FaoMajorArea>;
         isLoading = false;
       });
     } catch (e) {
@@ -134,6 +138,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   bool _showAreasList = false;
   bool _showSpeciesList = false;
   bool _showOwnerList = false;
+  bool _showFaoMajorAreaList = false;
 
   @override
   Widget build(BuildContext context) {
@@ -142,12 +147,16 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            if (_showAreasList || _showSpeciesList || _showOwnerList) {
+            if (_showAreasList ||
+                _showSpeciesList ||
+                _showOwnerList ||
+                _showFaoMajorAreaList) {
               setState(() {
                 _showDetails = true;
                 _showAreasList = false;
                 _showSpeciesList = false;
                 _showOwnerList = false;
+                _showFaoMajorAreaList = false;
               });
             } else {
               Navigator.pop(context);
@@ -182,7 +191,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                         _detailsSection(context)
                       else if (_showAreasList)
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.7,
+                          height: MediaQuery.of(context).size.height * 0.5,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -190,16 +199,16 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
-                                  searchHint: 'Search Area',
-                                  listDisplay: _areasList(),
-                                ),
+                                    searchHint: 'Search Area',
+                                    listDisplay: _areasList(),
+                                    displayDropDown: true),
                               ),
                             ],
                           ),
                         )
                       else if (_showSpeciesList)
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.7,
+                          height: MediaQuery.of(context).size.height * 0.5,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -207,16 +216,16 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
-                                  searchHint: 'Search Species',
-                                  listDisplay: _speciesList(),
-                                ),
+                                    searchHint: 'Search Species',
+                                    listDisplay: _speciesList(),
+                                    displayDropDown: true),
                               ),
                             ],
                           ),
                         )
                       else if (_showOwnerList)
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.7,
+                          height: MediaQuery.of(context).size.height * 0.5,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -224,9 +233,26 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
-                                  searchHint: 'Search Owner',
-                                  listDisplay: _ownersList(),
-                                ),
+                                    searchHint: 'Search Owner',
+                                    listDisplay: _ownersList(),
+                                    displayDropDown: false),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (_showFaoMajorAreaList)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _listTitle(title: 'Fao Major Areas'),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                    searchHint: 'Search Fao Major Area',
+                                    listDisplay: _faoMajorAreaList(),
+                                    displayDropDown: false),
                               ),
                             ],
                           ),
@@ -255,7 +281,9 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   }
 
   Expanded _displayList(
-      {required String searchHint, required Widget listDisplay}) {
+      {required String searchHint,
+      required Widget listDisplay,
+      required bool displayDropDown}) {
     return Expanded(
       child: Container(
         margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
@@ -266,15 +294,12 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
         ),
         child: Column(
           children: [
-            if (!searchHint.contains('Owner'))
-              Column(
-                children: [
-                  _searchField(hint: searchHint),
-                  const SizedBox(height: 16),
-                  _orderByDropdown(),
-                  const SizedBox(height: 16),
-                ],
-              ),
+            Column(
+              children: [
+                _searchField(hint: searchHint),
+                if (displayDropDown) _orderByDropdown(),
+              ],
+            ),
             Expanded(
               child: listDisplay,
             ),
@@ -286,7 +311,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
 
   Widget _orderByDropdown() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         children: [
           Expanded(
@@ -656,7 +681,10 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   }
 
   Widget _detailsSection(BuildContext context) {
-    if (areas == null || owners == null || species == null) {
+    if (areas == null ||
+        owners == null ||
+        species == null ||
+        faoAreas == null) {
       return const Center(child: Text('No data available'));
     }
 
@@ -692,10 +720,11 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                     _buildSpeciesDetails(species!.first),
                   if (areas!.length == 1) _buildAreaDetails(areas!.first),
                   if (owners!.length == 1) _buildOwnerDetails(owners!.first),
+                  if (faoAreas!.length == 1)
+                    _buildFaoMajorAreaDetails(faoAreas!.first),
                   Wrap(
-                    // Changed from Row to Wrap
-                    spacing: 3, // Horizontal spacing between buttons
-                    runSpacing: 1, // Vertical spacing between rows
+                    spacing: 3,
+                    runSpacing: 1,
                     alignment: WrapAlignment.start,
                     children: [
                       if (species!.length > 1)
@@ -707,6 +736,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                               _showAreasList = false;
                               _showOwnerList = false;
                               _showSpeciesList = true;
+                              _showFaoMajorAreaList = false;
                             });
                           },
                         ),
@@ -719,6 +749,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                               _showAreasList = true;
                               _showOwnerList = false;
                               _showSpeciesList = false;
+                              _showFaoMajorAreaList = false;
                             });
                           },
                         ),
@@ -731,6 +762,20 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                               _showAreasList = false;
                               _showOwnerList = true;
                               _showSpeciesList = false;
+                              _showFaoMajorAreaList = false;
+                            });
+                          },
+                        ),
+                      if (faoAreas!.length > 1)
+                        _button(
+                          label: 'FAO Major Areas',
+                          onPressed: () {
+                            setState(() {
+                              _showDetails = false;
+                              _showAreasList = false;
+                              _showOwnerList = false;
+                              _showSpeciesList = false;
+                              _showFaoMajorAreaList = true;
                             });
                           },
                         ),
@@ -779,11 +824,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // const Text(
-                        //   'Timeseries Type',
-                        //   style:
-                        //       TextStyle(fontSize: 12, color: Color(0xff16425B)),
-                        // ),
                         displayTimeseries(),
                       ],
                     ),
@@ -895,6 +935,23 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
           displayRow('Code     : ', area.areaCode ?? ''),
           displayRow('System : ', area.areaType ?? ''),
           displayRow('Name    : ', area.areaName ?? ''),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFaoMajorAreaDetails(FaoMajorArea faoMajorArea) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Fao Major Area',
+            style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
+          ),
+          displayRow('Code     : ', faoMajorArea.faoMajorAreaCode ?? ''),
+          displayRow('Name    : ', faoMajorArea.faoMajorAreaName ?? ''),
         ],
       ),
     );
@@ -1043,6 +1100,9 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
       code = item.areaCode ?? 'No Code';
     } else if (item is StockOwner) {
       name = item.owner ?? 'No Name';
+    } else if (item is FaoMajorArea) {
+      code = item.faoMajorAreaCode ?? 'No Code';
+      name = item.faoMajorAreaName ?? 'No Name';
     }
 
     return Card(
@@ -1310,8 +1370,8 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
           : ListView.builder(
               itemCount: filteredSpecies.length,
               itemBuilder: (context, index) {
-                final i = filteredSpecies[index];
-                return _listViewItem(item: i);
+                final item = filteredSpecies[index];
+                return _listViewItem(item: item);
               },
             ),
     );
@@ -1336,15 +1396,47 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
       child: owners!.isEmpty
           ? const Center(
               child: Text(
-                'No areas found',
+                'No owners found',
                 style: TextStyle(color: Color(0xffd9dcd6)),
               ),
             )
           : ListView.builder(
               itemCount: owners!.length,
               itemBuilder: (context, index) {
-                final area = owners![index];
-                return _listViewItem(item: area);
+                final item = owners![index];
+                return _listViewItem(item: item);
+              },
+            ),
+    );
+  }
+
+  Widget _faoMajorAreaList() {
+    if (faoAreas == null) {
+      return const Center(
+        child: Text(
+          'No data available',
+          style: TextStyle(color: Color(0xffd9dcd6)),
+        ),
+      );
+    }
+
+    faoAreas = faoAreas?.toList();
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      padding: const EdgeInsets.all(10),
+      child: faoAreas!.isEmpty
+          ? const Center(
+              child: Text(
+                'No areas found',
+                style: TextStyle(color: Color(0xffd9dcd6)),
+              ),
+            )
+          : ListView.builder(
+              itemCount: faoAreas!.length,
+              itemBuilder: (context, index) {
+                final item = faoAreas![index];
+                return _listViewItem(item: item);
               },
             ),
     );

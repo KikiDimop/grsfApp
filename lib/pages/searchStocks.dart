@@ -41,7 +41,7 @@ class _SearchstocksState extends State<Searchstocks> {
     final List<String> fetchedAreaTypes =
         await dbService.getDistinct('area_type', 'AreasForStock');
     final List<String> fetchedFAOMajorAreas =
-        await dbService.getDistinct('parent_areas', 'Stock');
+        await dbService.getDistinct('fao_major_area_concat', 'FaoMajorArea');
     final List<String> fetchedResourceType =
         await dbService.getDistinct('type', 'Stock');
     final List<String> fetchedResourceStatus =
@@ -89,9 +89,12 @@ class _SearchstocksState extends State<Searchstocks> {
         backgroundColor: const Color(0xff16425B),
         foregroundColor: const Color(0xffd9dcd6),
         actions: [
-          IconButton(onPressed: (){
-            Navigator.popUntil(context, (route) => route.isFirst);
-          }, icon: const Icon(Icons.home_filled),),
+          IconButton(
+            onPressed: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            icon: const Icon(Icons.home_filled),
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -105,44 +108,45 @@ class _SearchstocksState extends State<Searchstocks> {
             _resourceSection(),
             const SizedBox(height: 10),
             _searchButton(context),
-
           ],
         ),
       ),
     );
   }
 
-ElevatedButton _searchButton(BuildContext context) {
-  return ElevatedButton(
-    onPressed: () {
-      SearchStock searchStock = SearchStock(
-        selectedSpeciesSystem ?? 'All',
-        speciesCodeController.text,
-        speciesNameController.text,
-        selectedAreaSystem ?? 'All',
-        areaCodeController.text,
-        areaNameController.text,
-        selectedFAOMajorArea ?? 'All',
-        selectedResourceType ?? 'All',
-        selectedResourceStatus ?? 'All',
-      );
+  ElevatedButton _searchButton(BuildContext context) {
+    return ElevatedButton(
+      onPressed: () {
+        SearchStock searchStock = SearchStock(
+          selectedSpeciesSystem ?? 'All',
+          speciesCodeController.text,
+          speciesNameController.text,
+          selectedAreaSystem ?? 'All',
+          areaCodeController.text,
+          areaNameController.text,
+          selectedFAOMajorArea ?? 'All',
+          selectedResourceType ?? 'All',
+          selectedResourceStatus ?? 'All',
+        );
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Stocks(search: searchStock, forSpecies: false, ),
-        ),
-      );
-    },
-    style: ElevatedButton.styleFrom(
-      foregroundColor: const Color(0xff16425B),
-      backgroundColor: const Color(0xffd9dcd6),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-    ),
-    child: const Text("Search"),
-  );
-}
-
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Stocks(
+              search: searchStock,
+              forSpecies: false,
+            ),
+          ),
+        );
+      },
+      style: ElevatedButton.styleFrom(
+        foregroundColor: const Color(0xff16425B),
+        backgroundColor: const Color(0xffd9dcd6),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+      ),
+      child: const Text("Search"),
+    );
+  }
 
   Widget _speciesSection() {
     return Column(
@@ -239,7 +243,8 @@ ElevatedButton _searchButton(BuildContext context) {
               const SizedBox(height: 8),
               _textField("Area Name", areaNameController),
               const SizedBox(height: 8),
-              _dropdownField('FAO Major Area', faoMajorAreas, selectedFAOMajorArea,
+              _dropdownField(
+                  'FAO Major Area', faoMajorAreas, selectedFAOMajorArea,
                   (value) {
                 setState(() {
                   selectedFAOMajorArea = value;
@@ -251,7 +256,7 @@ ElevatedButton _searchButton(BuildContext context) {
       ],
     );
   }
-  
+
   Widget _resourceSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,14 +295,12 @@ ElevatedButton _searchButton(BuildContext context) {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _dropdownField(
-                        'Resource Status', resourceStatus, selectedResourceStatus,
-                        (value) {
-                      setState(() {
-                        selectedResourceStatus = value;
-                      });
-                    })
-                  ),
+                      child: _dropdownField('Resource Status', resourceStatus,
+                          selectedResourceStatus, (value) {
+                    setState(() {
+                      selectedResourceStatus = value;
+                    });
+                  })),
                 ],
               ),
             ],

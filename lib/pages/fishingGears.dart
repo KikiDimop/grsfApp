@@ -4,6 +4,7 @@ import 'package:grsfApp/pages/fisheries.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FishingGears extends StatefulWidget {
   const FishingGears({super.key});
@@ -321,7 +322,6 @@ class _FishingGearsState extends State<FishingGears> {
               overflow: TextOverflow.visible,
             ),
             const SizedBox(height: 1),
-
             Column(
               children: [
                 Row(
@@ -353,8 +353,6 @@ class _FishingGearsState extends State<FishingGears> {
                       ),
                     ),
                     const SizedBox(width: 5),
-
-                    // "System" Section
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -383,15 +381,11 @@ class _FishingGearsState extends State<FishingGears> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 5),
-
-                // Second Column: Group Code & Group Name (if available)
                 if (g.fishingGearGroupId != null)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // "Group Code" Section
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,8 +412,6 @@ class _FishingGearsState extends State<FishingGears> {
                         ),
                       ),
                       const SizedBox(width: 5),
-
-                      // "Group Name" Section
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -448,7 +440,6 @@ class _FishingGearsState extends State<FishingGears> {
                       ),
                     ],
                   ),
-
                 const SizedBox(height: 5),
               ],
             ),
@@ -478,52 +469,70 @@ class _FishingGearsState extends State<FishingGears> {
                 ],
               ),
             const SizedBox(height: 5),
+            Row(children: [
+              ElevatedButton(
+                onPressed: () {
+                  SearchFishery searchFishery = SearchFishery(
+                      'All',
+                      '',
+                      '',
+                      'All',
+                      '',
+                      '',
+                      'All',
+                      g.fishingGearId ?? '',
+                      g.fishingGearName ?? '',
+                      'All',
+                      'All',
+                      'All');
 
-            // Show Relations Button
-            ElevatedButton(
-              onPressed: () {
-                SearchFishery searchFishery = SearchFishery(
-                    'All',
-                    '',
-                    '',
-                    'All',
-                    '',
-                    '',
-                    'All',
-                    g.fishingGearId ?? '',
-                    g.fishingGearName ?? '',
-                    'All',
-                    'All',
-                    'All');
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Fisheries(
-                      search: searchFishery,
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Fisheries(
+                        search: searchFishery,
+                      ),
                     ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff16425B), // Background color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8), // Rounded edges
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff16425B), // Background color
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8), // Rounded edges
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 8), // Button padding
                 ),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 8), // Button padding
-              ),
-              child: const Text(
-                'Show related fisheries',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xffd9dcd6), // Text color
+                child: const Text(
+                  'Show related fisheries',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xffd9dcd6), // Text color
+                  ),
                 ),
               ),
-            ),
+              const Spacer(),
+              InkWell(
+                onTap: () => _openSourceLink(
+                    'https://images.google.com/search?tbm=isch&q=${g.fishingGearName ?? ''}'),
+                child: const Icon(
+                  Icons.image,
+                  color: Color(0xff16425B),
+                  size: 40,
+                ),
+              ),
+            ])
           ],
         ),
       ),
     );
+  }
+}
+
+Future<void> _openSourceLink(String link) async {
+  final Uri url = Uri.parse(link);
+
+  if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+    throw Exception('Could not launch $url');
   }
 }

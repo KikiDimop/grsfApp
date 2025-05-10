@@ -1,6 +1,7 @@
 import 'package:grsfApp/models/area.dart';
 import 'package:grsfApp/models/areasForFishery.dart';
 import 'package:grsfApp/models/areasForStock.dart';
+import 'package:grsfApp/models/faoMajorArea.dart';
 import 'package:grsfApp/models/fishery.dart';
 import 'package:grsfApp/models/fisheryOwner.dart';
 import 'package:grsfApp/models/fishingGear.dart';
@@ -107,6 +108,11 @@ class _UpdateDataScreenState extends State<UpdateDataScreen> {
         urlCsv: Gear.urlCsv,
         tableName: 'Gear',
         fromMap: Gear.fromMap,
+      );
+      await _updateTable(
+        urlCsv: FaoMajorArea.urlCsv,
+        tableName: 'FaoMajorArea',
+        fromMap: FaoMajorArea.fromMap,
       );
 
       setState(() {

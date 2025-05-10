@@ -10,7 +10,6 @@ class Area {
   final String? stockOccurrences;
   final String? fisheryOccurrences;
 
-  // Constructor for the Area class
   Area({
     required this.id,
     this.areaCode,
@@ -21,7 +20,6 @@ class Area {
     this.fisheryOccurrences,
   });
 
-  // Convert an Area object to a map for database operations
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -34,7 +32,6 @@ class Area {
     };
   }
 
-  // Convert a map to an Area object (used when reading data from the database)
   factory Area.fromMap(Map<String, dynamic> map) {
     return Area(
       id: map['id'],
@@ -47,7 +44,6 @@ class Area {
     );
   }
 
-  // Copy method to create a new Area object with some modified fields
   Area copyWith({
     int? id,
     String? areaCode,

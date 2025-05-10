@@ -47,7 +47,7 @@ class _SearchfisheriesState extends State<Searchfisheries> {
     final List<String> fetchedGearTypes =
         await dbService.getDistinct('gear_type', 'Fishery');
     final List<String> fetchedFAOMajorAreas =
-        await dbService.getDistinct('parent_areas', 'Fishery');
+        await dbService.getDistinct('fao_major_area_concat', 'FaoMajorArea');
     final List<String> fetchedResourceType =
         await dbService.getDistinct('type', 'Fishery');
     final List<String> fetchedResourceStatus =
@@ -147,7 +147,6 @@ class _SearchfisheriesState extends State<Searchfisheries> {
             selectedResourceType ?? 'All',
             selectedResourceStatus ?? 'All');
 
-        // Navigate to fisheries page and pass the searchStock object
         Navigator.push(
           context,
           MaterialPageRoute(

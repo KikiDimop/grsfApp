@@ -195,7 +195,7 @@ class _FisheriesState extends State<Fisheries> {
           color: const Color(0xffd9dcd6),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: filteredFisheries!.isEmpty
+        child: filteredFisheries.isEmpty
             ? const Center(
                 child: Text(
                   'No fisheries found',

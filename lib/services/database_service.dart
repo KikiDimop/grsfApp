@@ -1,3 +1,4 @@
+import 'package:grsfApp/models/faoMajorArea.dart';
 import 'package:grsfApp/models/fishery.dart';
 import 'package:grsfApp/models/stock.dart';
 import 'package:path/path.dart';
@@ -164,6 +165,16 @@ class DatabaseService {
         )
         ''');
         print('Area table created');
+
+        await db.execute('''
+        CREATE TABLE FaoMajorArea (   
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          fao_major_area_concat TEXT,
+          fao_major_area_code TEXT,
+          fao_major_area_name TEXT
+        )
+        ''');
+        print('FaoMajorArea table created');
       },
     );
   }
@@ -184,7 +195,47 @@ class DatabaseService {
     }
   }
 
-  //Batch processing with transaction
+  Future<List<FaoMajorArea>> getFaoMajorAreas(String codesString) async {
+    try {
+      final db = await database;
+      List<String> codes = codesString.split(';').map((e) => e.trim()).toList();
+      if (codes.isEmpty) return [];
+
+      String placeholders = List.filled(codes.length, '?').join(', ');
+      String sql = '''
+        SELECT * 
+        FROM ${FaoMajorArea.tableName}
+        WHERE fao_major_area_concat IN ($placeholders)
+      ''';
+
+      List<Map<String, dynamic>> result = await db.rawQuery(sql, codes);
+
+      return result.map((row) => FaoMajorArea.fromMap(row)).toList();
+    } catch (e, stackTrace) {
+      print('Error in getFaoMajorAreas: $e');
+      print(stackTrace);
+      return [];
+    }
+  }
+
+  Future<List<T>> readAllColumns<T>({
+    required String tableName,
+    String? where,
+    required T Function(Map<String, dynamic>) fromMap,
+    List<String>? columns,
+  }) async {
+    try {
+      final db = await database;
+      final result =
+          await db.query(tableName, columns: columns, where: where ?? '1=1');
+      //print(result);
+      return result.map((json) => fromMap(json)).toList();
+    } catch (e) {
+      print("Error in readAll for table $tableName: $e");
+      return [];
+    }
+  }
+
   Future<void> batchInsertData(
       List<Map<String, dynamic>> data, tableName) async {
     final Database db = await database;
@@ -287,7 +338,8 @@ class DatabaseService {
       if (fields?.selectedFAOMajorArea != null &&
           fields!.selectedFAOMajorArea.isNotEmpty) {
         conditions.add("s.parent_areas LIKE ?");
-        parameters.add(fields?.selectedFAOMajorArea.replaceAll('All', '%'));
+        parameters.add(
+            '${'%' + fields.selectedFAOMajorArea.replaceAll('All', '%')}%');
       }
       if (fields?.selectedResourceType != null &&
           fields!.selectedResourceType.isNotEmpty) {
@@ -311,37 +363,6 @@ class DatabaseService {
         conditions.add("species_name = ?");
         parameters.add(fields.speciesName);
       }
-
-      // if (fields.asfisId.isNotEmpty) {
-      //   conditions.add("( species_type = 'asfis' AND species_code like ? ) ");
-      //   parameters.add(fields.asfisId);
-      // }
-      // if (fields.aphiaId.isNotEmpty) {
-      //   conditions.add("( species_type = 'aphia' AND species_code like ? ) ");
-      //   parameters.add(fields.aphiaId);
-      // }
-      // if (fields.fishbaseId.isNotEmpty) {
-      //   conditions
-      //       .add("( species_type = 'fishbase' AND species_code like ? ) ");
-      //   parameters.add(fields.fishbaseId);
-      // }
-      // if (fields.tsnId.isNotEmpty) {
-      //   conditions.add("( species_type = 'tsn' AND species_code like ? ) ");
-      //   parameters.add(fields.tsnId);
-      // }
-      // if (fields.gbifId.isNotEmpty) {
-      //   conditions.add("( species_type = 'gbif' AND species_code like ? ) ");
-      //   parameters.add(fields.gbifId);
-      // }
-      // if (fields.taxonomicId.isNotEmpty) {
-      //   conditions
-      //       .add("( species_type = 'taxonomic' AND species_code like ? ) ");
-      //   parameters.add(fields.taxonomicId);
-      // }
-      // if (fields.iucnId.isNotEmpty) {
-      //   conditions.add("( species_type = 'iucn' AND species_code like ? ) ");
-      //   parameters.add(fields.iucnId);
-      // }
 
       if (conditions.isNotEmpty) {
         query += " ${conditions.join(" ")} ) ";
@@ -409,7 +430,8 @@ class DatabaseService {
     }
     if (fields.selectedFAOMajorArea.isNotEmpty) {
       conditions.add("f.parent_areas LIKE ?");
-      parameters.add(fields.selectedFAOMajorArea.replaceAll('All', '%'));
+      parameters
+          .add('${'%' + fields.selectedFAOMajorArea.replaceAll('All', '%')}%');
     }
     if (fields.selectedResourceType.isNotEmpty) {
       conditions.add("f.type LIKE ?");

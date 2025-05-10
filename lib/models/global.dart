@@ -1,8 +1,10 @@
 import 'dart:ui';
 
-const String urlStockPng = 'https://www.fao.org/fishery/geoserver/wms?service=WMS&version=1.1.0&request=GetMap&layers=grsf%3Agrsf_resource_polygons,fifao:UN_CONTINENT2&bbox=-180.0%2C-60.0%2C180.0%2C90.0&width=768&height=330&srs=EPSG%3A4326&styles=&format=image%2Fpng&cql_filter=uuid=%27';
-const String urlStockPngEnding =' %27;INCLUDE';
-  
+import 'package:url_launcher/url_launcher.dart';
+
+const String urlStockPng =
+    'https://www.fao.org/fishery/geoserver/wms?service=WMS&version=1.1.0&request=GetMap&layers=grsf%3Agrsf_resource_polygons,fifao:UN_CONTINENT2&bbox=-180.0%2C-60.0%2C180.0%2C90.0&width=768&height=330&srs=EPSG%3A4326&styles=&format=image%2Fpng&cql_filter=uuid=%27';
+const String urlStockPngEnding = ' %27;INCLUDE';
 
 class SearchStock {
   final String selectedSpeciesSystem,
@@ -37,16 +39,17 @@ class SearchStockForSpecies {
       iucnId, */
       speciesName;
 
-  SearchStockForSpecies( /*this.asfisId, this.aphiaId, this.fishbaseId, this.tsnId,
-      this.gbifId, this.taxonomicId, this.iucnId, */ this.speciesName);
+  SearchStockForSpecies(
+      /*this.asfisId, this.aphiaId, this.fishbaseId, this.tsnId,
+      this.gbifId, this.taxonomicId, this.iucnId, */
+      this.speciesName);
 }
 
 class SearchFisheryForSpecies {
   final String speciesName;
 
-  SearchFisheryForSpecies( this.speciesName);
+  SearchFisheryForSpecies(this.speciesName);
 }
-
 
 class SearchFishery {
   final String selectedSpeciesSystem,
@@ -86,3 +89,5 @@ Color getColor(String? status) {
               ? const Color(0xffB3001B)
               : const Color(0xffA9A9A9);
 }
+
+

@@ -2,6 +2,7 @@ import 'package:grsfApp/models/species.dart';
 import 'package:grsfApp/pages/speciesDetails.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DisplaySpecies extends StatefulWidget {
   const DisplaySpecies({super.key});
@@ -230,33 +231,57 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
             color: const Color(0xffd9dcd6),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              const Text(
-                'Scientific Name',
-                style: TextStyle(
-                  fontSize: 12,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Scientific Name',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xff16425B),
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    s.scientificName,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xff16425B),
+                      fontWeight: FontWeight.bold,
+                    ),
+                    softWrap: true,
+                    overflow: TextOverflow.visible,
+                  ),
+                  const SizedBox(height: 1),
+                ],
+              ),
+              const Spacer(),
+              InkWell(
+                onTap: () => _openSourceLink(
+                    'https://images.google.com/search?tbm=isch&q=${s.scientificName}'),
+                child: const Icon(
+                  Icons.image,
                   color: Color(0xff16425B),
-                  fontWeight: FontWeight.normal,
+                  size: 30,
                 ),
               ),
-              const SizedBox(height: 1),
-              Text(
-                s.scientificName,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xff16425B),
-                  fontWeight: FontWeight.bold,
-                ),
-                softWrap: true,
-                overflow: TextOverflow.visible,
-              ),
-              const SizedBox(height: 1),
+
             ],
           ),
         ),
       ),
     );
+  }
+}
+
+
+Future<void> _openSourceLink(String link) async {
+  final Uri url = Uri.parse(link);
+
+  if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+    throw Exception('Could not launch $url');
   }
 }

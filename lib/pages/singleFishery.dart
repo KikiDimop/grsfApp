@@ -1,4 +1,5 @@
 import 'package:grsfApp/models/areasForFishery.dart';
+import 'package:grsfApp/models/faoMajorArea.dart';
 import 'package:grsfApp/models/fishery.dart';
 import 'package:grsfApp/models/fisheryOwner.dart';
 import 'package:grsfApp/models/fishingGear.dart';
@@ -21,6 +22,7 @@ class DisplaySingleFishery extends StatefulWidget {
 class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   List<AreasForFishery>? areas;
   List<FisheryOwner>? owners;
+  List<FaoMajorArea>? faoAreas;
   List<Gear>? gears;
   bool isLoading = true;
   bool isLoading2 = true;
@@ -64,14 +66,18 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
           where: whereStrGear,
           fromMap: Gear.fromMap,
         ),
+        DatabaseService.instance
+            .getFaoMajorAreas(widget.fishery.parentAreas ?? '')
       ]);
 
       setState(() {
         areas = results[0] as List<AreasForFishery>;
         owners = results[1] as List<FisheryOwner>;
         gears = results[2] as List<Gear>;
+        faoAreas = results[3] as List<FaoMajorArea>;
         isLoading = false;
       });
+      print(owners?.length.toString());
     } catch (e) {
       setState(() {
         error = e.toString();
@@ -138,6 +144,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   bool _showManagementUnitsList = false;
   bool _showCatches = false;
   bool _showLandings = false;
+  bool _showFaoMajorAreaList = false;
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +157,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                 _showOwnerList ||
                 _showManagementUnitsList ||
                 _showCatches ||
-                _showLandings) {
+                _showLandings ||
+                _showFaoMajorAreaList) {
               setState(() {
                 _showDetails = true;
                 _showAreasList = false;
@@ -158,6 +166,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                 _showManagementUnitsList = false;
                 _showCatches = false;
                 _showLandings = false;
+                _showFaoMajorAreaList = false;
               });
             } else {
               Navigator.pop(context);
@@ -192,7 +201,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                         _detailsSection(context)
                       else if (_showAreasList)
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.7,
+                          height: MediaQuery.of(context).size.height * 0.5,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -210,7 +219,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                         )
                       else if (_showOwnerList)
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.7,
+                          height: MediaQuery.of(context).size.height * 0.5,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -229,7 +238,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                       else if (_showGearsList)
                         SizedBox(
                           height: MediaQuery.of(context).size.height *
-                              0.7, // Adjust height as needed
+                              0.5, // Adjust height as needed
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -248,7 +257,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                       else if (_showManagementUnitsList)
                         SizedBox(
                           height: MediaQuery.of(context).size.height *
-                              0.7, // Adjust height as needed
+                              0.5, // Adjust height as needed
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -266,7 +275,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                         )
                       else if (_showCatches)
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.7,
+                          height: MediaQuery.of(context).size.height * 0.5,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -284,7 +293,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                         )
                       else if (_showLandings)
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.7,
+                          height: MediaQuery.of(context).size.height * 0.5,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -300,6 +309,24 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                             ],
                           ),
                         )
+                      else if (_showFaoMajorAreaList)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _listTitle(title: 'Fao Major Areas'),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                  searchHint: 'Search Fao Major Area',
+                                  listDisplay: _faoMajorAreaList(),
+                                  displayDropDown: false,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -334,14 +361,12 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
         ),
         child: Column(
           children: [
-            if (!searchHint.contains('Owner'))
-              Column(
-                children: [
-                  _searchField(hint: searchHint),
-                  const SizedBox(height: 10),
-                  if (displayDropDown) _orderByDropdown(),
-                ],
-              ),
+            Column(
+              children: [
+                _searchField(hint: searchHint),
+                if (displayDropDown) _orderByDropdown(),
+              ],
+            ),
             Expanded(
               child: listDisplay,
             ),
@@ -353,7 +378,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
 
   Widget _orderByDropdown() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         children: [
           Expanded(
@@ -644,7 +669,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   }
 
   Widget _detailsSection(BuildContext context) {
-    if (areas == null || owners == null || gears == null) {
+    if (areas == null || owners == null || gears == null || faoAreas == null) {
       return const Center(child: Text('No data available'));
     }
 
@@ -697,11 +722,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                   if (areas!.length == 1) _buildAreaDetails(areas!.first),
                   if (owners!.length == 1) _buildOwnerDetails(owners!.first),
                   if (gears!.length == 1) _buildGearDetails(gears!.first),
-                  // (isExistDataFromAPI)
-                  //     //(_responseData == null)
-                  //     ? displayManagmentAuthority()
-                  //     : simpleDisplay('Management Authority', widget.fishery.managementEntities ?? '-'),
-                  //if (_responseData != null) displayFlagState(),
+                  if (faoAreas!.length == 1)
+                    _buildFaoMajorAreaDetails(faoAreas!.first),
                   simpleDisplay('Management Authority',
                       widget.fishery.managementEntities ?? '-'),
                   if (isExistDataFromAPI) displayFlagState(),
@@ -720,6 +742,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               _showOwnerList = false;
                               _showGearsList = false;
                               _showManagementUnitsList = false;
+                              _showFaoMajorAreaList = false;
                             });
                           },
                         ),
@@ -733,6 +756,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               _showOwnerList = true;
                               _showGearsList = false;
                               _showManagementUnitsList = false;
+                              _showFaoMajorAreaList = false;
                             });
                           },
                         ),
@@ -746,25 +770,24 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               _showOwnerList = false;
                               _showGearsList = true;
                               _showManagementUnitsList = false;
+                              _showFaoMajorAreaList = false;
                             });
                           },
                         ),
-                      // if (isExistDataFromAPI)
-                      //   if (_responseData!["result"]["management_units"]
-                      //           .length >
-                      //       1)
-                      //     _button(
-                      //       label: 'Management Units',
-                      //       onPressed: () {
-                      //         setState(() {
-                      //           _showDetails = false;
-                      //           _showAreasList = false;
-                      //           _showOwnerList = false;
-                      //           _showGearsList = false;
-                      //           _showManagementUnitsList = true;
-                      //         });
-                      //       },
-                      //     ),
+                      if (faoAreas!.length > 1)
+                        _button(
+                          label: 'FAO Major Areas',
+                          onPressed: () {
+                            setState(() {
+                              _showDetails = false;
+                              _showAreasList = false;
+                              _showOwnerList = false;
+                              _showGearsList = false;
+                              _showManagementUnitsList = false;
+                              _showFaoMajorAreaList = true;
+                            });
+                          },
+                        ),
                     ],
                   ),
                 ],
@@ -773,6 +796,23 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
           ],
         )
       ],
+    );
+  }
+
+  Widget _buildFaoMajorAreaDetails(FaoMajorArea faoMajorArea) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Fao Major Area',
+            style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
+          ),
+          displayRow('Code     : ', faoMajorArea.faoMajorAreaCode ?? ''),
+          displayRow('Name    : ', faoMajorArea.faoMajorAreaName ?? ''),
+        ],
+      ),
     );
   }
 
@@ -1159,6 +1199,9 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
       name = item.fishingGearName ?? 'No Name';
       system = item.fishingGearType ?? 'No System';
       code = item.fishingGearId ?? 'No ID';
+    } else if (item is FaoMajorArea) {
+      code = item.faoMajorAreaCode ?? 'No Code';
+      name = item.faoMajorAreaName ?? 'No Name';
     }
 
     return Card(
@@ -1967,6 +2010,38 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _faoMajorAreaList() {
+    if (faoAreas == null) {
+      return const Center(
+        child: Text(
+          'No data available',
+          style: TextStyle(color: Color(0xffd9dcd6)),
+        ),
+      );
+    }
+
+    faoAreas = faoAreas?.toList();
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      padding: const EdgeInsets.all(10),
+      child: faoAreas!.isEmpty
+          ? const Center(
+              child: Text(
+                'No areas found',
+                style: TextStyle(color: Color(0xffd9dcd6)),
+              ),
+            )
+          : ListView.builder(
+              itemCount: faoAreas!.length,
+              itemBuilder: (context, index) {
+                final item = faoAreas![index];
+                return _listViewItem(item: item);
+              },
+            ),
     );
   }
 }

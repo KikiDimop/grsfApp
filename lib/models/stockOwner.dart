@@ -1,4 +1,3 @@
-
 class StockOwner {  
 
   static const String tableName = 'StockOwner';
