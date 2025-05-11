@@ -3,6 +3,7 @@ import 'package:grsfApp/models/faoMajorArea.dart';
 import 'package:grsfApp/models/fishery.dart';
 import 'package:grsfApp/models/fisheryOwner.dart';
 import 'package:grsfApp/models/fishingGear.dart';
+import 'package:grsfApp/models/flag.dart';
 import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -23,6 +24,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   List<AreasForFishery>? areas;
   List<FisheryOwner>? owners;
   List<FaoMajorArea>? faoAreas;
+  List<FlagStates>? flags = [];
   List<Gear>? gears;
   bool isLoading = true;
   bool isLoading2 = true;
@@ -77,7 +79,6 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
         faoAreas = results[3] as List<FaoMajorArea>;
         isLoading = false;
       });
-      print(owners?.length.toString());
     } catch (e) {
       setState(() {
         error = e.toString();
@@ -97,6 +98,24 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
           _responseData = data;
           isLoading2 = false;
           isExistDataFromAPI = true;
+
+          //Fill lists from api data
+          final rawGears = _responseData!['result']['fishing_gears'];
+          final rawAreas = _responseData!['result']['assessment_areas'];
+          final rawFlagStates = _responseData!['result']['flag_states'];
+
+          final List<dynamic> gearList =
+              rawGears is List ? rawGears : [rawGears];
+          final List<dynamic> areaList =
+              rawAreas is List ? rawAreas : [rawAreas];
+          final List<dynamic> flagStateList =
+              rawFlagStates is List ? rawFlagStates : [rawFlagStates];
+
+          gears = gearList.map((item) => Gear.fromJson(item)).toList();
+          areas =
+              areaList.map((item) => AreasForFishery.fromJson(item)).toList();
+          flags =
+              flagStateList.map((item) => FlagStates.fromJson(item)).toList();
         });
       } else {
         setState(() {
@@ -145,6 +164,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   bool _showCatches = false;
   bool _showLandings = false;
   bool _showFaoMajorAreaList = false;
+  bool _showFlagStatesList = false;
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +178,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                 _showManagementUnitsList ||
                 _showCatches ||
                 _showLandings ||
-                _showFaoMajorAreaList) {
+                _showFaoMajorAreaList ||
+                _showFlagStatesList) {
               setState(() {
                 _showDetails = true;
                 _showAreasList = false;
@@ -167,6 +188,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                 _showCatches = false;
                 _showLandings = false;
                 _showFaoMajorAreaList = false;
+                _showFlagStatesList = false;
               });
             } else {
               Navigator.pop(context);
@@ -237,8 +259,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                         )
                       else if (_showGearsList)
                         SizedBox(
-                          height: MediaQuery.of(context).size.height *
-                              0.5, // Adjust height as needed
+                          height: MediaQuery.of(context).size.height * 0.5,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -256,8 +277,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                         )
                       else if (_showManagementUnitsList)
                         SizedBox(
-                          height: MediaQuery.of(context).size.height *
-                              0.5, // Adjust height as needed
+                          height: MediaQuery.of(context).size.height * 0.5,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -326,7 +346,25 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               ),
                             ],
                           ),
-                        ),
+                        )
+                      else if (_showFlagStatesList)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _listTitle(title: 'Flag States'),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                  searchHint: 'Search flag state',
+                                  listDisplay: _flagStatesList(),
+                                  displayDropDown: false,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
                     ],
                   ),
                 ),
@@ -508,18 +546,35 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  statusDisplay(),
-                  _truncatedDisplay(
-                      'Short Name', widget.fishery.shortName ?? '', 35),
-                  _truncatedDisplay(
-                      'Semantic ID', widget.fishery.grsfSemanticID ?? '', 35),
-                  _truncatedDisplay(
-                      'Semantic Title', widget.fishery.grsfName ?? '', 35),
-                  _truncatedDisplay('UUID', widget.fishery.uuid ?? '', 35),
+                  if (!isExistDataFromAPI)
+                    statusDisplay(widget.fishery.status ?? '')
+                  else
+                    statusDisplay(_responseData!["result"]["status"]),
+                  if (!isExistDataFromAPI)
+                    _truncatedDisplay(
+                        'Short Name', widget.fishery.shortName ?? '', 35)
+                  else
+                    _truncatedDisplay('Short Name',
+                        _responseData!["result"]["short_name"], 35),
+                  if (!isExistDataFromAPI)
+                    _truncatedDisplay(
+                        'Semantic ID', widget.fishery.grsfSemanticID ?? '', 35)
+                  else
+                    _truncatedDisplay('Semantic ID',
+                        _responseData!["result"]["semantic_id"], 35),
+                  if (!isExistDataFromAPI)
+                    _truncatedDisplay(
+                        'Semantic Title', widget.fishery.grsfName ?? '', 35)
+                  else
+                    _truncatedDisplay('Semantic Title',
+                        _responseData!["result"]["semantic_title"], 35),
+                  if (!isExistDataFromAPI)
+                    _truncatedDisplay('UUID', widget.fishery.uuid ?? '', 35)
+                  else
+                    _truncatedDisplay(
+                        'UUID', _responseData!["result"]["uuid"], 35),
                   _truncatedDisplay('Type', widget.fishery.type ?? '', 35),
                   if (isExistDataFromAPI)
-                    // if (_responseData != null &&
-                    //     _responseData!["result"]["source_urls"][0] != null)
                     Align(
                       alignment: Alignment.centerRight,
                       child: _iconButton(
@@ -707,16 +762,40 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           displayTitle('Species'),
-                          displayRow(
-                              'Code     : ', widget.fishery.speciesCode ?? ''),
-                          displayRow(
-                              'System : ', widget.fishery.speciesType ?? ''),
-                          displayRowWithIcon(
-                              'Name    : ',
-                              widget.fishery.speciesName ?? '',
-                              () => _openSourceLink(
-                                  'https://images.google.com/search?tbm=isch&q=${widget.fishery.speciesName ?? ''}'),
-                              Icons.image)
+                          if (!isExistDataFromAPI)
+                            displayRow(
+                                'Code     : ', widget.fishery.speciesCode ?? '')
+                          else
+                            displayRow(
+                                'Code     : ',
+                                _responseData!["result"]["species"]
+                                        ["species_code"] ??
+                                    ''),
+                          if (!isExistDataFromAPI)
+                            displayRow(
+                                'System : ', widget.fishery.speciesType ?? '')
+                          else
+                            displayRow(
+                                'System : ',
+                                _responseData!["result"]["species"]
+                                        ["species_type"] ??
+                                    ''),
+                          if (!isExistDataFromAPI)
+                            displayRowWithIcon(
+                                'Name    : ',
+                                widget.fishery.speciesName ?? '',
+                                () => _openSourceLink(
+                                    'https://images.google.com/search?tbm=isch&q=${widget.fishery.speciesName ?? ''}'),
+                                Icons.image)
+                          else
+                            displayRowWithIcon(
+                                'Name    : ',
+                                _responseData!["result"]["species"]
+                                        ["species_name"] ??
+                                    '',
+                                () => _openSourceLink(
+                                    'https://images.google.com/search?tbm=isch&q=${_responseData!["result"]["species"]["species_name"] ?? ''}'),
+                                Icons.image),
                         ]),
                   ),
                   if (areas!.length == 1) _buildAreaDetails(areas!.first),
@@ -726,7 +805,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                     _buildFaoMajorAreaDetails(faoAreas!.first),
                   simpleDisplay('Management Authority',
                       widget.fishery.managementEntities ?? '-'),
-                  if (isExistDataFromAPI) displayFlagState(),
+                  if (isExistDataFromAPI && flags!.length == 1)
+                    displayFlagState(),
                   Wrap(
                     spacing: 3,
                     runSpacing: 1,
@@ -743,6 +823,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               _showGearsList = false;
                               _showManagementUnitsList = false;
                               _showFaoMajorAreaList = false;
+                              _showFlagStatesList = false;
                             });
                           },
                         ),
@@ -757,6 +838,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               _showGearsList = false;
                               _showManagementUnitsList = false;
                               _showFaoMajorAreaList = false;
+                              _showFlagStatesList = false;
                             });
                           },
                         ),
@@ -771,6 +853,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               _showGearsList = true;
                               _showManagementUnitsList = false;
                               _showFaoMajorAreaList = false;
+                              _showFlagStatesList = false;
                             });
                           },
                         ),
@@ -785,6 +868,22 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               _showGearsList = false;
                               _showManagementUnitsList = false;
                               _showFaoMajorAreaList = true;
+                              _showFlagStatesList = false;
+                            });
+                          },
+                        ),
+                      if (flags!.length > 1)
+                        _button(
+                          label: 'Flag States',
+                          onPressed: () {
+                            setState(() {
+                              _showDetails = false;
+                              _showAreasList = false;
+                              _showOwnerList = false;
+                              _showGearsList = false;
+                              _showManagementUnitsList = false;
+                              _showFaoMajorAreaList = false;
+                              _showFlagStatesList = true;
                             });
                           },
                         ),
@@ -867,6 +966,36 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
           displayRow(
             'Name    : ',
             _responseData!["result"]["flag_states"]["flag_state_name"] ?? '',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Padding displayAssessmentAreas() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          displayTitle('Assessment Areas'),
+          displayRow(
+            'Code     : ',
+            _responseData!["result"]["assessment_areas"]
+                    ["assessment_area_code"] ??
+                '',
+          ),
+          displayRow(
+            'System : ',
+            _responseData!["result"]["assessment_areas"]
+                    ["assessment_area_type"] ??
+                '',
+          ),
+          displayRow(
+            'Name    : ',
+            _responseData!["result"]["assessment_areas"]
+                    ["assessment_area_name"] ??
+                '',
           ),
         ],
       ),
@@ -1053,11 +1182,11 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     );
   }
 
-  Align statusDisplay() {
+  Align statusDisplay(String status) {
     return Align(
       alignment: Alignment.centerRight,
       child: Text(
-        widget.fishery.status ?? '',
+        status,
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,
@@ -2039,6 +2168,38 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
               itemCount: faoAreas!.length,
               itemBuilder: (context, index) {
                 final item = faoAreas![index];
+                return _listViewItem(item: item);
+              },
+            ),
+    );
+  }
+
+  Widget _flagStatesList() {
+    if (flags == null) {
+      return const Center(
+        child: Text(
+          'No data available',
+          style: TextStyle(color: Color(0xffd9dcd6)),
+        ),
+      );
+    }
+
+    flags = flags?.toList();
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      padding: const EdgeInsets.all(10),
+      child: flags!.isEmpty
+          ? const Center(
+              child: Text(
+                'No areas found',
+                style: TextStyle(color: Color(0xffd9dcd6)),
+              ),
+            )
+          : ListView.builder(
+              itemCount: flags!.length,
+              itemBuilder: (context, index) {
+                final item = flags![index];
                 return _listViewItem(item: item);
               },
             ),
