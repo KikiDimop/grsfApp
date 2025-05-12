@@ -1190,7 +1190,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,
-          color: getColor(widget.fishery.status),
+          color: getColor(status),
         ),
       ),
     );
@@ -1203,13 +1203,13 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
         return AlertDialog(
           backgroundColor: const Color(0xffd9dcd6),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10), // Rounded edges
+            borderRadius: BorderRadius.circular(10), 
           ),
           content: SizedBox(
             width:
-                MediaQuery.of(context).size.width * 0.8, // 80% of screen width
+                MediaQuery.of(context).size.width * 0.8, 
             child: Column(
-              mainAxisSize: MainAxisSize.min, // Adjusts height to content
+              mainAxisSize: MainAxisSize.min, 
               children: [
                 ElevatedButton(
                   onPressed: (isExistDataInfoFromAPI &&
@@ -1331,6 +1331,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     } else if (item is FaoMajorArea) {
       code = item.faoMajorAreaCode ?? 'No Code';
       name = item.faoMajorAreaName ?? 'No Name';
+      system = item.faoMajorAreaConcat ?? 'No System';
     }
 
     return Card(

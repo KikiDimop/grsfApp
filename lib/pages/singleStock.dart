@@ -94,6 +94,20 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
           _responseData = data;
           isLoading2 = false;
           isExistDataFromAPI = true;
+
+          //Fill lists from api data
+          final rawSpecies = _responseData!['result']['species'];
+          final rawAreas = _responseData!['result']['assessment_areas'];
+
+          final List<dynamic> speciesList =
+              rawSpecies is List ? rawSpecies : [rawSpecies];
+          final List<dynamic> areaList =
+              rawAreas is List ? rawAreas : [rawAreas];
+
+          species = speciesList
+              .map((item) => SpeciesForStock.fromJson(item))
+              .toList();
+          areas = areaList.map((item) => AreasForStock.fromJson(item)).toList();
         });
       } else {
         setState(() {
@@ -139,6 +153,10 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   bool _showSpeciesList = false;
   bool _showOwnerList = false;
   bool _showFaoMajorAreaList = false;
+  bool _showStockDataList = false;
+
+  String stockDataTitle = '';
+  String stockData = '';
 
   @override
   Widget build(BuildContext context) {
@@ -150,13 +168,15 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
             if (_showAreasList ||
                 _showSpeciesList ||
                 _showOwnerList ||
-                _showFaoMajorAreaList) {
+                _showFaoMajorAreaList ||
+                _showStockDataList) {
               setState(() {
                 _showDetails = true;
                 _showAreasList = false;
                 _showSpeciesList = false;
                 _showOwnerList = false;
                 _showFaoMajorAreaList = false;
+                _showStockDataList = false;
               });
             } else {
               Navigator.pop(context);
@@ -252,6 +272,23 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                                 child: _displayList(
                                     searchHint: 'Search Fao Major Area',
                                     listDisplay: _faoMajorAreaList(),
+                                    displayDropDown: false),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (_showStockDataList)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _listTitle(title: stockDataTitle),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                    searchHint: 'Search $stockDataTitle',
+                                    listDisplay: _StockDataList(),
                                     displayDropDown: false),
                               ),
                             ],
@@ -418,15 +455,34 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  statusDisplay(),
-                  _truncatedDisplay(
-                      'Short Name', widget.stock.shortName ?? '', 40),
-                  _truncatedDisplay(
-                      'Semantic ID', widget.stock.grsfSemanticID ?? '', 40),
-                  _truncatedDisplay(
-                      'Semantic Title', widget.stock.grsfName ?? '', 40),
-                  _truncatedDisplay('UUID', widget.stock.uuid ?? '', 40),
-                  _truncatedDisplay('Type', widget.stock.type ?? '', 40),
+                  if (!isExistDataFromAPI)
+                    statusDisplay(widget.stock.status ?? '')
+                  else
+                    statusDisplay(_responseData!["result"]["status"]),
+                  if (!isExistDataFromAPI)
+                    _truncatedDisplay(
+                        'Short Name', widget.stock.shortName ?? '', 35)
+                  else
+                    _truncatedDisplay('Short Name',
+                        _responseData!["result"]["short_name"], 35),
+                  if (!isExistDataFromAPI)
+                    _truncatedDisplay(
+                        'Semantic ID', widget.stock.grsfSemanticID ?? '', 35)
+                  else
+                    _truncatedDisplay('Semantic ID',
+                        _responseData!["result"]["semantic_id"], 35),
+                  if (!isExistDataFromAPI)
+                    _truncatedDisplay(
+                        'Semantic Title', widget.stock.grsfName ?? '', 35)
+                  else
+                    _truncatedDisplay('Semantic Title',
+                        _responseData!["result"]["semantic_title"], 35),
+                  if (!isExistDataFromAPI)
+                    _truncatedDisplay('UUID', widget.stock.uuid ?? '', 35)
+                  else
+                    _truncatedDisplay(
+                        'UUID', _responseData!["result"]["uuid"], 35),
+                  _truncatedDisplay('Type', widget.stock.type ?? '', 35),
                   Row(
                     children: [
                       _imageButton(
@@ -838,7 +894,14 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   }
 
   void display() {
-    print('object');
+    setState(() {
+      _showDetails = false;
+      _showAreasList = false;
+      _showOwnerList = false;
+      _showSpeciesList = false;
+      _showFaoMajorAreaList = false;
+      _showStockDataList = true;
+    });
   }
 
   Widget displayTimeseries() {
@@ -846,36 +909,96 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
       children: [
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["scientific_advices"].length != 0)
-          _button(label: 'scientific_advices', onPressed: display),
+          _button(
+              label: 'scientific_advices',
+              onPressed: () {
+                stockDataTitle = 'Scientific Advices';
+                stockData = 'scientific_advices';
+                display();
+              }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["assessment_methods"].length != 0)
-          _button(label: 'assessment_methods', onPressed: display),
+          _button(
+              label: 'assessment_methods',
+              onPressed: () {
+                stockDataTitle = 'Assessment Methods';
+                stockData = 'assessment_methods';
+                display();
+              }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["abundance_level"].length != 0)
-          _button(label: 'abundance_level', onPressed: display),
+          _button(
+              label: 'abundance_level',
+              onPressed: () {
+                stockDataTitle = 'Abundance Level';
+                stockData = 'abundance_level';
+                display();
+              }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["abundance_level_standard"].length !=
                 0)
-          _button(label: 'abundance_level_standard', onPressed: display),
+          _button(
+              label: 'abundance_level_standard',
+              onPressed: () {
+                stockDataTitle = 'Abundance Level Standard';
+                stockData = 'abundance_level_standard';
+                display();
+              }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["fishing_pressure"].length != 0)
-          _button(label: 'fishing_pressure', onPressed: display),
+          _button(
+              label: 'fishing_pressure',
+              onPressed: () {
+                stockDataTitle = 'Fishing Pressure';
+                stockData = 'fishing_pressure';
+                display();
+              }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["fishing_pressure_standard"].length !=
                 0)
-          _button(label: 'fishing_pressure_standard', onPressed: display),
+          _button(
+              label: 'fishing_pressure_standard',
+              onPressed: () {
+                stockDataTitle = 'Fishing Pressure Standard';
+                stockData = 'fishing_pressure_standard';
+                display();
+              }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["catches"].length != 0)
-          _button(label: 'catches', onPressed: display),
+          _button(
+              label: 'catches',
+              onPressed: () {
+                stockDataTitle = 'Catches';
+                stockData = 'catches';
+                display();
+              }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["landings"].length != 0)
-          _button(label: 'landings', onPressed: display),
+          _button(
+              label: 'landings',
+              onPressed: () {
+                stockDataTitle = 'Landings';
+                stockData = 'landings';
+                display();
+              }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["landed_volumes"].length != 0)
-          _button(label: 'landed_volumes', onPressed: display),
+          _button(
+              label: 'landed_volumes',
+              onPressed: () {
+                stockDataTitle = 'Landed Volumes';
+                stockData = 'landed_volumes';
+                display();
+              }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["biomass"].length != 0)
-          _button(label: 'biomass', onPressed: display),
+          _button(
+              label: 'biomass',
+              onPressed: () {
+                stockDataTitle = 'Biomas';
+                stockData = 'biomass';
+                display();
+              }),
       ],
     );
   }
@@ -1047,15 +1170,15 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     );
   }
 
-  Align statusDisplay() {
+  Align statusDisplay(String status) {
     return Align(
       alignment: Alignment.centerRight,
       child: Text(
-        widget.stock.status ?? '',
+        status,
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,
-          color: getColor(widget.stock.status),
+          color: getColor(status),
         ),
       ),
     );
@@ -1103,6 +1226,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     } else if (item is FaoMajorArea) {
       code = item.faoMajorAreaCode ?? 'No Code';
       name = item.faoMajorAreaName ?? 'No Name';
+      system = item.faoMajorAreaConcat ?? 'No System';
     }
 
     return Card(
@@ -1140,7 +1264,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               overflow: TextOverflow.visible,
             ),
             const SizedBox(height: 1),
-            if (system.isNotEmpty && code.isNotEmpty) // Fixed condition here
+            if (system.isNotEmpty && code.isNotEmpty)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -1439,6 +1563,243 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                 return _listViewItem(item: item);
               },
             ),
+    );
+  }
+
+  Widget _StockDataList() {
+    final List<dynamic> list =
+        List.from(_responseDataInfo!["result"][stockData]);
+
+    final filteredCatches = list
+        .where((data) =>
+            _searchQuery.isEmpty ||
+            (data["value"]?.toString().contains(_searchQuery) ?? false) ||
+            (data["unit"]?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (data["type"]?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (data["db_source"]
+                    ?.toLowerCase()
+                    .contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (data["reporting_year"]?.toString().contains(_searchQuery) ??
+                false) ||
+            (data["reference_year"]?.toString().contains(_searchQuery) ??
+                false))
+        .toList();
+
+    filteredCatches.sort((a, b) {
+      int comparison = 0;
+      if (_selectedOrder == 'Rep. Year') {
+        comparison =
+            (a["reporting_year"]?.compareTo(b["reporting_year"] ?? '') ?? 0);
+      } else if (_selectedOrder == 'Value') {
+        comparison = (a["value"]?.compareTo(b["value"] ?? 0) ?? 0);
+      } else if (_selectedOrder == 'Ref. Year') {
+        comparison =
+            (a["reference_ear"]?.compareTo(b["reference_ear"] ?? '') ?? 0);
+      }
+      return _sortOrder == 'asc' ? comparison : -comparison;
+    });
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 5),
+      padding: const EdgeInsets.all(10),
+      child: filteredCatches.isEmpty
+          ? const Center(
+              child: Text(
+                'No matching catch records found',
+                style: TextStyle(color: Color(0xffd9dcd6)),
+              ),
+            )
+          : ListView.builder(
+              itemCount: filteredCatches.length,
+              itemBuilder: (context, index) {
+                final data = filteredCatches[index];
+                return _listViewItemStockData(
+                  data["value"]?.toString() ?? "",
+                  data["unit"] ?? "",
+                  data["type"] ?? "",
+                  data["db_source"] ?? "",
+                  data["reporting_year"]?.toString() ?? "",
+                  data["reference_year"]?.toString() ?? "",
+                );
+              },
+            ),
+    );
+  }
+
+  Widget _listViewItemStockData(String value, String unit, String type,
+      String source, String reportingYear, String referenceYear) {
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xffd9dcd6),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // First Row: Value and Unit
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Value',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      value,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 16), // Spacing between Value and Unit
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Unit',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      unit,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Data Owner',
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const SizedBox(height: 1),
+            Text(
+              source,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.bold,
+              ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Reference Year',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      referenceYear,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 16), // Spacing between Years
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Reporting Year',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                    Text(
+                      reportingYear,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xff16425B),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      softWrap: true,
+                      overflow: TextOverflow.visible,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 8), // Spacing before Type
+            // Type Section
+            const Text(
+              'Type',
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const SizedBox(height: 1),
+            Text(
+              type,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xff16425B),
+                fontWeight: FontWeight.bold,
+              ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
