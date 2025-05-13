@@ -16,17 +16,34 @@ class _SearchstocksState extends State<Searchstocks> {
   TextEditingController speciesNameController = TextEditingController();
   TextEditingController areaCodeController = TextEditingController();
   TextEditingController areaNameController = TextEditingController();
+  TextEditingController refYear = TextEditingController();
   String? selectedSpeciesSystem;
   String? selectedAreaSystem;
   String? selectedFAOMajorArea;
   String? selectedResourceType;
   String? selectedResourceStatus;
+  String? selectedTimeseries;
 
   List<String> speciesTypes = [];
   List<String> areaTypes = [];
   List<String> faoMajorAreas = [];
   List<String> resourceType = [];
   List<String> resourceStatus = [];
+  List<String> timeseries = [
+    'Abundance Level',
+    'Abundance Level - Standard',
+    'Biomass',
+    'Catches',
+    'FAO Stock Status Category',
+    'Fishing Pressure',
+    'Fishing Pressure - Standard',
+    'Landed Volume',
+    'Landings',
+    'Methods',
+    'Scientific Advice',
+    'State and Trend',
+    'None'
+  ];
 
   @override
   void initState() {
@@ -77,6 +94,10 @@ class _SearchstocksState extends State<Searchstocks> {
       if (resourceStatus.isNotEmpty) {
         selectedResourceStatus = resourceStatus.last;
       }
+
+      if (timeseries.isNotEmpty) {
+        selectedTimeseries = timeseries.last;
+      }
     });
   }
 
@@ -100,51 +121,16 @@ class _SearchstocksState extends State<Searchstocks> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 10),
             _speciesSection(),
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
             _areaSection(),
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
             _resourceSection(),
-            const SizedBox(height: 10),
-            _searchButton(context),
+            const SizedBox(height: 5),
+            _timeseriesSection(),
           ],
         ),
       ),
-    );
-  }
-
-  ElevatedButton _searchButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        SearchStock searchStock = SearchStock(
-          selectedSpeciesSystem ?? 'All',
-          speciesCodeController.text,
-          speciesNameController.text,
-          selectedAreaSystem ?? 'All',
-          areaCodeController.text,
-          areaNameController.text,
-          selectedFAOMajorArea ?? 'All',
-          selectedResourceType ?? 'All',
-          selectedResourceStatus ?? 'All',
-        );
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Stocks(
-              search: searchStock,
-              forSpecies: false,
-            ),
-          ),
-        );
-      },
-      style: ElevatedButton.styleFrom(
-        foregroundColor: const Color(0xff16425B),
-        backgroundColor: const Color(0xffd9dcd6),
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-      ),
-      child: const Text("Search"),
     );
   }
 
@@ -152,15 +138,21 @@ class _SearchstocksState extends State<Searchstocks> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            'Species',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xffd9dcd6),
-            ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              const Text(
+                'Species',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xffd9dcd6),
+                ),
+              ),
+              const Spacer(),
+              searchButton()
+            ],
           ),
         ),
         const SizedBox(height: 5),
@@ -196,6 +188,51 @@ class _SearchstocksState extends State<Searchstocks> {
           ),
         ),
       ],
+    );
+  }
+
+  ElevatedButton searchButton() {
+    return ElevatedButton(
+      onPressed: () {
+        SearchStock searchStock = SearchStock(
+          selectedSpeciesSystem ?? 'All',
+          speciesCodeController.text,
+          speciesNameController.text,
+          selectedAreaSystem ?? 'All',
+          areaCodeController.text,
+          areaNameController.text,
+          selectedFAOMajorArea ?? 'All',
+          selectedResourceType ?? 'All',
+          selectedResourceStatus ?? 'All',
+        );
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Stocks(
+                search: searchStock,
+                forSpecies: false,
+                timeseries: selectedTimeseries ?? '',
+                refYear: refYear.text),
+          ),
+        );
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xffd9dcd6), // Background color
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8), // Rounded edges
+        ),
+        padding: const EdgeInsets.symmetric(
+            horizontal: 16, vertical: 8), // Button padding
+      ),
+      child: const Text(
+        'Search',
+        style: TextStyle(
+            fontSize: 14,
+            color: Color(0xff16425B),
+            fontWeight: FontWeight.bold // Text color
+            ),
+      ),
     );
   }
 
@@ -310,22 +347,69 @@ class _SearchstocksState extends State<Searchstocks> {
     );
   }
 
+  Widget _timeseriesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            'Time Dependent Info',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xffd9dcd6),
+            ),
+          ),
+        ),
+        const SizedBox(height: 5),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xffd9dcd6),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: _dropdownField(
+                        'Timeseries', timeseries, selectedTimeseries, (value) {
+                      setState(() {
+                        selectedTimeseries = value;
+                      });
+                    }),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              _textField("Reference Year", refYear),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _dropdownField(String label, List<String> items, String? selectedValue,
       void Function(String?) onChanged) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 10, bottom: 4),
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Color(0xff16425B),
+        if (label != '')
+          Padding(
+            padding: const EdgeInsets.only(left: 10, bottom: 4),
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xff16425B),
+              ),
             ),
           ),
-        ),
         SizedBox(
           height: 48,
           child: DecoratedBox(

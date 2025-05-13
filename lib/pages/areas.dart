@@ -344,9 +344,9 @@ class _AreasState extends State<Areas> {
                                   'All',
                                   '',
                                   '',
-                                    a.areaCodeType ?? 'All',
-                                    a.areaCode ?? '',
-                                    a.areaName ?? '',
+                                  a.areaCodeType ?? 'All',
+                                  a.areaCode ?? '',
+                                  a.areaName ?? '',
                                   'All',
                                   'All',
                                   'All',
@@ -355,8 +355,12 @@ class _AreasState extends State<Areas> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        Stocks(search: searchStock, forSpecies: false,),
+                                    builder: (context) => Stocks(
+                                      search: searchStock,
+                                      forSpecies: false,
+                                      timeseries: '',
+                                      refYear: '',
+                                    ),
                                   ),
                                 );
                               },

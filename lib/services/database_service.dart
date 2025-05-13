@@ -296,7 +296,6 @@ class DatabaseService {
       {dynamic fields,
       required Stock Function(Map<String, dynamic>) fromMap,
       required bool forSpecies}) async {
-    print(fields.toString());
     final db = await instance.database;
 
     String query = ''' SELECT * FROM Stock ''';

@@ -18,12 +18,14 @@ class _SearchfisheriesState extends State<Searchfisheries> {
   TextEditingController areaNameController = TextEditingController();
   TextEditingController gearCodeController = TextEditingController();
   TextEditingController gearNameController = TextEditingController();
+  TextEditingController refYear = TextEditingController();
   String? selectedSpeciesSystem;
   String? selectedAreaSystem;
   String? selectedGearSystem;
   String? selectedFAOMajorArea;
   String? selectedResourceType;
   String? selectedResourceStatus;
+  String? selectedTimeseries;
 
   List<String> speciesTypes = [];
   List<String> areaTypes = [];
@@ -31,6 +33,7 @@ class _SearchfisheriesState extends State<Searchfisheries> {
   List<String> faoMajorAreas = [];
   List<String> resourceType = [];
   List<String> resourceStatus = [];
+  List<String> timeseries = ['Catch', 'Landing', 'None'];
 
   @override
   void initState() {
@@ -89,6 +92,10 @@ class _SearchfisheriesState extends State<Searchfisheries> {
       if (resourceStatus.isNotEmpty) {
         selectedResourceStatus = resourceStatus.last;
       }
+
+      if (timeseries.isNotEmpty) {
+        selectedTimeseries = timeseries.last;
+      }
     });
   }
 
@@ -112,54 +119,20 @@ class _SearchfisheriesState extends State<Searchfisheries> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 10),
             _speciesSection(),
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
             _areaSection(),
-            const SizedBox(height: 10),
+            const SizedBox(height: 5),
             _fishingGearSection(),
             const SizedBox(
               height: 10,
             ),
             _resourceSection(),
-            const SizedBox(height: 10),
-            _searchButton(context),
+            const SizedBox(height: 5),
+            _timeseriesSection(),
           ],
         ),
       ),
-    );
-  }
-
-  ElevatedButton _searchButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        SearchFishery searchFishery = SearchFishery(
-            selectedSpeciesSystem ?? 'All',
-            speciesCodeController.text,
-            speciesNameController.text,
-            selectedAreaSystem ?? 'All',
-            areaCodeController.text,
-            areaNameController.text,
-            selectedGearSystem ?? 'All',
-            gearCodeController.text,
-            gearNameController.text,
-            selectedFAOMajorArea ?? 'All',
-            selectedResourceType ?? 'All',
-            selectedResourceStatus ?? 'All');
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Fisheries(search: searchFishery),
-          ),
-        );
-      },
-      style: ElevatedButton.styleFrom(
-        foregroundColor: const Color(0xff16425B),
-        backgroundColor: const Color(0xffd9dcd6),
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 30),
-      ),
-      child: const Text("Search"),
     );
   }
 
@@ -167,15 +140,21 @@ class _SearchfisheriesState extends State<Searchfisheries> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            'Species',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xffd9dcd6),
-            ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              const Text(
+                'Species',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xffd9dcd6),
+                ),
+              ),
+              const Spacer(),
+              searchButton()
+            ],
           ),
         ),
         const SizedBox(height: 5),
@@ -212,6 +191,49 @@ class _SearchfisheriesState extends State<Searchfisheries> {
         ),
       ],
     );
+  }
+
+  ElevatedButton searchButton() {
+    return ElevatedButton(
+              onPressed: () {
+                SearchFishery searchFishery = SearchFishery(
+                    selectedSpeciesSystem ?? 'All',
+                    speciesCodeController.text,
+                    speciesNameController.text,
+                    selectedAreaSystem ?? 'All',
+                    areaCodeController.text,
+                    areaNameController.text,
+                    selectedGearSystem ?? 'All',
+                    gearCodeController.text,
+                    gearNameController.text,
+                    selectedFAOMajorArea ?? 'All',
+                    selectedResourceType ?? 'All',
+                    selectedResourceStatus ?? 'All');
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Fisheries(search: searchFishery),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xffd9dcd6), // Background color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8), // Rounded edges
+                ),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 8), // Button padding
+              ),
+              child: const Text(
+                'Search',
+                style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xff16425B),
+                    fontWeight: FontWeight.bold // Text color
+                    ),
+              ),
+            );
   }
 
   Widget _areaSection() {
@@ -376,22 +398,69 @@ class _SearchfisheriesState extends State<Searchfisheries> {
     );
   }
 
+  Widget _timeseriesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Text(
+            'Time Dependent Info',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xffd9dcd6),
+            ),
+          ),
+        ),
+        const SizedBox(height: 5),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xffd9dcd6),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: _dropdownField(
+                        'Timeseries', timeseries, selectedTimeseries, (value) {
+                      setState(() {
+                        selectedTimeseries = value;
+                      });
+                    }),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              _textField("Reference Year", refYear),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _dropdownField(String label, List<String> items, String? selectedValue,
       void Function(String?) onChanged) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 10, bottom: 4),
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Color(0xff16425B),
+        if (label != '')
+          Padding(
+            padding: const EdgeInsets.only(left: 10, bottom: 4),
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xff16425B),
+              ),
             ),
           ),
-        ),
         SizedBox(
           height: 48,
           child: DecoratedBox(

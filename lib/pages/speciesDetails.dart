@@ -67,6 +67,8 @@ class SpeciesDetailsScreen extends StatelessWidget {
                         builder: (context) => Stocks(
                           search: searchStock,
                           forSpecies: true,
+                          timeseries: '',
+                          refYear: '',
                         ),
                       ),
                     );
