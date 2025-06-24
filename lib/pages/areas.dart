@@ -393,7 +393,8 @@ class _AreasState extends State<Areas> {
                                     '',
                                     'All',
                                     'All',
-                                    'All');
+                                    'All',
+                                    '');
 
                                 Navigator.push(
                                   context,

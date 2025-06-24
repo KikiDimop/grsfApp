@@ -484,7 +484,8 @@ class _FishingGearsState extends State<FishingGears> {
                       g.fishingGearName ?? '',
                       'All',
                       'All',
-                      'All');
+                      'All',
+                      '');
 
                   Navigator.push(
                     context,

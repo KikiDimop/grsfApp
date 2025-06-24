@@ -140,9 +140,12 @@ class _UpdateDataScreenState extends State<UpdateDataScreen> {
         backgroundColor: const Color(0xff16425B),
         foregroundColor: Colors.white,
         actions: [
-          IconButton(onPressed: (){
-            Navigator.popUntil(context, (route) => route.isFirst);
-          }, icon: const Icon(Icons.home_filled),),
+          IconButton(
+            onPressed: () {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            },
+            icon: const Icon(Icons.home_filled),
+          ),
         ],
       ),
       body: Center(

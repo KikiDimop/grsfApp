@@ -183,7 +183,7 @@ class _SearchstocksState extends State<Searchstocks> {
                 ],
               ),
               const SizedBox(height: 8),
-              _textField("Species Name", speciesNameController),
+              _textField("Scientific Name", speciesNameController),
             ],
           ),
         ),

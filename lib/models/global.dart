@@ -30,19 +30,9 @@ class SearchStock {
 }
 
 class SearchStockForSpecies {
-  final String /* asfisId,
-      aphiaId,
-      fishbaseId,
-      tsnId,
-      gbifId,
-      taxonomicId,
-      iucnId, */
-      speciesName;
+  final String speciesName;
 
-  SearchStockForSpecies(
-      /*this.asfisId, this.aphiaId, this.fishbaseId, this.tsnId,
-      this.gbifId, this.taxonomicId, this.iucnId, */
-      this.speciesName);
+  SearchStockForSpecies(this.speciesName);
 }
 
 class SearchFisheryForSpecies {
@@ -63,7 +53,8 @@ class SearchFishery {
       gearName,
       selectedFAOMajorArea,
       selectedResourceType,
-      selectedResourceStatus;
+      selectedResourceStatus,
+      flagCode;
 
   SearchFishery(
       this.selectedSpeciesSystem,
@@ -77,7 +68,8 @@ class SearchFishery {
       this.gearName,
       this.selectedFAOMajorArea,
       this.selectedResourceType,
-      this.selectedResourceStatus);
+      this.selectedResourceStatus,
+      this.flagCode);
 }
 
 Color getColor(String? status) {
@@ -89,5 +81,3 @@ Color getColor(String? status) {
               ? const Color(0xffB3001B)
               : const Color(0xffA9A9A9);
 }
-
-

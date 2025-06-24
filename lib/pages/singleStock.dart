@@ -621,6 +621,41 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     );
   }
 
+  Widget _truncatedDisplay2(String title, String value, int maxLength) {
+    if (value.isEmpty) return const SizedBox.shrink();
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Text(
+            value.length > maxLength
+                ? '${value.substring(0, maxLength)}...'
+                : value,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Color(0xff16425B),
+              fontWeight: FontWeight.bold,
+            ),
+            softWrap: true,
+          ),
+        ),
+        if (value.length > maxLength)
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: InkWell(
+              onTap: () => _showFullText(context, title, value),
+              child: const Icon(
+                Icons.more_horiz,
+                color: Color(0xff16425B),
+                size: 20,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
   void _showMap(BuildContext context, String title) {
     showDialog(
       context: context,
@@ -1762,22 +1797,46 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                       ),
                     ),
                     const SizedBox(height: 1),
-                    Text(
-                      reportingYear,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.bold,
-                      ),
-                      softWrap: true,
-                      overflow: TextOverflow.visible,
-                    ),
+                    (reportingYear.length < 15)
+                        ? Text(
+                            reportingYear,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xff16425B),
+                              fontWeight: FontWeight.bold,
+                            ),
+                            softWrap: true,
+                          )
+                        : Row(
+                            children: [
+                              Text(
+                                '${reportingYear.substring(0, 10)}...',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Color(0xff16425B),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                softWrap: true,
+                              ),
+                              const SizedBox(width: 30,),
+                              InkWell(
+                                onTap: () =>
+                                    _showFullText(context, 'Reporting Year', reportingYear),
+                                child: const Icon(
+                                  Icons.more_horiz,
+                                  color: Color(0xff16425B),
+                                  size: 20,
+                                ),
+                              ),
+                            ],
+                          )
                   ],
                 ),
               ],
             ),
+
             const SizedBox(height: 8), // Spacing before Type
-            // Type Section
+
             const Text(
               'Type',
               style: TextStyle(

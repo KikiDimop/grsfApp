@@ -30,29 +30,29 @@ class SpeciesDetailsScreen extends StatelessWidget {
         child: Column(
           children: [
             _buildExpandableCard(
-              title: "Codes",
-              content: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildRow('ASFIS ID', species.asfisId),
-                  _buildRow('Aphia ID', species.aphiaId),
-                  _buildRow('FishBase ID', species.fishbaseId),
-                  _buildRow('TSN ID', species.tsnId),
-                  _buildRow('GBIF ID', species.gbifId),
-                  _buildRow('Taxonomic ID', species.taxonomicId),
-                  _buildRow('IUCN ID', species.iucnId),
-                  _buildRow(
-                      'IUCN Characterization', species.iucnCharacterization),
-                ],
-              ),
-            ),
+                title: "Codes",
+                content: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildRow('ASFIS ID', species.asfisId),
+                    _buildRow('Aphia ID', species.aphiaId),
+                    _buildRow('FishBase ID', species.fishbaseId),
+                    _buildRow('TSN ID', species.tsnId),
+                    _buildRow('GBIF ID', species.gbifId),
+                    _buildRow('Taxonomic ID', species.taxonomicId),
+                    _buildRow('IUCN ID', species.iucnId),
+                    _buildRow(
+                        'IUCN Characterization', species.iucnCharacterization),
+                  ],
+                ),
+                isExpanded: true),
             const SizedBox(height: 16),
             if (species.commonNames != null &&
                 species.commonNames!.trim().isNotEmpty)
               _buildExpandableCard(
-                title: "Common Names",
-                content: _buildCommonNamesList(species.commonNames!),
-              ),
+                  title: "Common Names",
+                  content: _buildCommonNamesList(species.commonNames!),
+                  isExpanded: false),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -104,7 +104,8 @@ class SpeciesDetailsScreen extends StatelessWidget {
                         '',
                         'All',
                         'All',
-                        'All');
+                        'All',
+                        '');
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -139,7 +140,9 @@ class SpeciesDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildExpandableCard(
-      {required String title, required Widget content}) {
+      {required String title,
+      required Widget content,
+      required bool isExpanded}) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -156,6 +159,7 @@ class SpeciesDetailsScreen extends StatelessWidget {
               dividerColor: Colors.transparent,
             ),
             child: ExpansionTile(
+              initiallyExpanded: isExpanded,
               backgroundColor: const Color(0xffd9dcd6),
               collapsedBackgroundColor: const Color(0xffd9dcd6),
               shape: RoundedRectangleBorder(

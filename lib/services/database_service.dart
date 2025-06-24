@@ -367,7 +367,7 @@ class DatabaseService {
         query += " ${conditions.join(" ")} ) ";
       }
     }
-
+    query += ' GROUP BY s.UUID';
     print(query);
 
     final result = await db.rawQuery(query, parameters);
@@ -405,7 +405,7 @@ class DatabaseService {
     }
     if (fields.selectedSpeciesSystem.isNotEmpty) {
       conditions.add("f.species_type LIKE ?");
-      parameters.add(fields.selectedSpeciesSystem.replaceAll('All', '%'));
+      parameters.add(fields.selectedSpeciesSystem);
     }
     if (fields.speciesCode.isNotEmpty) {
       conditions.add("f.species_code LIKE ?");
@@ -417,7 +417,7 @@ class DatabaseService {
     }
     if (fields.selectedGearSystem.isNotEmpty) {
       conditions.add("f.gear_type LIKE ?");
-      parameters.add(fields.selectedGearSystem.replaceAll('All', '%'));
+      parameters.add(fields.selectedGearSystem);
     }
     if (fields.gearCode.isNotEmpty) {
       conditions.add("f.gear_code LIKE ?");
@@ -429,22 +429,28 @@ class DatabaseService {
     }
     if (fields.selectedFAOMajorArea.isNotEmpty) {
       conditions.add("f.parent_areas LIKE ?");
-      parameters
-          .add('${'%' + fields.selectedFAOMajorArea.replaceAll('All', '%')}%');
+      parameters.add('${'%' + fields.selectedFAOMajorArea}%');
     }
     if (fields.selectedResourceType.isNotEmpty) {
       conditions.add("f.type LIKE ?");
-      parameters.add(fields.selectedResourceType.replaceAll('All', '%'));
+      parameters.add(fields.selectedResourceType);
     }
     if (fields.selectedResourceStatus.isNotEmpty) {
       conditions.add("f.status LIKE ?");
-      parameters.add(fields.selectedResourceStatus.replaceAll('All', '%'));
+      parameters.add(fields.selectedResourceStatus);
+    }
+
+    if (fields.flagCode.isNotEmpty) {
+      conditions.add("f.flag_code LIKE ?");
+      parameters.add(fields.flagCode);
     }
 
     if (conditions.isNotEmpty) {
       query += " AND ${conditions.join(" AND ")}";
     }
 
+    print(query);
+    print(parameters);
     final result = await db.rawQuery(query, parameters);
     return result.map((json) => fromMap(json)).toList();
   }

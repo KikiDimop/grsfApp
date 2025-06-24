@@ -71,7 +71,6 @@ class HomePage extends StatelessWidget {
                           'Fishing Gear', const FishingGears()),
                       buildImageButton(context, 'assets/icons/sync.png',
                           'Sync Data', const UpdateDataScreen()),
-                      
                     ],
                   ),
                 ),

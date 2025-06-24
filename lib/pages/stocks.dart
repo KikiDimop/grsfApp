@@ -128,12 +128,17 @@ class _StocksState extends State<Stocks> {
       }
 
       Set<String> apiIdSet = apiIds.toSet();
+      //print(apiIdSet.toString());
 
       List<Stock> filteredStocks = stocks
               ?.where((stock) =>
                   stock.uuid != null && apiIdSet.contains(stock.uuid))
               .toList() ??
           [];
+      
+      for (var f in filteredStocks){
+        print(f.uuid);
+      }
 
       setState(() {
         stocks = filteredStocks;
