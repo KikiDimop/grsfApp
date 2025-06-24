@@ -37,7 +37,7 @@ class _StocksState extends State<Stocks> {
   void initState() {
     super.initState();
     _fetchData();
-    if (widget.timeseries != 'None') {
+    if (widget.timeseries.isNotEmpty) {
       isLoading2 = true;
       _fetchDataFromAPI().then((_) => _mergeAndFilterStocks());
     }
@@ -135,8 +135,8 @@ class _StocksState extends State<Stocks> {
                   stock.uuid != null && apiIdSet.contains(stock.uuid))
               .toList() ??
           [];
-      
-      for (var f in filteredStocks){
+
+      for (var f in filteredStocks) {
         print(f.uuid);
       }
 

@@ -3,6 +3,7 @@ import 'package:grsfApp/pages/stocks.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:grsfApp/widgets/DropdownTextField.dart';
 
 class Searchstocks extends StatefulWidget {
   const Searchstocks({super.key});
@@ -17,12 +18,6 @@ class _SearchstocksState extends State<Searchstocks> {
   TextEditingController areaCodeController = TextEditingController();
   TextEditingController areaNameController = TextEditingController();
   TextEditingController refYear = TextEditingController();
-  String? selectedSpeciesSystem;
-  String? selectedAreaSystem;
-  String? selectedFAOMajorArea;
-  String? selectedResourceType;
-  String? selectedResourceStatus;
-  String? selectedTimeseries;
 
   List<String> speciesTypes = [];
   List<String> areaTypes = [];
@@ -41,8 +36,7 @@ class _SearchstocksState extends State<Searchstocks> {
     'Landings',
     'Methods',
     'Scientific Advice',
-    'State and Trend',
-    'None'
+    'State and Trend'
   ];
 
   @override
@@ -66,40 +60,50 @@ class _SearchstocksState extends State<Searchstocks> {
 
     setState(() {
       speciesTypes = fetchedSpeciesTypes;
-      speciesTypes.add('All');
-      if (speciesTypes.isNotEmpty) {
-        selectedSpeciesSystem = speciesTypes.last;
-      }
-
       areaTypes = fetchedAreaTypes;
-      areaTypes.add('All');
-      if (areaTypes.isNotEmpty) {
-        selectedAreaSystem = areaTypes.last;
-      }
-
       faoMajorAreas = fetchedFAOMajorAreas;
-      faoMajorAreas.add('All');
-      if (faoMajorAreas.isNotEmpty) {
-        selectedFAOMajorArea = faoMajorAreas.last;
-      }
-
       resourceType = fetchedResourceType;
-      resourceType.add('All');
-      if (resourceType.isNotEmpty) {
-        selectedResourceType = resourceType.last;
-      }
-
       resourceStatus = fetchedResourceStatus;
-      resourceStatus.add('All');
-      if (resourceStatus.isNotEmpty) {
-        selectedResourceStatus = resourceStatus.last;
-      }
-
-      if (timeseries.isNotEmpty) {
-        selectedTimeseries = timeseries.last;
-      }
     });
   }
+
+  final TextEditingController speciesTypesController = TextEditingController();
+  final TextEditingController areaTypesController = TextEditingController();
+  final TextEditingController faoMajorAreaController = TextEditingController();
+  final TextEditingController resourceTypeController = TextEditingController();
+  final TextEditingController resourceStatusController =
+      TextEditingController();
+  final TextEditingController timeseriesController = TextEditingController();
+
+  validateDropdown(
+      {required List<String> list, required TextEditingController controller}) {
+    final input = controller.text.trim();
+    String? matchedItem;
+
+    // Find a case-insensitive match
+    for (var item in list) {
+      if (item.toLowerCase() == input.toLowerCase()) {
+        matchedItem = item;
+        break;
+      }
+    }
+
+    if (input.isNotEmpty && matchedItem == null) {
+      setState(() {
+        controller.clear();
+      });
+    } else if (input.isNotEmpty && matchedItem != null) {
+      setState(() {
+        controller.text = matchedItem!;
+      });
+    }
+  }
+
+  // @override
+  // void dispose() {
+  //   flagCodeController.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -168,13 +172,14 @@ class _SearchstocksState extends State<Searchstocks> {
               Row(
                 children: [
                   Expanded(
-                    child: _dropdownField(
-                        'Species System', speciesTypes, selectedSpeciesSystem,
-                        (value) {
-                      setState(() {
-                        selectedSpeciesSystem = value;
-                      });
-                    }),
+                    child: DropdownTextField(
+                      items: speciesTypes,
+                      label: 'Species System',
+                      controller: speciesTypesController,
+                      onValidate: validateDropdown(
+                          list: speciesTypes,
+                          controller: speciesTypesController),
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -191,19 +196,30 @@ class _SearchstocksState extends State<Searchstocks> {
     );
   }
 
+  void validateAllDropdowns() {
+    validateDropdown(list: speciesTypes, controller: speciesTypesController);
+    validateDropdown(list: areaTypes, controller: areaTypesController);
+    validateDropdown(list: faoMajorAreas, controller: faoMajorAreaController);
+    validateDropdown(list: resourceType, controller: resourceTypeController);
+    validateDropdown(
+        list: resourceStatus, controller: resourceStatusController);
+    validateDropdown(list: timeseries, controller: timeseriesController);
+  }
+
   ElevatedButton searchButton() {
     return ElevatedButton(
       onPressed: () {
+        validateAllDropdowns();
         SearchStock searchStock = SearchStock(
-          selectedSpeciesSystem ?? 'All',
+          speciesTypesController.text,
           speciesCodeController.text,
           speciesNameController.text,
-          selectedAreaSystem ?? 'All',
+          areaTypesController.text,
           areaCodeController.text,
           areaNameController.text,
-          selectedFAOMajorArea ?? 'All',
-          selectedResourceType ?? 'All',
-          selectedResourceStatus ?? 'All',
+          faoMajorAreaController.text,
+          resourceTypeController.text,
+          resourceStatusController.text,
         );
 
         Navigator.push(
@@ -212,7 +228,7 @@ class _SearchstocksState extends State<Searchstocks> {
             builder: (context) => Stocks(
                 search: searchStock,
                 forSpecies: false,
-                timeseries: selectedTimeseries ?? '',
+                timeseries: timeseriesController.text,
                 refYear: refYear.text),
           ),
         );
@@ -264,12 +280,13 @@ class _SearchstocksState extends State<Searchstocks> {
               Row(
                 children: [
                   Expanded(
-                    child: _dropdownField(
-                        'Area System', areaTypes, selectedAreaSystem, (value) {
-                      setState(() {
-                        selectedAreaSystem = value;
-                      });
-                    }),
+                    child: DropdownTextField(
+                      items: areaTypes,
+                      label: 'Area System',
+                      controller: areaTypesController,
+                      onValidate: validateDropdown(
+                          list: areaTypes, controller: areaTypesController),
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -280,13 +297,13 @@ class _SearchstocksState extends State<Searchstocks> {
               const SizedBox(height: 8),
               _textField("Area Name", areaNameController),
               const SizedBox(height: 8),
-              _dropdownField(
-                  'FAO Major Area', faoMajorAreas, selectedFAOMajorArea,
-                  (value) {
-                setState(() {
-                  selectedFAOMajorArea = value;
-                });
-              }),
+              DropdownTextField(
+                items: faoMajorAreas,
+                label: 'FAO Major Area',
+                controller: faoMajorAreaController,
+                onValidate: validateDropdown(
+                    list: faoMajorAreas, controller: faoMajorAreaController),
+              ),
             ],
           ),
         ),
@@ -322,22 +339,26 @@ class _SearchstocksState extends State<Searchstocks> {
               Row(
                 children: [
                   Expanded(
-                    child: _dropdownField(
-                        'Resource Type', resourceType, selectedResourceType,
-                        (value) {
-                      setState(() {
-                        selectedResourceType = value;
-                      });
-                    }),
+                    child: DropdownTextField(
+                      items: resourceType,
+                      label: 'Resource Type',
+                      controller: resourceTypeController,
+                      onValidate: validateDropdown(
+                          list: resourceType,
+                          controller: resourceTypeController),
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                      child: _dropdownField('Resource Status', resourceStatus,
-                          selectedResourceStatus, (value) {
-                    setState(() {
-                      selectedResourceStatus = value;
-                    });
-                  })),
+                    child: DropdownTextField(
+                      items: resourceStatus,
+                      label: 'Resource Status',
+                      controller: resourceStatusController,
+                      onValidate: validateDropdown(
+                          list: resourceStatus,
+                          controller: resourceStatusController),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -375,12 +396,13 @@ class _SearchstocksState extends State<Searchstocks> {
               Row(
                 children: [
                   Expanded(
-                    child: _dropdownField(
-                        'Timeseries', timeseries, selectedTimeseries, (value) {
-                      setState(() {
-                        selectedTimeseries = value;
-                      });
-                    }),
+                    child: DropdownTextField(
+                      items: timeseries,
+                      label: 'Timeseries',
+                      controller: timeseriesController,
+                      onValidate: validateDropdown(
+                          list: timeseries, controller: timeseriesController),
+                    ),
                   ),
                 ],
               ),

@@ -311,7 +311,7 @@ class DatabaseService {
       if (fields?.selectedSpeciesSystem != null &&
           fields!.selectedSpeciesSystem.isNotEmpty) {
         conditions.add("sp.species_type LIKE ? ");
-        parameters.add(fields?.selectedSpeciesSystem.replaceAll('All', '%'));
+        parameters.add(fields?.selectedSpeciesSystem);
       }
       if (fields?.speciesCode != null && fields!.speciesCode.isNotEmpty) {
         conditions.add("sp.species_code LIKE ?");
@@ -324,7 +324,7 @@ class DatabaseService {
       if (fields?.selectedAreaSystem != null &&
           fields!.selectedAreaSystem.isNotEmpty) {
         conditions.add("a.area_type LIKE ?");
-        parameters.add(fields?.selectedAreaSystem.replaceAll('All', '%'));
+        parameters.add(fields?.selectedAreaSystem);
       }
       if (fields?.areaCode != null && fields!.areaCode.isNotEmpty) {
         conditions.add("a.area_code LIKE ?");
@@ -338,17 +338,17 @@ class DatabaseService {
           fields!.selectedFAOMajorArea.isNotEmpty) {
         conditions.add("s.parent_areas LIKE ?");
         parameters.add(
-            '${'%' + fields.selectedFAOMajorArea.replaceAll('All', '%')}%');
+            '${'%' + fields.selectedFAOMajorArea}%');
       }
       if (fields?.selectedResourceType != null &&
           fields!.selectedResourceType.isNotEmpty) {
         conditions.add("s.type LIKE ?");
-        parameters.add(fields?.selectedResourceType.replaceAll('All', '%'));
+        parameters.add(fields?.selectedResourceType);
       }
       if (fields?.selectedResourceStatus != null &&
           fields!.selectedResourceStatus.isNotEmpty) {
         conditions.add("s.status LIKE ?");
-        parameters.add(fields?.selectedResourceStatus.replaceAll('All', '%'));
+        parameters.add(fields?.selectedResourceStatus);
       }
 
       if (conditions.isNotEmpty) {
@@ -368,7 +368,6 @@ class DatabaseService {
       }
     }
     query += ' GROUP BY s.UUID';
-    print(query);
 
     final result = await db.rawQuery(query, parameters);
 
@@ -393,7 +392,7 @@ class DatabaseService {
       ''';
     if (fields.selectedAreaSystem.isNotEmpty) {
       conditions.add("a.area_type LIKE ?");
-      parameters.add(fields.selectedAreaSystem.replaceAll('All', '%'));
+      parameters.add(fields.selectedAreaSystem);
     }
     if (fields.areaCode.isNotEmpty) {
       conditions.add("a.area_code LIKE ?");
@@ -449,8 +448,7 @@ class DatabaseService {
       query += " AND ${conditions.join(" AND ")}";
     }
 
-    print(query);
-    print(parameters);
+
     final result = await db.rawQuery(query, parameters);
     return result.map((json) => fromMap(json)).toList();
   }

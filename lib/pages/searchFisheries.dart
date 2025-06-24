@@ -98,11 +98,11 @@ class _SearchfisheriesState extends State<Searchfisheries> {
     }
   }
 
-  @override
-  void dispose() {
-    flagCodeController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   flagCodeController.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {

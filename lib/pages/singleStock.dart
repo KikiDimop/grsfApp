@@ -1709,7 +1709,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                     ),
                   ],
                 ),
-                const SizedBox(width: 16), // Spacing between Value and Unit
+                const SizedBox(width: 8), // Spacing between Value and Unit
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1756,85 +1756,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               softWrap: true,
               overflow: TextOverflow.visible,
             ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Reference Year',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      referenceYear,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.bold,
-                      ),
-                      softWrap: true,
-                      overflow: TextOverflow.visible,
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 16), // Spacing between Years
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Reporting Year',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    const SizedBox(height: 1),
-                    (reportingYear.length < 15)
-                        ? Text(
-                            reportingYear,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Color(0xff16425B),
-                              fontWeight: FontWeight.bold,
-                            ),
-                            softWrap: true,
-                          )
-                        : Row(
-                            children: [
-                              Text(
-                                '${reportingYear.substring(0, 10)}...',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xff16425B),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                softWrap: true,
-                              ),
-                              const SizedBox(width: 30,),
-                              InkWell(
-                                onTap: () =>
-                                    _showFullText(context, 'Reporting Year', reportingYear),
-                                child: const Icon(
-                                  Icons.more_horiz,
-                                  color: Color(0xff16425B),
-                                  size: 20,
-                                ),
-                              ),
-                            ],
-                          )
-                  ],
-                ),
-              ],
-            ),
-
             const SizedBox(height: 8), // Spacing before Type
 
             const Text(
@@ -1855,6 +1776,67 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               ),
               softWrap: true,
               overflow: TextOverflow.visible,
+            ),
+            const SizedBox(height: 8,),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Reference Year',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xff16425B),
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const SizedBox(height: 1),
+                      Text(
+                        referenceYear,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xff16425B),
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.visible,
+                        softWrap: true,
+                        maxLines: null,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Reporting Year',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xff16425B),
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const SizedBox(height: 1),
+                      Text(
+                        reportingYear,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xff16425B),
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.visible,
+                        softWrap: true,
+                        maxLines: null,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),

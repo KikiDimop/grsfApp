@@ -1203,13 +1203,12 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
         return AlertDialog(
           backgroundColor: const Color(0xffd9dcd6),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10), 
+            borderRadius: BorderRadius.circular(10),
           ),
           content: SizedBox(
-            width:
-                MediaQuery.of(context).size.width * 0.8, 
+            width: MediaQuery.of(context).size.width * 0.8,
             child: Column(
-              mainAxisSize: MainAxisSize.min, 
+              mainAxisSize: MainAxisSize.min,
               children: [
                 ElevatedButton(
                   onPressed: (isExistDataInfoFromAPI &&
@@ -2014,7 +2013,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                     ),
                   ],
                 ),
-                const SizedBox(width: 16), // Spacing between Value and Unit
+                const SizedBox(width: 8), // Spacing between Value and Unit
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -2061,61 +2060,6 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
               softWrap: true,
               overflow: TextOverflow.visible,
             ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Reference Year',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      referenceYear,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.bold,
-                      ),
-                      softWrap: true,
-                      overflow: TextOverflow.visible,
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 16), // Spacing between Years
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Reporting Year',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      reportingYear,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.bold,
-                      ),
-                      softWrap: true,
-                      overflow: TextOverflow.visible,
-                    ),
-                  ],
-                ),
-              ],
-            ),
             const SizedBox(height: 8), // Spacing before Type
             // Type Section
             const Text(
@@ -2136,6 +2080,67 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
               ),
               softWrap: true,
               overflow: TextOverflow.visible,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Reference Year',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xff16425B),
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const SizedBox(height: 1),
+                      Text(
+                        referenceYear,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xff16425B),
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.visible,
+                        softWrap: true,
+                        maxLines: null,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Reporting Year',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xff16425B),
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const SizedBox(height: 1),
+                      Text(
+                        reportingYear,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xff16425B),
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.visible,
+                        softWrap: true,
+                        maxLines: null,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
