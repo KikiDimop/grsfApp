@@ -3,7 +3,7 @@ import 'package:grsfApp/pages/stocks.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:grsfApp/widgets/DropdownTextField.dart';
+import 'package:grsfApp/widgets/dropdown_text_field.dart';
 
 class Searchstocks extends StatefulWidget {
   const Searchstocks({super.key});
@@ -132,6 +132,9 @@ class _SearchstocksState extends State<Searchstocks> {
             _resourceSection(),
             const SizedBox(height: 5),
             _timeseriesSection(),
+            const SizedBox(
+              height: 20,
+            )
           ],
         ),
       ),

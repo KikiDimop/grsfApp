@@ -7,6 +7,7 @@ import 'package:grsfApp/models/stockOwner.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:grsfApp/widgets/global_ui.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:url_launcher/url_launcher.dart';
@@ -317,31 +318,29 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     );
   }
 
-  Expanded _displayList(
+  Widget _displayList(
       {required String searchHint,
       required Widget listDisplay,
       required bool displayDropDown}) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: const Color(0xffd9dcd6).withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Column(
-              children: [
-                _searchField(hint: searchHint),
-                if (displayDropDown) _orderByDropdown(),
-              ],
-            ),
-            Expanded(
-              child: listDisplay,
-            ),
-          ],
-        ),
+    return Container(
+      margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xffd9dcd6).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Column(
+            children: [
+              _searchField(hint: searchHint),
+              if (displayDropDown) _orderByDropdown(),
+            ],
+          ),
+          Expanded(
+            child: listDisplay,
+          ),
+        ],
       ),
     );
   }
@@ -1681,161 +1680,31 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // First Row: Value and Unit
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Value',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      value,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.bold,
-                      ),
-                      softWrap: true,
-                      overflow: TextOverflow.visible,
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 8), // Spacing between Value and Unit
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Unit',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      unit,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.bold,
-                      ),
-                      softWrap: true,
-                      overflow: TextOverflow.visible,
-                    ),
-                  ],
-                ),
+                Expanded(child: dataDisplay(label: 'Value', value: value)),
+                const SizedBox(width: 8),
+                Expanded(child: dataDisplay(label: 'Unit', value: unit)),
               ],
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Data Owner',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              source,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.bold,
-              ),
-              softWrap: true,
-              overflow: TextOverflow.visible,
-            ),
+            dataDisplay(label: 'Data Owner', value: source),
             const SizedBox(height: 8), // Spacing before Type
-
-            const Text(
-              'Type',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.normal,
-              ),
+            dataDisplay(label: 'Type', value: type),
+            const SizedBox(
+              height: 8,
             ),
-            const SizedBox(height: 1),
-            Text(
-              type,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.bold,
-              ),
-              softWrap: true,
-              overflow: TextOverflow.visible,
-            ),
-            const SizedBox(height: 8,),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Reference Year',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xff16425B),
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      const SizedBox(height: 1),
-                      Text(
-                        referenceYear,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xff16425B),
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.visible,
-                        softWrap: true,
-                        maxLines: null,
-                      ),
-                    ],
-                  ),
-                ),
+                    child: dataDisplay(
+                        label: 'Reference Year', value: referenceYear)),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Reporting Year',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xff16425B),
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      const SizedBox(height: 1),
-                      Text(
-                        reportingYear,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xff16425B),
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.visible,
-                        softWrap: true,
-                        maxLines: null,
-                      ),
-                    ],
-                  ),
-                ),
+                    child: dataDisplay(
+                        label: 'Reporting Year', value: reportingYear)),
               ],
             ),
           ],

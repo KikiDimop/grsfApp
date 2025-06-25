@@ -1,5 +1,5 @@
 import 'package:grsfApp/models/species.dart';
-import 'package:grsfApp/pages/speciesDetails.dart';
+import 'package:grsfApp/pages/species_details.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 const String urlStockPng =
@@ -81,3 +82,5 @@ Color getColor(String? status) {
               ? const Color(0xffB3001B)
               : const Color(0xffA9A9A9);
 }
+
+

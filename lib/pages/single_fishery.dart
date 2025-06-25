@@ -4,10 +4,10 @@ import 'package:grsfApp/models/fishery.dart';
 import 'package:grsfApp/models/fisheryOwner.dart';
 import 'package:grsfApp/models/fishingGear.dart';
 import 'package:grsfApp/models/flag.dart';
-import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:grsfApp/widgets/global_ui.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
@@ -364,7 +364,10 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               ),
                             ],
                           ),
-                        )
+                        ),
+                      const SizedBox(
+                        height: 10,
+                      ),
                     ],
                   ),
                 ),
@@ -385,31 +388,29 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     );
   }
 
-  Expanded _displayList(
+  Widget _displayList(
       {required String searchHint,
       required Widget listDisplay,
       required bool displayDropDown}) {
-    return Expanded(
-      child: Container(
-        margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: const Color(0xffd9dcd6).withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Column(
-              children: [
-                _searchField(hint: searchHint),
-                if (displayDropDown) _orderByDropdown(),
-              ],
-            ),
-            Expanded(
-              child: listDisplay,
-            ),
-          ],
-        ),
+    return Container(
+      margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xffd9dcd6).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Column(
+            children: [
+              _searchField(hint: searchHint),
+              if (displayDropDown) _orderByDropdown(),
+            ],
+          ),
+          Expanded(
+            child: listDisplay,
+          ),
+        ],
       ),
     );
   }
@@ -551,33 +552,49 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                   else
                     statusDisplay(_responseData!["result"]["status"]),
                   if (!isExistDataFromAPI)
-                    _truncatedDisplay(
-                        'Short Name', widget.fishery.shortName ?? '', 35)
+                    // _truncatedDisplay('Short Name', widget.fishery.shortName ?? '', 35)
+                    dataDisplay(
+                        label: 'Short Name',
+                        value: widget.fishery.shortName ?? '')
                   else
-                    _truncatedDisplay('Short Name',
-                        _responseData!["result"]["short_name"], 35),
+                    // _truncatedDisplay('Short Name',_responseData!["result"]["short_name"], 35),
+                    dataDisplay(
+                        label: 'Short Name',
+                        value: _responseData!["result"]["short_name"]),
                   if (!isExistDataFromAPI)
-                    _truncatedDisplay(
-                        'Semantic ID', widget.fishery.grsfSemanticID ?? '', 35)
+                    // _truncatedDisplay('Semantic ID', widget.fishery.grsfSemanticID ?? '', 35)
+                    dataDisplay(
+                        label: 'Semantic ID',
+                        value: widget.fishery.grsfSemanticID ?? '')
                   else
-                    _truncatedDisplay('Semantic ID',
-                        _responseData!["result"]["semantic_id"], 35),
+                    // _truncatedDisplay('Semantic ID',_responseData!["result"]["semantic_id"], 35),
+                    dataDisplay(
+                        label: 'Semantic ID',
+                        value: _responseData!["result"]["semantic_id"]),
                   if (!isExistDataFromAPI)
-                    _truncatedDisplay(
-                        'Semantic Title', widget.fishery.grsfName ?? '', 35)
+                    // _truncatedDisplay('Semantic Title', widget.fishery.grsfName ?? '', 35)
+                    dataDisplay(
+                        label: 'Semantic Title',
+                        value: widget.fishery.grsfName ?? '')
                   else
-                    _truncatedDisplay('Semantic Title',
-                        _responseData!["result"]["semantic_title"], 35),
+                    // _truncatedDisplay('Semantic Title',_responseData!["result"]["semantic_title"], 35),
+                    dataDisplay(
+                        label: 'Semantic Title',
+                        value: _responseData!["result"]["semantic_title"]),
                   if (!isExistDataFromAPI)
-                    _truncatedDisplay('UUID', widget.fishery.uuid ?? '', 35)
+                    //_truncatedDisplay('UUID', widget.fishery.uuid ?? '', 35)
+                    dataDisplay(label: 'UUID', value: widget.fishery.uuid ?? '')
                   else
-                    _truncatedDisplay(
-                        'UUID', _responseData!["result"]["uuid"], 35),
-                  _truncatedDisplay('Type', widget.fishery.type ?? '', 35),
+                    // _truncatedDisplay('UUID', _responseData!["result"]["uuid"], 35),
+                    dataDisplay(
+                        label: 'UUID', value: _responseData!["result"]["uuid"]),
+                  // _truncatedDisplay('Type', widget.fishery.type ?? '', 35),
+                  dataDisplay(label: 'Type', value: widget.fishery.type ?? ''),
+
                   if (isExistDataFromAPI)
                     Align(
                       alignment: Alignment.centerRight,
-                      child: _iconButton(
+                      child: iconButton(
                         icon: Icons.link,
                         onPressed: () => _openSourceLink(
                             _responseData!["result"]["source_urls"][0] ?? ''),
@@ -600,128 +617,112 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     }
   }
 
-  Widget _iconButton({
-    required VoidCallback onPressed,
-    required IconData icon,
-  }) {
-    return IconButton(
-      onPressed: onPressed,
-      icon: Icon(
-        icon,
-        color: const Color(0xff16425B),
-        size: 24,
-      ),
-      splashRadius: 24,
-    );
-  }
+  // Widget _truncatedDisplay(String title, String value, int maxLength) {
+  //   if (value.isEmpty) return const SizedBox.shrink();
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 4),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Text(
+  //           title,
+  //           style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
+  //         ),
+  //         Row(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Expanded(
+  //               child: Text(
+  //                 value.length > maxLength
+  //                     ? '${value.substring(0, maxLength)}...'
+  //                     : value,
+  //                 style: const TextStyle(
+  //                   fontSize: 14,
+  //                   color: Color(0xff16425B),
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //                 softWrap: true,
+  //               ),
+  //             ),
+  //             if (value.length > maxLength)
+  //               Padding(
+  //                 padding: const EdgeInsets.only(left: 8.0),
+  //                 child: InkWell(
+  //                   onTap: () => _showFullText(context, title, value),
+  //                   child: const Icon(
+  //                     Icons.more_horiz,
+  //                     color: Color(0xff16425B),
+  //                     size: 20,
+  //                   ),
+  //                 ),
+  //               ),
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget _truncatedDisplay(String title, String value, int maxLength) {
-    if (value.isEmpty) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  value.length > maxLength
-                      ? '${value.substring(0, maxLength)}...'
-                      : value,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xff16425B),
-                    fontWeight: FontWeight.bold,
-                  ),
-                  softWrap: true,
-                ),
-              ),
-              if (value.length > maxLength)
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: InkWell(
-                    onTap: () => _showFullText(context, title, value),
-                    child: const Icon(
-                      Icons.more_horiz,
-                      color: Color(0xff16425B),
-                      size: 20,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showFullText(BuildContext context, String title, String value) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xffd9dcd6),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff16425B),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                        color: Color(0xff16425B),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.6,
-                  ),
-                  child: SingleChildScrollView(
-                    child: Text(
-                      value,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xff16425B),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  // void _showFullText(BuildContext context, String title, String value) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return Dialog(
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(12),
+  //         ),
+  //         child: Container(
+  //           padding: const EdgeInsets.all(16),
+  //           decoration: BoxDecoration(
+  //             color: const Color(0xffd9dcd6),
+  //             borderRadius: BorderRadius.circular(12),
+  //           ),
+  //           child: Column(
+  //             mainAxisSize: MainAxisSize.min,
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   Text(
+  //                     title,
+  //                     style: const TextStyle(
+  //                       fontSize: 16,
+  //                       fontWeight: FontWeight.bold,
+  //                       color: Color(0xff16425B),
+  //                     ),
+  //                   ),
+  //                   IconButton(
+  //                     icon: const Icon(
+  //                       Icons.close,
+  //                       color: Color(0xff16425B),
+  //                     ),
+  //                     onPressed: () => Navigator.of(context).pop(),
+  //                   ),
+  //                 ],
+  //               ),
+  //               const SizedBox(height: 8),
+  //               Container(
+  //                 constraints: BoxConstraints(
+  //                   maxHeight: MediaQuery.of(context).size.height * 0.6,
+  //                 ),
+  //                 child: SingleChildScrollView(
+  //                   child: Text(
+  //                     value,
+  //                     style: const TextStyle(
+  //                       fontSize: 14,
+  //                       color: Color(0xff16425B),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget _detailsSection(BuildContext context) {
     if (areas == null || owners == null || gears == null || faoAreas == null) {
@@ -761,59 +762,87 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          displayTitle('Species'),
                           if (!isExistDataFromAPI)
-                            displayRow(
-                                'Code     : ', widget.fishery.speciesCode ?? '')
-                          else
-                            displayRow(
-                                'Code     : ',
-                                _responseData!["result"]["species"]
-                                        ["species_code"] ??
-                                    ''),
-                          if (!isExistDataFromAPI)
-                            displayRow(
-                                'System : ', widget.fishery.speciesType ?? '')
-                          else
-                            displayRow(
-                                'System : ',
-                                _responseData!["result"]["species"]
-                                        ["species_type"] ??
-                                    ''),
-                          if (!isExistDataFromAPI)
-                            displayRowWithIcon(
-                                'Name    : ',
-                                widget.fishery.speciesName ?? '',
-                                () => _openSourceLink(
+                            dataDetailsDisplay(
+                                label: 'Species',
+                                code: widget.fishery.speciesCode ?? '',
+                                system: widget.fishery.speciesType ?? '',
+                                name: widget.fishery.speciesName ?? '',
+                                withIcon: true,
+                                onIconPressed: () => _openSourceLink(
                                     'https://images.google.com/search?tbm=isch&q=${widget.fishery.speciesName ?? ''}'),
-                                Icons.image)
+                                icon: Icons.image)
                           else
-                            displayRowWithIcon(
-                                'Name    : ',
-                                _responseData!["result"]["species"]
+                            dataDetailsDisplay(
+                                label: 'Species',
+                                code: _responseData!["result"]["species"]
+                                        ["species_code"] ??
+                                    '',
+                                system: _responseData!["result"]["species"]
+                                        ["species_type"] ??
+                                    '',
+                                name: _responseData!["result"]["species"]
                                         ["species_name"] ??
                                     '',
-                                () => _openSourceLink(
+                                withIcon: true,
+                                onIconPressed: () => _openSourceLink(
                                     'https://images.google.com/search?tbm=isch&q=${_responseData!["result"]["species"]["species_name"] ?? ''}'),
-                                Icons.image),
+                                icon: Icons.image),
                         ]),
                   ),
-                  if (areas!.length == 1) _buildAreaDetails(areas!.first),
-                  if (owners!.length == 1) _buildOwnerDetails(owners!.first),
-                  if (gears!.length == 1) _buildGearDetails(gears!.first),
+                  if (areas!.length == 1 && !isExistDataFromAPI)
+                    dataDetailsDisplay(
+                        label: 'Assessment Area Details',
+                        code: areas!.first.areaCode ?? '',
+                        system: areas!.first.areaType ?? '',
+                        name: areas!.first.areaName ?? '',
+                        withIcon: false), //_buildAreaDetails(areas!.first),
+                  if (owners!.length == 1)
+                    dataDisplay(
+                        label: 'Data Owner',
+                        value: owners!.first.owner ??
+                            ''), //_buildOwnerDetails(owners!.first),
+                  if (gears!.length == 1)
+                    dataDetailsDisplay(
+                        label: 'Fishing Gear Details',
+                        code: gears!.first.fishingGearId ?? '',
+                        system: gears!.first.fishingGearType ?? '',
+                        name: gears!.first.fishingGearName ?? '',
+                        withIcon: true,
+                        onIconPressed: () => _openSourceLink(
+                            'https://images.google.com/search?tbm=isch&q=${gears!.first.fishingGearName ?? ''}'),
+                        icon: Icons.image), //_buildGearDetails(gears!.first),
                   if (faoAreas!.length == 1)
-                    _buildFaoMajorAreaDetails(faoAreas!.first),
-                  simpleDisplay('Management Authority',
-                      widget.fishery.managementEntities ?? '-'),
+                    dataDetailsDisplay(
+                        label: 'Fao Major Area',
+                        code: faoAreas!.first.faoMajorAreaCode ?? '',
+                        system: '',
+                        name: faoAreas!.first.faoMajorAreaName ?? '',
+                        withIcon:
+                            false), //_buildFaoMajorAreaDetails(faoAreas!.first),
+                  dataDisplay(
+                      label: 'Management Authority',
+                      value: widget.fishery.managementEntities ?? '-'),
                   if (isExistDataFromAPI && flags!.length == 1)
-                    displayFlagState(),
+                    dataDetailsDisplay(
+                        label: 'Flag State',
+                        code: _responseData!["result"]["flag_states"]
+                                ["flag_state_code"] ??
+                            '',
+                        system: _responseData!["result"]["flag_states"]
+                                ["flag_state_type"] ??
+                            '',
+                        name: _responseData!["result"]["flag_states"]
+                                ["flag_state_name"] ??
+                            '',
+                        withIcon: false),
                   Wrap(
                     spacing: 3,
                     runSpacing: 1,
                     alignment: WrapAlignment.start,
                     children: [
                       if (areas!.length > 1)
-                        _button(
+                        customButton(
                           label: 'Areas',
                           onPressed: () {
                             setState(() {
@@ -828,7 +857,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                           },
                         ),
                       if (owners!.length > 1)
-                        _button(
+                        customButton(
                           label: 'Owners',
                           onPressed: () {
                             setState(() {
@@ -843,7 +872,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                           },
                         ),
                       if (gears!.length > 1)
-                        _button(
+                        customButton(
                           label: 'Fishing Gears',
                           onPressed: () {
                             setState(() {
@@ -858,7 +887,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                           },
                         ),
                       if (faoAreas!.length > 1)
-                        _button(
+                        customButton(
                           label: 'FAO Major Areas',
                           onPressed: () {
                             setState(() {
@@ -873,7 +902,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                           },
                         ),
                       if (flags!.length > 1)
-                        _button(
+                        customButton(
                           label: 'Flag States',
                           onPressed: () {
                             setState(() {
@@ -898,109 +927,109 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     );
   }
 
-  Widget _buildFaoMajorAreaDetails(FaoMajorArea faoMajorArea) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Fao Major Area',
-            style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          displayRow('Code     : ', faoMajorArea.faoMajorAreaCode ?? ''),
-          displayRow('Name    : ', faoMajorArea.faoMajorAreaName ?? ''),
-        ],
-      ),
-    );
-  }
+  // Widget _buildFaoMajorAreaDetails(FaoMajorArea faoMajorArea) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 4),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         const Text(
+  //           'Fao Major Area',
+  //           style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
+  //         ),
+  //         displayRow('Code     : ', faoMajorArea.faoMajorAreaCode ?? ''),
+  //         displayRow('Name    : ', faoMajorArea.faoMajorAreaName ?? ''),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget displayManagmentAuthority() {
-    if (_responseData!["result"]["management_units"].length == 1) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            displayTitle('Management Authority'),
-            displayRow(
-              'Code     : ',
-              _responseData!["result"]["management_units"][0]
-                      ["management_unit_code"] ??
-                  '',
-            ),
-            displayRow(
-              'System : ',
-              _responseData!["result"]["management_units"][0]
-                      ["management_unit_system"] ??
-                  '',
-            ),
-            displayRow(
-              'Name    : ',
-              _responseData!["result"]["management_units"][0]
-                      ["management_unit_name"] ??
-                  '',
-            ),
-          ],
-        ),
-      );
-    }
-    return const SizedBox.shrink();
-  }
+  // Widget displayManagmentAuthority() {
+  //   if (_responseData!["result"]["management_units"].length == 1) {
+  //     return Padding(
+  //       padding: const EdgeInsets.only(bottom: 4),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           displayTitle('Management Authority'),
+  //           displayRow(
+  //             'Code     : ',
+  //             _responseData!["result"]["management_units"][0]
+  //                     ["management_unit_code"] ??
+  //                 '',
+  //           ),
+  //           displayRow(
+  //             'System : ',
+  //             _responseData!["result"]["management_units"][0]
+  //                     ["management_unit_system"] ??
+  //                 '',
+  //           ),
+  //           displayRow(
+  //             'Name    : ',
+  //             _responseData!["result"]["management_units"][0]
+  //                     ["management_unit_name"] ??
+  //                 '',
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   }
+  //   return const SizedBox.shrink();
+  // }
 
-  Padding displayFlagState() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          displayTitle('Flag State'),
-          displayRow(
-            'Code     : ',
-            _responseData!["result"]["flag_states"]["flag_state_code"] ?? '',
-          ),
-          displayRow(
-            'System : ',
-            _responseData!["result"]["flag_states"]["flag_state_type"] ?? '',
-          ),
-          displayRow(
-            'Name    : ',
-            _responseData!["result"]["flag_states"]["flag_state_name"] ?? '',
-          ),
-        ],
-      ),
-    );
-  }
+  // Padding displayFlagState() {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 4),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         displayTitle('Flag State'),
+  //         displayRow(
+  //           'Code     : ',
+  //           _responseData!["result"]["flag_states"]["flag_state_code"] ?? '',
+  //         ),
+  //         displayRow(
+  //           'System : ',
+  //           _responseData!["result"]["flag_states"]["flag_state_type"] ?? '',
+  //         ),
+  //         displayRow(
+  //           'Name    : ',
+  //           _responseData!["result"]["flag_states"]["flag_state_name"] ?? '',
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Padding displayAssessmentAreas() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          displayTitle('Assessment Areas'),
-          displayRow(
-            'Code     : ',
-            _responseData!["result"]["assessment_areas"]
-                    ["assessment_area_code"] ??
-                '',
-          ),
-          displayRow(
-            'System : ',
-            _responseData!["result"]["assessment_areas"]
-                    ["assessment_area_type"] ??
-                '',
-          ),
-          displayRow(
-            'Name    : ',
-            _responseData!["result"]["assessment_areas"]
-                    ["assessment_area_name"] ??
-                '',
-          ),
-        ],
-      ),
-    );
-  }
+  // Padding displayAssessmentAreas() {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 4),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         displayTitle('Assessment Areas'),
+  //         displayRow(
+  //           'Code     : ',
+  //           _responseData!["result"]["assessment_areas"]
+  //                   ["assessment_area_code"] ??
+  //               '',
+  //         ),
+  //         displayRow(
+  //           'System : ',
+  //           _responseData!["result"]["assessment_areas"]
+  //                   ["assessment_area_type"] ??
+  //               '',
+  //         ),
+  //         displayRow(
+  //           'Name    : ',
+  //           _responseData!["result"]["assessment_areas"]
+  //                   ["assessment_area_name"] ??
+  //               '',
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Text displayTitle(String label) {
     return Text(
@@ -1009,192 +1038,154 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     );
   }
 
-  Widget _buildGearDetails(Gear gear) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Fishing Gear Details',
-            style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          displayRow('Code     : ', gear.fishingGearId ?? ''),
-          displayRow('System : ', gear.fishingGearType ?? ''),
-          // displayRow('Name    : ', gear.fishingGearName ?? ''),
-          displayRowWithIcon(
-              'Name    : ',
-              gear.fishingGearName ?? '',
-              () => _openSourceLink(
-                  'https://images.google.com/search?tbm=isch&q=${gear.fishingGearName ?? ''}'),
-              Icons.image)
-        ],
-      ),
-    );
-  }
+  // Widget _buildGearDetails(Gear gear) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 4),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         const Text(
+  //           'Fishing Gear Details',
+  //           style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
+  //         ),
+  //         displayRow('Code     : ', gear.fishingGearId ?? ''),
+  //         displayRow('System : ', gear.fishingGearType ?? ''),
+  //         // displayRow('Name    : ', gear.fishingGearName ?? ''),
+  //         displayRowWithIcon(
+  //             'Name    : ',
+  //             gear.fishingGearName ?? '',
+  //             () => _openSourceLink(
+  //                 'https://images.google.com/search?tbm=isch&q=${gear.fishingGearName ?? ''}'),
+  //             Icons.image)
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget _buildAreaDetails(AreasForFishery area) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Assessment Area Details',
-            style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          displayRow('Code     : ', area.areaCode ?? ''),
-          displayRow('System : ', area.areaType ?? ''),
-          displayRow('Name    : ', area.areaName ?? ''),
-        ],
-      ),
-    );
-  }
+  // Widget _buildAreaDetails(AreasForFishery area) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 4),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         const Text(
+  //           'Assessment Area Details',
+  //           style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
+  //         ),
+  //         displayRow('Code     : ', area.areaCode ?? ''),
+  //         displayRow('System : ', area.areaType ?? ''),
+  //         displayRow('Name    : ', area.areaName ?? ''),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget _buildOwnerDetails(FisheryOwner owner) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Data Owner',
-            style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          Text(
-            owner.owner ?? '',
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xff16425B),
-              fontWeight: FontWeight.bold,
-            ),
-            softWrap: true,
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildOwnerDetails(FisheryOwner owner) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 4),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         const Text(
+  //           'Data Owner',
+  //           style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
+  //         ),
+  //         Text(
+  //           owner.owner ?? '',
+  //           style: const TextStyle(
+  //             fontSize: 14,
+  //             color: Color(0xff16425B),
+  //             fontWeight: FontWeight.bold,
+  //           ),
+  //           softWrap: true,
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget displayRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Flexible(
-            flex: 2,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff16425B),
-              ),
-            ),
-          ),
-          const SizedBox(width: 5),
-          Expanded(
-            flex: 4,
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.bold,
-              ),
-              softWrap: true,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget displayRow(String label, String value) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(vertical: 2),
+  //     child: Row(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Flexible(
+  //           flex: 2,
+  //           child: Text(
+  //             label,
+  //             style: const TextStyle(
+  //               fontSize: 12,
+  //               fontWeight: FontWeight.bold,
+  //               color: Color(0xff16425B),
+  //             ),
+  //           ),
+  //         ),
+  //         const SizedBox(width: 5),
+  //         Expanded(
+  //           flex: 4,
+  //           child: Text(
+  //             value,
+  //             style: const TextStyle(
+  //               fontSize: 14,
+  //               color: Color(0xff16425B),
+  //               fontWeight: FontWeight.bold,
+  //             ),
+  //             softWrap: true,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
-  Widget displayRowWithIcon(
-      String label, String value, VoidCallback onIconPressed, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Flexible(
-            flex: 2,
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff16425B),
-              ),
-            ),
-          ),
-          const SizedBox(width: 5),
-          Expanded(
-            flex: 4,
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.bold,
-              ),
-              softWrap: true,
-            ),
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: InkWell(
-              onTap: onIconPressed,
-              child: Icon(
-                icon,
-                color: const Color(0xff16425B),
-                size: 20,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _button({
-    required String label,
-    required VoidCallback onPressed,
-  }) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xff16425B), // Dynamic background color
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), // Rounded edges
-        ),
-        padding: const EdgeInsets.symmetric(
-            horizontal: 16, vertical: 8), // Dynamic padding
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 14,
-          color: Color(0xffd9dcd6), // Dynamic text color
-        ),
-      ),
-    );
-  }
-
-  Align statusDisplay(String status) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Text(
-        status,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: getColor(status),
-        ),
-      ),
-    );
-  }
+  // Widget displayRowWithIcon(
+  //     String label, String value, VoidCallback onIconPressed, IconData icon) {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(vertical: 2),
+  //     child: Row(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Flexible(
+  //           flex: 2,
+  //           child: Text(
+  //             label,
+  //             style: const TextStyle(
+  //               fontSize: 12,
+  //               fontWeight: FontWeight.bold,
+  //               color: Color(0xff16425B),
+  //             ),
+  //           ),
+  //         ),
+  //         const SizedBox(width: 5),
+  //         Expanded(
+  //           flex: 4,
+  //           child: Text(
+  //             value,
+  //             style: const TextStyle(
+  //               fontSize: 14,
+  //               color: Color(0xff16425B),
+  //               fontWeight: FontWeight.bold,
+  //             ),
+  //             softWrap: true,
+  //           ),
+  //         ),
+  //         const Spacer(),
+  //         Padding(
+  //           padding: const EdgeInsets.only(left: 8.0),
+  //           child: InkWell(
+  //             onTap: onIconPressed,
+  //             child: Icon(
+  //               icon,
+  //               color: const Color(0xff16425B),
+  //               size: 20,
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   void dataInfoDialogDisplay() {
     showDialog(
@@ -1288,29 +1279,29 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     );
   }
 
-  Widget simpleDisplay(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4), // Spacing between items
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xff16425B),
-              fontWeight: FontWeight.bold,
-            ),
-            softWrap: true,
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget simpleDisplay(String title, String value) {
+  //   return Padding(
+  //     padding: const EdgeInsets.only(bottom: 4), // Spacing between items
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Text(
+  //           title,
+  //           style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
+  //         ),
+  //         Text(
+  //           value,
+  //           style: const TextStyle(
+  //             fontSize: 14,
+  //             color: Color(0xff16425B),
+  //             fontWeight: FontWeight.bold,
+  //           ),
+  //           softWrap: true,
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _listViewItem({required dynamic item}) {
     String name = '';
@@ -1985,161 +1976,29 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // First Row: Value and Unit
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Value',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      value,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.bold,
-                      ),
-                      softWrap: true,
-                      overflow: TextOverflow.visible,
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 8), // Spacing between Value and Unit
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Unit',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    const SizedBox(height: 1),
-                    Text(
-                      unit,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.bold,
-                      ),
-                      softWrap: true,
-                      overflow: TextOverflow.visible,
-                    ),
-                  ],
-                ),
+                Expanded(child: dataDisplay(label: 'Value', value: value)),
+                const SizedBox(width: 8),
+                Expanded(child: dataDisplay(label: 'Unit', value: unit)),
               ],
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Data Owner',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              source,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.bold,
-              ),
-              softWrap: true,
-              overflow: TextOverflow.visible,
-            ),
+            dataDisplay(label: 'Data Owner', value: source),
             const SizedBox(height: 8), // Spacing before Type
-            // Type Section
-            const Text(
-              'Type',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              type,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.bold,
-              ),
-              softWrap: true,
-              overflow: TextOverflow.visible,
-            ),
+            dataDisplay(label: 'Type', value: type),
             const SizedBox(height: 8),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Reference Year',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xff16425B),
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      const SizedBox(height: 1),
-                      Text(
-                        referenceYear,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xff16425B),
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.visible,
-                        softWrap: true,
-                        maxLines: null,
-                      ),
-                    ],
-                  ),
-                ),
+                    child: dataDisplay(
+                        label: 'Reference Year', value: referenceYear)),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Reporting Year',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xff16425B),
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      const SizedBox(height: 1),
-                      Text(
-                        reportingYear,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xff16425B),
-                          fontWeight: FontWeight.bold,
-                        ),
-                        overflow: TextOverflow.visible,
-                        softWrap: true,
-                        maxLines: null,
-                      ),
-                    ],
-                  ),
-                ),
+                    child: dataDisplay(
+                        label: 'Reporting Year', value: reportingYear)),
               ],
             ),
           ],

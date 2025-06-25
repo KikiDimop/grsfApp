@@ -20,10 +20,10 @@ class DropdownTextField extends StatefulWidget {
   }
 
   @override
-  _DropdownTextFieldState createState() => _DropdownTextFieldState();
+  DropdownTextFieldState createState() => DropdownTextFieldState();
 }
 
-class _DropdownTextFieldState extends State<DropdownTextField> {
+class DropdownTextFieldState extends State<DropdownTextField> {
   final FocusNode _focusNode = FocusNode();
   final GlobalKey _textFieldKey = GlobalKey();
   String? _selectedItem;

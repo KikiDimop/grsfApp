@@ -1,7 +1,7 @@
 import 'package:grsfApp/pages/areas.dart';
-import 'package:grsfApp/pages/fishingGears.dart';
-import 'package:grsfApp/pages/searchFisheries.dart';
-import 'package:grsfApp/pages/searchStocks.dart';
+import 'package:grsfApp/pages/fishing_gears.dart';
+import 'package:grsfApp/pages/search_fisheries.dart';
+import 'package:grsfApp/pages/search_stocks.dart';
 import 'package:grsfApp/pages/species.dart';
 import 'package:grsfApp/pages/sync.dart';
 import 'package:flutter/material.dart';
