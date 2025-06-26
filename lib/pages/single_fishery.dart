@@ -250,7 +250,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               Expanded(
                                 child: _displayList(
                                   searchHint: 'Search Owner',
-                                  listDisplay: _ownersList(),
+                                  listDisplay: dataList<FisheryOwner>(
+                                      items: owners), //_ownersList(),
                                   displayDropDown: true,
                                 ),
                               ),
@@ -304,7 +305,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               Expanded(
                                 child: _displayList(
                                   searchHint: 'Search Catch',
-                                  listDisplay: _catchesList(),
+                                  listDisplay:
+                                      _stockDataList(stockData: "catches"),
                                   displayDropDown: false,
                                 ),
                               ),
@@ -322,7 +324,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               Expanded(
                                 child: _displayList(
                                   searchHint: 'Search Landing',
-                                  listDisplay: _landingsList(),
+                                  listDisplay:
+                                      _stockDataList(stockData: "landings"),
                                   displayDropDown: false,
                                 ),
                               ),
@@ -340,7 +343,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               Expanded(
                                 child: _displayList(
                                   searchHint: 'Search Fao Major Area',
-                                  listDisplay: _faoMajorAreaList(),
+                                  listDisplay: dataList<FaoMajorArea>(
+                                      items: faoAreas), //_faoMajorAreaList(),
                                   displayDropDown: false,
                                 ),
                               ),
@@ -358,7 +362,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               Expanded(
                                 child: _displayList(
                                   searchHint: 'Search flag state',
-                                  listDisplay: _flagStatesList(),
+                                  listDisplay: dataList<FlagStates>(
+                                      items: flags), //_flagStatesList(),
                                   displayDropDown: false,
                                 ),
                               ),
@@ -594,10 +599,11 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                   if (isExistDataFromAPI)
                     Align(
                       alignment: Alignment.centerRight,
-                      child: iconButton(
+                      child: iButton(
                         icon: Icons.link,
-                        onPressed: () => _openSourceLink(
+                        onPressed: () => openSourceLink(
                             _responseData!["result"]["source_urls"][0] ?? ''),
+                        assetPath: '',
                       ),
                     )
                 ],
@@ -609,120 +615,13 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     );
   }
 
-  Future<void> _openSourceLink(String link) async {
+  Future<void> openSourceLink(String link) async {
     final Uri url = Uri.parse(link);
 
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       throw Exception('Could not launch $url');
     }
   }
-
-  // Widget _truncatedDisplay(String title, String value, int maxLength) {
-  //   if (value.isEmpty) return const SizedBox.shrink();
-  //   return Padding(
-  //     padding: const EdgeInsets.only(bottom: 4),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Text(
-  //           title,
-  //           style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
-  //         ),
-  //         Row(
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             Expanded(
-  //               child: Text(
-  //                 value.length > maxLength
-  //                     ? '${value.substring(0, maxLength)}...'
-  //                     : value,
-  //                 style: const TextStyle(
-  //                   fontSize: 14,
-  //                   color: Color(0xff16425B),
-  //                   fontWeight: FontWeight.bold,
-  //                 ),
-  //                 softWrap: true,
-  //               ),
-  //             ),
-  //             if (value.length > maxLength)
-  //               Padding(
-  //                 padding: const EdgeInsets.only(left: 8.0),
-  //                 child: InkWell(
-  //                   onTap: () => _showFullText(context, title, value),
-  //                   child: const Icon(
-  //                     Icons.more_horiz,
-  //                     color: Color(0xff16425B),
-  //                     size: 20,
-  //                   ),
-  //                 ),
-  //               ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // void _showFullText(BuildContext context, String title, String value) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return Dialog(
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(12),
-  //         ),
-  //         child: Container(
-  //           padding: const EdgeInsets.all(16),
-  //           decoration: BoxDecoration(
-  //             color: const Color(0xffd9dcd6),
-  //             borderRadius: BorderRadius.circular(12),
-  //           ),
-  //           child: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               Row(
-  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                 children: [
-  //                   Text(
-  //                     title,
-  //                     style: const TextStyle(
-  //                       fontSize: 16,
-  //                       fontWeight: FontWeight.bold,
-  //                       color: Color(0xff16425B),
-  //                     ),
-  //                   ),
-  //                   IconButton(
-  //                     icon: const Icon(
-  //                       Icons.close,
-  //                       color: Color(0xff16425B),
-  //                     ),
-  //                     onPressed: () => Navigator.of(context).pop(),
-  //                   ),
-  //                 ],
-  //               ),
-  //               const SizedBox(height: 8),
-  //               Container(
-  //                 constraints: BoxConstraints(
-  //                   maxHeight: MediaQuery.of(context).size.height * 0.6,
-  //                 ),
-  //                 child: SingleChildScrollView(
-  //                   child: Text(
-  //                     value,
-  //                     style: const TextStyle(
-  //                       fontSize: 14,
-  //                       color: Color(0xff16425B),
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
 
   Widget _detailsSection(BuildContext context) {
     if (areas == null || owners == null || gears == null || faoAreas == null) {
@@ -769,7 +668,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                                 system: widget.fishery.speciesType ?? '',
                                 name: widget.fishery.speciesName ?? '',
                                 withIcon: true,
-                                onIconPressed: () => _openSourceLink(
+                                onIconPressed: () => openSourceLink(
                                     'https://images.google.com/search?tbm=isch&q=${widget.fishery.speciesName ?? ''}'),
                                 icon: Icons.image)
                           else
@@ -785,12 +684,12 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                                         ["species_name"] ??
                                     '',
                                 withIcon: true,
-                                onIconPressed: () => _openSourceLink(
+                                onIconPressed: () => openSourceLink(
                                     'https://images.google.com/search?tbm=isch&q=${_responseData!["result"]["species"]["species_name"] ?? ''}'),
                                 icon: Icons.image),
                         ]),
                   ),
-                  if (areas!.length == 1 && !isExistDataFromAPI)
+                  if (areas!.length == 1)
                     dataDetailsDisplay(
                         label: 'Assessment Area Details',
                         code: areas!.first.areaCode ?? '',
@@ -809,7 +708,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                         system: gears!.first.fishingGearType ?? '',
                         name: gears!.first.fishingGearName ?? '',
                         withIcon: true,
-                        onIconPressed: () => _openSourceLink(
+                        onIconPressed: () => openSourceLink(
                             'https://images.google.com/search?tbm=isch&q=${gears!.first.fishingGearName ?? ''}'),
                         icon: Icons.image), //_buildGearDetails(gears!.first),
                   if (faoAreas!.length == 1)
@@ -927,265 +826,12 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     );
   }
 
-  // Widget _buildFaoMajorAreaDetails(FaoMajorArea faoMajorArea) {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(bottom: 4),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         const Text(
-  //           'Fao Major Area',
-  //           style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-  //         ),
-  //         displayRow('Code     : ', faoMajorArea.faoMajorAreaCode ?? ''),
-  //         displayRow('Name    : ', faoMajorArea.faoMajorAreaName ?? ''),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget displayManagmentAuthority() {
-  //   if (_responseData!["result"]["management_units"].length == 1) {
-  //     return Padding(
-  //       padding: const EdgeInsets.only(bottom: 4),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.start,
-  //         children: [
-  //           displayTitle('Management Authority'),
-  //           displayRow(
-  //             'Code     : ',
-  //             _responseData!["result"]["management_units"][0]
-  //                     ["management_unit_code"] ??
-  //                 '',
-  //           ),
-  //           displayRow(
-  //             'System : ',
-  //             _responseData!["result"]["management_units"][0]
-  //                     ["management_unit_system"] ??
-  //                 '',
-  //           ),
-  //           displayRow(
-  //             'Name    : ',
-  //             _responseData!["result"]["management_units"][0]
-  //                     ["management_unit_name"] ??
-  //                 '',
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  //   }
-  //   return const SizedBox.shrink();
-  // }
-
-  // Padding displayFlagState() {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(bottom: 4),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         displayTitle('Flag State'),
-  //         displayRow(
-  //           'Code     : ',
-  //           _responseData!["result"]["flag_states"]["flag_state_code"] ?? '',
-  //         ),
-  //         displayRow(
-  //           'System : ',
-  //           _responseData!["result"]["flag_states"]["flag_state_type"] ?? '',
-  //         ),
-  //         displayRow(
-  //           'Name    : ',
-  //           _responseData!["result"]["flag_states"]["flag_state_name"] ?? '',
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Padding displayAssessmentAreas() {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(bottom: 4),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         displayTitle('Assessment Areas'),
-  //         displayRow(
-  //           'Code     : ',
-  //           _responseData!["result"]["assessment_areas"]
-  //                   ["assessment_area_code"] ??
-  //               '',
-  //         ),
-  //         displayRow(
-  //           'System : ',
-  //           _responseData!["result"]["assessment_areas"]
-  //                   ["assessment_area_type"] ??
-  //               '',
-  //         ),
-  //         displayRow(
-  //           'Name    : ',
-  //           _responseData!["result"]["assessment_areas"]
-  //                   ["assessment_area_name"] ??
-  //               '',
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
   Text displayTitle(String label) {
     return Text(
       label,
       style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
     );
   }
-
-  // Widget _buildGearDetails(Gear gear) {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(bottom: 4),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         const Text(
-  //           'Fishing Gear Details',
-  //           style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-  //         ),
-  //         displayRow('Code     : ', gear.fishingGearId ?? ''),
-  //         displayRow('System : ', gear.fishingGearType ?? ''),
-  //         // displayRow('Name    : ', gear.fishingGearName ?? ''),
-  //         displayRowWithIcon(
-  //             'Name    : ',
-  //             gear.fishingGearName ?? '',
-  //             () => _openSourceLink(
-  //                 'https://images.google.com/search?tbm=isch&q=${gear.fishingGearName ?? ''}'),
-  //             Icons.image)
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildAreaDetails(AreasForFishery area) {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(bottom: 4),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         const Text(
-  //           'Assessment Area Details',
-  //           style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-  //         ),
-  //         displayRow('Code     : ', area.areaCode ?? ''),
-  //         displayRow('System : ', area.areaType ?? ''),
-  //         displayRow('Name    : ', area.areaName ?? ''),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildOwnerDetails(FisheryOwner owner) {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(bottom: 4),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         const Text(
-  //           'Data Owner',
-  //           style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-  //         ),
-  //         Text(
-  //           owner.owner ?? '',
-  //           style: const TextStyle(
-  //             fontSize: 14,
-  //             color: Color(0xff16425B),
-  //             fontWeight: FontWeight.bold,
-  //           ),
-  //           softWrap: true,
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget displayRow(String label, String value) {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(vertical: 2),
-  //     child: Row(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Flexible(
-  //           flex: 2,
-  //           child: Text(
-  //             label,
-  //             style: const TextStyle(
-  //               fontSize: 12,
-  //               fontWeight: FontWeight.bold,
-  //               color: Color(0xff16425B),
-  //             ),
-  //           ),
-  //         ),
-  //         const SizedBox(width: 5),
-  //         Expanded(
-  //           flex: 4,
-  //           child: Text(
-  //             value,
-  //             style: const TextStyle(
-  //               fontSize: 14,
-  //               color: Color(0xff16425B),
-  //               fontWeight: FontWeight.bold,
-  //             ),
-  //             softWrap: true,
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget displayRowWithIcon(
-  //     String label, String value, VoidCallback onIconPressed, IconData icon) {
-  //   return Padding(
-  //     padding: const EdgeInsets.symmetric(vertical: 2),
-  //     child: Row(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Flexible(
-  //           flex: 2,
-  //           child: Text(
-  //             label,
-  //             style: const TextStyle(
-  //               fontSize: 12,
-  //               fontWeight: FontWeight.bold,
-  //               color: Color(0xff16425B),
-  //             ),
-  //           ),
-  //         ),
-  //         const SizedBox(width: 5),
-  //         Expanded(
-  //           flex: 4,
-  //           child: Text(
-  //             value,
-  //             style: const TextStyle(
-  //               fontSize: 14,
-  //               color: Color(0xff16425B),
-  //               fontWeight: FontWeight.bold,
-  //             ),
-  //             softWrap: true,
-  //           ),
-  //         ),
-  //         const Spacer(),
-  //         Padding(
-  //           padding: const EdgeInsets.only(left: 8.0),
-  //           child: InkWell(
-  //             onTap: onIconPressed,
-  //             child: Icon(
-  //               icon,
-  //               color: const Color(0xff16425B),
-  //               size: 20,
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   void dataInfoDialogDisplay() {
     showDialog(
@@ -1276,255 +922,6 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
           ],
         );
       },
-    );
-  }
-
-  // Widget simpleDisplay(String title, String value) {
-  //   return Padding(
-  //     padding: const EdgeInsets.only(bottom: 4), // Spacing between items
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Text(
-  //           title,
-  //           style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
-  //         ),
-  //         Text(
-  //           value,
-  //           style: const TextStyle(
-  //             fontSize: 14,
-  //             color: Color(0xff16425B),
-  //             fontWeight: FontWeight.bold,
-  //           ),
-  //           softWrap: true,
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  Widget _listViewItem({required dynamic item}) {
-    String name = '';
-    String system = '';
-    String code = '';
-
-    if (item is AreasForFishery) {
-      name = item.areaName ?? 'No Name';
-      system = item.areaType ?? 'No System';
-      code = item.areaCode ?? 'No Code';
-    } else if (item is FisheryOwner) {
-      name = item.owner ?? 'No Name';
-    } else if (item is Gear) {
-      name = item.fishingGearName ?? 'No Name';
-      system = item.fishingGearType ?? 'No System';
-      code = item.fishingGearId ?? 'No ID';
-    } else if (item is FaoMajorArea) {
-      code = item.faoMajorAreaCode ?? 'No Code';
-      name = item.faoMajorAreaName ?? 'No Name';
-      system = item.faoMajorAreaConcat ?? 'No System';
-    }
-
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xffd9dcd6),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Name',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              name,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.bold,
-              ),
-              softWrap: true,
-              overflow: TextOverflow.visible,
-            ),
-            const SizedBox(height: 1),
-            if (system.isNotEmpty && code.isNotEmpty) // Fixed condition here
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Code',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xff16425B),
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                        const SizedBox(height: 1),
-                        Text(
-                          code,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xff16425B),
-                            fontWeight: FontWeight.w500,
-                          ),
-                          overflow: TextOverflow.visible,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  Flexible(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'System',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xff16425B),
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          system,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: Color(0xff16425B),
-                            fontWeight: FontWeight.w500,
-                          ),
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _listViewItemManagementUnit(String name, String system, String code) {
-    if (name == '' && system == '' && code == '') return SizedBox.shrink();
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xffd9dcd6),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Name',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              name,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.bold,
-              ),
-              softWrap: true,
-              overflow: TextOverflow.visible,
-            ),
-            const SizedBox(height: 1),
-            if (system.isNotEmpty && code.isNotEmpty)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Code',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xff16425B),
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                        const SizedBox(height: 1),
-                        Text(
-                          code,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xff16425B),
-                            fontWeight: FontWeight.w500,
-                          ),
-                          overflow: TextOverflow.visible,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  Flexible(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'System',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xff16425B),
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          system,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: Color(0xff16425B),
-                            fontWeight: FontWeight.w500,
-                          ),
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -1632,40 +1029,11 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
               itemCount: filteredAreas.length,
               itemBuilder: (context, index) {
                 final area = filteredAreas[index];
-                return _listViewItem(item: area);
-              },
-            ),
-    );
-  }
-
-  Widget _ownersList() {
-    if (owners == null) {
-      return const Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(color: Color(0xffd9dcd6)),
-        ),
-      );
-    }
-
-    // Filter by search query
-    owners = owners?.toList();
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      padding: const EdgeInsets.all(10),
-      child: owners!.isEmpty
-          ? const Center(
-              child: Text(
-                'No owners found',
-                style: TextStyle(color: Color(0xffd9dcd6)),
-              ),
-            )
-          : ListView.builder(
-              itemCount: owners!.length,
-              itemBuilder: (context, index) {
-                final i = owners![index];
-                return _listViewItem(item: i);
+                return listViewItem(item: area
+                    // name: area.areaName ?? 'No Name',
+                    // system: area.areaType ?? 'No System',
+                    // code: area.areaCode ?? 'No Code'
+                    );
               },
             ),
     );
@@ -1724,7 +1092,11 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
               itemCount: filteredGears.length,
               itemBuilder: (context, index) {
                 final i = filteredGears[index];
-                return _listViewItem(item: i);
+                return listViewItem(item: i
+                    // name: i.fishingGearName ?? 'No Name',
+                    // system: i.fishingGearType ?? 'No System',
+                    // code: i.fishingGearId ?? 'No Code'
+                    );
               },
             ),
     );
@@ -1795,52 +1167,48 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
               itemCount: filteredUnits.length,
               itemBuilder: (context, index) {
                 final unit = filteredUnits[index];
-                return _listViewItemManagementUnit(
-                    unit["management_unit_name"] ?? "",
-                    unit["management_unit_system"] ?? "",
-                    unit["management_unit_code"] ?? "");
+                return listViewItem(
+                    name: unit["management_unit_name"] ?? "",
+                    system: unit["management_unit_system"] ?? "",
+                    code: unit["management_unit_code"] ?? "");
               },
             ),
     );
   }
 
-  Widget _catchesList() {
+  Widget _stockDataList({required String stockData}) {
     if (isExistDataInfoFromAPI &&
-        _responseDataInfo?["result"]["catches"].length == 0) {
+        _responseDataInfo?["result"][stockData].length == 0) {
       return const Center(
         child: Text(
-          'No catch data available',
+          'No data available',
           style: TextStyle(color: Color(0xffd9dcd6)),
         ),
       );
     }
 
-    final List<dynamic> catches =
-        List.from(_responseDataInfo!["result"]["catches"]);
+    final List<dynamic> list =
+        List.from(_responseDataInfo!["result"][stockData]);
 
-    final filteredCatches = catches
-        .where((catchData) =>
+    final filteredData = list
+        .where((data) =>
             _searchQuery.isEmpty ||
-            (catchData["value"]?.toString().contains(_searchQuery) ?? false) ||
-            (catchData["unit"]
+            (data["value"]?.toString().contains(_searchQuery) ?? false) ||
+            (data["unit"]?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (data["type"]?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
+                false) ||
+            (data["db_source"]
                     ?.toLowerCase()
                     .contains(_searchQuery.toLowerCase()) ??
                 false) ||
-            (catchData["type"]
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
+            (data["reporting_year"]?.toString().contains(_searchQuery) ??
                 false) ||
-            (catchData["db_source"]
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (catchData["reporting_year"]?.toString().contains(_searchQuery) ??
-                false) ||
-            (catchData["reference_year"]?.toString().contains(_searchQuery) ??
+            (data["reference_year"]?.toString().contains(_searchQuery) ??
                 false))
         .toList();
 
-    filteredCatches.sort((a, b) {
+    filteredData.sort((a, b) {
       int comparison = 0;
       if (_selectedOrder == 'Rep. Year') {
         comparison =
@@ -1857,215 +1225,25 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5),
       padding: const EdgeInsets.all(10),
-      child: filteredCatches.isEmpty
+      child: filteredData.isEmpty
           ? const Center(
               child: Text(
-                'No matching catch records found',
+                'No matching records found',
                 style: TextStyle(color: Color(0xffd9dcd6)),
               ),
             )
           : ListView.builder(
-              itemCount: filteredCatches.length,
+              itemCount: filteredData.length,
               itemBuilder: (context, index) {
-                final catchData = filteredCatches[index];
-                return _listViewItemCatch(
-                  catchData["value"]?.toString() ?? "",
-                  catchData["unit"] ?? "",
-                  catchData["type"] ?? "",
-                  catchData["db_source"] ?? "",
-                  catchData["reporting_year"]?.toString() ?? "",
-                  catchData["reference_year"]?.toString() ?? "",
+                final data = filteredData[index];
+                return listViewItemStockData(
+                  data["value"]?.toString() ?? "",
+                  data["unit"] ?? "",
+                  data["type"] ?? "",
+                  data["db_source"] ?? "",
+                  data["reporting_year"]?.toString() ?? "",
+                  data["reference_year"]?.toString() ?? "",
                 );
-              },
-            ),
-    );
-  }
-
-  Widget _landingsList() {
-    if (isExistDataInfoFromAPI &&
-        _responseDataInfo?["result"]["landings"].length == 0) {
-      return const Center(
-        child: Text(
-          'No landing data available',
-          style: TextStyle(color: Color(0xffd9dcd6)),
-        ),
-      );
-    }
-
-    final List<dynamic> landings =
-        List.from(_responseDataInfo!["result"]["landings"]);
-
-    final filteredCatches = landings
-        .where((landingData) =>
-            _searchQuery.isEmpty ||
-            (landingData["value"]?.toString().contains(_searchQuery) ??
-                false) ||
-            (landingData["unit"]
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (landingData["type"]
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (landingData["db_source"]
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (landingData["reporting_year"]?.toString().contains(_searchQuery) ??
-                false) ||
-            (landingData["reference_year"]?.toString().contains(_searchQuery) ??
-                false))
-        .toList();
-
-    filteredCatches.sort((a, b) {
-      int comparison = 0;
-      if (_selectedOrder == 'Rep. Year') {
-        comparison =
-            (a["reporting_year"]?.compareTo(b["reporting_year"] ?? '') ?? 0);
-      } else if (_selectedOrder == 'Value') {
-        comparison = (a["value"]?.compareTo(b["value"] ?? 0) ?? 0);
-      } else if (_selectedOrder == 'Ref. Year') {
-        comparison =
-            (a["reference_ear"]?.compareTo(b["reference_ear"] ?? '') ?? 0);
-      }
-      return _sortOrder == 'asc' ? comparison : -comparison;
-    });
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      padding: const EdgeInsets.all(10),
-      child: filteredCatches.isEmpty
-          ? const Center(
-              child: Text(
-                'No matching landing records found',
-                style: TextStyle(color: Color(0xffd9dcd6)),
-              ),
-            )
-          : ListView.builder(
-              itemCount: filteredCatches.length,
-              itemBuilder: (context, index) {
-                final landingData = filteredCatches[index];
-                return _listViewItemCatch(
-                  landingData["value"]?.toString() ?? "",
-                  landingData["unit"] ?? "",
-                  landingData["type"] ?? "",
-                  landingData["db_source"] ?? "",
-                  landingData["reporting_year"]?.toString() ?? "",
-                  landingData["reference_year"]?.toString() ?? "",
-                );
-              },
-            ),
-    );
-  }
-
-  Widget _listViewItemCatch(String value, String unit, String type,
-      String source, String reportingYear, String referenceYear) {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xffd9dcd6),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: dataDisplay(label: 'Value', value: value)),
-                const SizedBox(width: 8),
-                Expanded(child: dataDisplay(label: 'Unit', value: unit)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            dataDisplay(label: 'Data Owner', value: source),
-            const SizedBox(height: 8), // Spacing before Type
-            dataDisplay(label: 'Type', value: type),
-            const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                    child: dataDisplay(
-                        label: 'Reference Year', value: referenceYear)),
-                const SizedBox(width: 8),
-                Expanded(
-                    child: dataDisplay(
-                        label: 'Reporting Year', value: reportingYear)),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _faoMajorAreaList() {
-    if (faoAreas == null) {
-      return const Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(color: Color(0xffd9dcd6)),
-        ),
-      );
-    }
-
-    faoAreas = faoAreas?.toList();
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      padding: const EdgeInsets.all(10),
-      child: faoAreas!.isEmpty
-          ? const Center(
-              child: Text(
-                'No areas found',
-                style: TextStyle(color: Color(0xffd9dcd6)),
-              ),
-            )
-          : ListView.builder(
-              itemCount: faoAreas!.length,
-              itemBuilder: (context, index) {
-                final item = faoAreas![index];
-                return _listViewItem(item: item);
-              },
-            ),
-    );
-  }
-
-  Widget _flagStatesList() {
-    if (flags == null) {
-      return const Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(color: Color(0xffd9dcd6)),
-        ),
-      );
-    }
-
-    flags = flags?.toList();
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      padding: const EdgeInsets.all(10),
-      child: flags!.isEmpty
-          ? const Center(
-              child: Text(
-                'No areas found',
-                style: TextStyle(color: Color(0xffd9dcd6)),
-              ),
-            )
-          : ListView.builder(
-              itemCount: flags!.length,
-              itemBuilder: (context, index) {
-                final item = flags![index];
-                return _listViewItem(item: item);
               },
             ),
     );

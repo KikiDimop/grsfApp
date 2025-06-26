@@ -255,7 +255,8 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                               Expanded(
                                 child: _displayList(
                                     searchHint: 'Search Owner',
-                                    listDisplay: _ownersList(),
+                                    listDisplay: dataList<StockOwner>(
+                                        items: owners), //_ownersList(),
                                     displayDropDown: false),
                               ),
                             ],
@@ -272,7 +273,8 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                               Expanded(
                                 child: _displayList(
                                     searchHint: 'Search Fao Major Area',
-                                    listDisplay: _faoMajorAreaList(),
+                                    listDisplay: dataList<FaoMajorArea>(
+                                        items: faoAreas), //_faoMajorAreaList(),
                                     displayDropDown: false),
                               ),
                             ],
@@ -289,7 +291,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                               Expanded(
                                 child: _displayList(
                                     searchHint: 'Search $stockDataTitle',
-                                    listDisplay: _StockDataList(),
+                                    listDisplay: _stockDataList(),
                                     displayDropDown: false),
                               ),
                             ],
@@ -459,40 +461,49 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                   else
                     statusDisplay(_responseData!["result"]["status"]),
                   if (!isExistDataFromAPI)
-                    _truncatedDisplay(
-                        'Short Name', widget.stock.shortName ?? '', 35)
+                    truncatedDisplay(
+                        context, 'Short Name', widget.stock.shortName ?? '', 35)
                   else
-                    _truncatedDisplay('Short Name',
+                    truncatedDisplay(context, 'Short Name',
                         _responseData!["result"]["short_name"], 35),
                   if (!isExistDataFromAPI)
-                    _truncatedDisplay(
-                        'Semantic ID', widget.stock.grsfSemanticID ?? '', 35)
+                    truncatedDisplay(context, 'Semantic ID',
+                        widget.stock.grsfSemanticID ?? '', 35)
                   else
-                    _truncatedDisplay('Semantic ID',
+                    truncatedDisplay(context, 'Semantic ID',
                         _responseData!["result"]["semantic_id"], 35),
                   if (!isExistDataFromAPI)
-                    _truncatedDisplay(
-                        'Semantic Title', widget.stock.grsfName ?? '', 35)
+                    truncatedDisplay(context, 'Semantic Title',
+                        widget.stock.grsfName ?? '', 35)
                   else
-                    _truncatedDisplay('Semantic Title',
+                    truncatedDisplay(context, 'Semantic Title',
                         _responseData!["result"]["semantic_title"], 35),
                   if (!isExistDataFromAPI)
-                    _truncatedDisplay('UUID', widget.stock.uuid ?? '', 35)
+                    truncatedDisplay(
+                        context, 'UUID', widget.stock.uuid ?? '', 35)
                   else
-                    _truncatedDisplay(
-                        'UUID', _responseData!["result"]["uuid"], 35),
-                  _truncatedDisplay('Type', widget.stock.type ?? '', 35),
+                    truncatedDisplay(
+                        context, 'UUID', _responseData!["result"]["uuid"], 35),
+                  truncatedDisplay(
+                      context, 'Type', widget.stock.type ?? '', 35),
                   Row(
                     children: [
-                      _imageButton(
+                      iButton(
                         assetPath: 'assets/icons/map.png',
-                        onPressed: () => _showMap(context, 'Map'),
+                        onPressed: () =>
+                            showMap(context, 'Map', widget.stock.uuid ?? ''),
+                        icon: null,
                       ),
-                      Spacer(),
+                      const Spacer(),
                       if (isExistDataFromAPI)
-                        _iconButton(
+                        iButton(
                           icon: Icons.link,
-                          onPressed: () => _sourceLink(),
+                          onPressed: () => sourceLink(
+                              List<String>.from(_responseData!["result"]
+                                      ["source_urls"] ??
+                                  []),
+                              context),
+                          assetPath: '',
                         ),
                     ],
                   )
@@ -502,271 +513,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
           ],
         ),
       ],
-    );
-  }
-
-  Future<void> _sourceLink() async {
-    List<String> sourceUrls =
-        List<String>.from(_responseData!["result"]["source_urls"] ?? []);
-
-    if (sourceUrls.length == 1) {
-      _openSourceLink(sourceUrls[0]);
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            backgroundColor: const Color(0xffd9dcd6),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            content: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: sourceUrls.map((url) {
-                  String siteName = Uri.parse(url).host.replaceAll("www.", "");
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: ElevatedButton(
-                      onPressed: () => _openSourceLink(url),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff16425B),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                      ),
-                      child: Text(
-                        siteName,
-                        style: const TextStyle(
-                            fontSize: 14, color: Color(0xffd9dcd6)),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text(
-                  'Close',
-                  style: TextStyle(color: Color(0xff16425B)),
-                ),
-              ),
-            ],
-          );
-        },
-      );
-    }
-  }
-
-  Future<void> _openSourceLink(String link) async {
-    final Uri url = Uri.parse(link);
-
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      throw Exception('Could not launch $url');
-    }
-  }
-
-  Widget _truncatedDisplay(String title, String value, int maxLength) {
-    if (value.isEmpty) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  value.length > maxLength
-                      ? '${value.substring(0, maxLength)}...'
-                      : value,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xff16425B),
-                    fontWeight: FontWeight.bold,
-                  ),
-                  softWrap: true,
-                ),
-              ),
-              if (value.length > maxLength)
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: InkWell(
-                    onTap: () => _showFullText(context, title, value),
-                    child: const Icon(
-                      Icons.more_horiz,
-                      color: Color(0xff16425B),
-                      size: 20,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _truncatedDisplay2(String title, String value, int maxLength) {
-    if (value.isEmpty) return const SizedBox.shrink();
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Text(
-            value.length > maxLength
-                ? '${value.substring(0, maxLength)}...'
-                : value,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xff16425B),
-              fontWeight: FontWeight.bold,
-            ),
-            softWrap: true,
-          ),
-        ),
-        if (value.length > maxLength)
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: InkWell(
-              onTap: () => _showFullText(context, title, value),
-              child: const Icon(
-                Icons.more_horiz,
-                color: Color(0xff16425B),
-                size: 20,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  void _showMap(BuildContext context, String title) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xffd9dcd6),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff16425B),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                        color: Color(0xff16425B),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.6,
-                  ),
-                  child: Image.network(
-                      '$urlStockPng${widget.stock.uuid ?? ''}$urlStockPngEnding'),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showFullText(BuildContext context, String title, String value) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: const Color(0xffd9dcd6),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff16425B),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                        color: Color(0xff16425B),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.6,
-                  ),
-                  child: SingleChildScrollView(
-                    child: Text(
-                      value,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Color(0xff16425B),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 
@@ -807,18 +553,43 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (species!.length == 1)
-                    _buildSpeciesDetails(species!.first),
-                  if (areas!.length == 1) _buildAreaDetails(areas!.first),
-                  if (owners!.length == 1) _buildOwnerDetails(owners!.first),
+                    //_buildSpeciesDetails(species!.first),
+                    dataDetailsDisplay(
+                        label: 'Species',
+                        code: species!.first.speciesCode ?? '',
+                        system: species!.first.speciesType ?? '',
+                        name: species!.first.speciesName ?? '',
+                        withIcon: true,
+                        onIconPressed: () => openSourceLink(
+                            'https://images.google.com/search?tbm=isch&q=${species!.first.speciesName ?? ''}'),
+                        icon: Icons.image),
+                  if (areas!.length == 1)
+                    //_buildAreaDetails(areas!.first),
+                    dataDetailsDisplay(
+                        label: 'Assessment Area Details',
+                        code: areas!.first.areaCode ?? '',
+                        system: areas!.first.areaType ?? '',
+                        name: areas!.first.areaName ?? '',
+                        withIcon: false),
+                  if (owners!.length == 1)
+                    // _buildOwnerDetails(owners!.first),
+                    dataDisplay(
+                        label: 'Data Owner', value: owners!.first.owner ?? ''),
                   if (faoAreas!.length == 1)
-                    _buildFaoMajorAreaDetails(faoAreas!.first),
+                    //_buildFaoMajorAreaDetails(faoAreas!.first),
+                    dataDetailsDisplay(
+                        label: 'Fao Major Area',
+                        code: faoAreas!.first.faoMajorAreaCode ?? '',
+                        system: '',
+                        name: faoAreas!.first.faoMajorAreaName ?? '',
+                        withIcon: false),
                   Wrap(
                     spacing: 3,
                     runSpacing: 1,
                     alignment: WrapAlignment.start,
                     children: [
                       if (species!.length > 1)
-                        _button(
+                        customButton(
                           label: 'Species',
                           onPressed: () {
                             setState(() {
@@ -831,7 +602,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                           },
                         ),
                       if (areas!.length > 1)
-                        _button(
+                        customButton(
                           label: 'Areas',
                           onPressed: () {
                             setState(() {
@@ -844,7 +615,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                           },
                         ),
                       if (owners!.length > 1)
-                        _button(
+                        customButton(
                           label: 'Owners',
                           onPressed: () {
                             setState(() {
@@ -857,7 +628,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                           },
                         ),
                       if (faoAreas!.length > 1)
-                        _button(
+                        customButton(
                           label: 'FAO Major Areas',
                           onPressed: () {
                             setState(() {
@@ -910,7 +681,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(bottom: 4),
+                    padding: const EdgeInsets.only(bottom: 4),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -943,7 +714,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
       children: [
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["scientific_advices"].length != 0)
-          _button(
+          customButton(
               label: 'scientific_advices',
               onPressed: () {
                 stockDataTitle = 'Scientific Advices';
@@ -952,7 +723,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["assessment_methods"].length != 0)
-          _button(
+          customButton(
               label: 'assessment_methods',
               onPressed: () {
                 stockDataTitle = 'Assessment Methods';
@@ -961,7 +732,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["abundance_level"].length != 0)
-          _button(
+          customButton(
               label: 'abundance_level',
               onPressed: () {
                 stockDataTitle = 'Abundance Level';
@@ -971,7 +742,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["abundance_level_standard"].length !=
                 0)
-          _button(
+          customButton(
               label: 'abundance_level_standard',
               onPressed: () {
                 stockDataTitle = 'Abundance Level Standard';
@@ -980,7 +751,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["fishing_pressure"].length != 0)
-          _button(
+          customButton(
               label: 'fishing_pressure',
               onPressed: () {
                 stockDataTitle = 'Fishing Pressure';
@@ -990,7 +761,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["fishing_pressure_standard"].length !=
                 0)
-          _button(
+          customButton(
               label: 'fishing_pressure_standard',
               onPressed: () {
                 stockDataTitle = 'Fishing Pressure Standard';
@@ -999,7 +770,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["catches"].length != 0)
-          _button(
+          customButton(
               label: 'catches',
               onPressed: () {
                 stockDataTitle = 'Catches';
@@ -1008,7 +779,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["landings"].length != 0)
-          _button(
+          customButton(
               label: 'landings',
               onPressed: () {
                 stockDataTitle = 'Landings';
@@ -1017,7 +788,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["landed_volumes"].length != 0)
-          _button(
+          customButton(
               label: 'landed_volumes',
               onPressed: () {
                 stockDataTitle = 'Landed Volumes';
@@ -1026,7 +797,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               }),
         if (isExistDataInfoFromAPI &&
             _responseDataInfo?["result"]["biomass"].length != 0)
-          _button(
+          customButton(
               label: 'biomass',
               onPressed: () {
                 stockDataTitle = 'Biomas';
@@ -1034,333 +805,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                 display();
               }),
       ],
-    );
-  }
-
-  Widget _button({
-    required String label,
-    required VoidCallback onPressed,
-  }) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xff16425B), // Dynamic background color
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), // Rounded edges
-        ),
-        padding: const EdgeInsets.symmetric(
-            horizontal: 16, vertical: 8), // Dynamic padding
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 14,
-          color: Color(0xffd9dcd6), // Dynamic text color
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSpeciesDetails(SpeciesForStock species) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Species',
-            style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          displayRow('Code     : ', species.speciesCode ?? ''),
-          displayRow('System : ', species.speciesType ?? ''),
-          displayRow('Name    : ', species.speciesName ?? ''),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAreaDetails(AreasForStock area) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Assessment Area Details',
-            style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          displayRow('Code     : ', area.areaCode ?? ''),
-          displayRow('System : ', area.areaType ?? ''),
-          displayRow('Name    : ', area.areaName ?? ''),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFaoMajorAreaDetails(FaoMajorArea faoMajorArea) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Fao Major Area',
-            style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          displayRow('Code     : ', faoMajorArea.faoMajorAreaCode ?? ''),
-          displayRow('Name    : ', faoMajorArea.faoMajorAreaName ?? ''),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOwnerDetails(StockOwner owner) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Data Owner',
-            style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          Text(
-            owner.owner ?? '',
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xff16425B),
-              fontWeight: FontWeight.bold,
-            ),
-            softWrap: true,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget displayRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Flexible(
-            flex: 2, // Adjusts width based on screen size
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff16425B),
-              ),
-            ),
-          ),
-          const SizedBox(width: 5), // Spacing between label and value
-          Expanded(
-            flex: 4, // Allows value to take remaining space
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.bold,
-              ),
-              softWrap: true, // Ensures text wraps properly
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _imageButton({
-    required VoidCallback onPressed,
-    required String assetPath,
-  }) {
-    return IconButton(
-      onPressed: onPressed,
-      icon: Image.asset(
-        assetPath,
-        width: 24,
-        height: 24,
-        color: const Color(0xff16425B), // Optional: Apply color overlay
-      ),
-      splashRadius: 24,
-    );
-  }
-
-  Widget _iconButton({
-    required VoidCallback onPressed,
-    required IconData icon,
-  }) {
-    return IconButton(
-      onPressed: onPressed,
-      icon: Icon(
-        icon,
-        color: const Color(0xff16425B), // Icon color
-        size: 24, // Icon size
-      ),
-      splashRadius: 24, // Adjusts the splash effect size
-    );
-  }
-
-  Align statusDisplay(String status) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: Text(
-        status,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: getColor(status),
-        ),
-      ),
-    );
-  }
-
-  Widget simpleDisplay(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4), // Spacing between items
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xff16425B),
-              fontWeight: FontWeight.bold,
-            ),
-            softWrap: true,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _listViewItem({required dynamic item}) {
-    String name = '';
-    String system = '';
-    String code = '';
-
-    if (item is SpeciesForStock) {
-      name = item.speciesName ?? 'No Name';
-      system = item.speciesType ?? 'No System';
-      code = item.speciesCode ?? 'No Code';
-    } else if (item is AreasForStock) {
-      name = item.areaName ?? 'No Name';
-      system = item.areaType ?? 'No System';
-      code = item.areaCode ?? 'No Code';
-    } else if (item is StockOwner) {
-      name = item.owner ?? 'No Name';
-    } else if (item is FaoMajorArea) {
-      code = item.faoMajorAreaCode ?? 'No Code';
-      name = item.faoMajorAreaName ?? 'No Name';
-      system = item.faoMajorAreaConcat ?? 'No System';
-    }
-
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xffd9dcd6),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Name',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              name,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.bold,
-              ),
-              softWrap: true,
-              overflow: TextOverflow.visible,
-            ),
-            const SizedBox(height: 1),
-            if (system.isNotEmpty && code.isNotEmpty)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Code',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xff16425B),
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                        const SizedBox(height: 1),
-                        Text(
-                          code,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xff16425B),
-                            fontWeight: FontWeight.w500,
-                          ),
-                          overflow: TextOverflow.visible,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  Flexible(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'System',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Color(0xff16425B),
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          system,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            color: Color(0xff16425B),
-                            fontWeight: FontWeight.w500,
-                          ),
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -1468,7 +912,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               itemCount: filteredAreas.length,
               itemBuilder: (context, index) {
                 final area = filteredAreas[index];
-                return _listViewItem(item: area);
+                return listViewItem(item: area);
               },
             ),
     );
@@ -1529,78 +973,13 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               itemCount: filteredSpecies.length,
               itemBuilder: (context, index) {
                 final item = filteredSpecies[index];
-                return _listViewItem(item: item);
+                return listViewItem(item: item);
               },
             ),
     );
   }
 
-  Widget _ownersList() {
-    if (owners == null) {
-      return const Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(color: Color(0xffd9dcd6)),
-        ),
-      );
-    }
-
-    // Filter by search query
-    owners = owners?.toList();
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      padding: const EdgeInsets.all(10),
-      child: owners!.isEmpty
-          ? const Center(
-              child: Text(
-                'No owners found',
-                style: TextStyle(color: Color(0xffd9dcd6)),
-              ),
-            )
-          : ListView.builder(
-              itemCount: owners!.length,
-              itemBuilder: (context, index) {
-                final item = owners![index];
-                return _listViewItem(item: item);
-              },
-            ),
-    );
-  }
-
-  Widget _faoMajorAreaList() {
-    if (faoAreas == null) {
-      return const Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(color: Color(0xffd9dcd6)),
-        ),
-      );
-    }
-
-    faoAreas = faoAreas?.toList();
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      padding: const EdgeInsets.all(10),
-      child: faoAreas!.isEmpty
-          ? const Center(
-              child: Text(
-                'No areas found',
-                style: TextStyle(color: Color(0xffd9dcd6)),
-              ),
-            )
-          : ListView.builder(
-              itemCount: faoAreas!.length,
-              itemBuilder: (context, index) {
-                final item = faoAreas![index];
-                return _listViewItem(item: item);
-              },
-            ),
-    );
-  }
-
-  Widget _StockDataList() {
+  Widget _stockDataList() {
     final List<dynamic> list =
         List.from(_responseDataInfo!["result"][stockData]);
 
@@ -1650,7 +1029,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               itemCount: filteredCatches.length,
               itemBuilder: (context, index) {
                 final data = filteredCatches[index];
-                return _listViewItemStockData(
+                return listViewItemStockData(
                   data["value"]?.toString() ?? "",
                   data["unit"] ?? "",
                   data["type"] ?? "",
@@ -1660,56 +1039,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                 );
               },
             ),
-    );
-  }
-
-  Widget _listViewItemStockData(String value, String unit, String type,
-      String source, String reportingYear, String referenceYear) {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xffd9dcd6),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: dataDisplay(label: 'Value', value: value)),
-                const SizedBox(width: 8),
-                Expanded(child: dataDisplay(label: 'Unit', value: unit)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            dataDisplay(label: 'Data Owner', value: source),
-            const SizedBox(height: 8), // Spacing before Type
-            dataDisplay(label: 'Type', value: type),
-            const SizedBox(
-              height: 8,
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                    child: dataDisplay(
-                        label: 'Reference Year', value: referenceYear)),
-                const SizedBox(width: 8),
-                Expanded(
-                    child: dataDisplay(
-                        label: 'Reporting Year', value: reportingYear)),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
