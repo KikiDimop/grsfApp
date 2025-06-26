@@ -99,11 +99,16 @@ class _SearchstocksState extends State<Searchstocks> {
     }
   }
 
-  // @override
-  // void dispose() {
-  //   flagCodeController.dispose();
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    faoMajorAreaController.dispose();
+    resourceTypeController.dispose();
+    resourceStatusController.dispose();
+    timeseriesController.dispose();
+    speciesTypesController.dispose();
+    areaTypesController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

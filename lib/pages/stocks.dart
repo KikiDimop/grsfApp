@@ -32,6 +32,8 @@ class _StocksState extends State<Stocks> {
   bool isExistDataFromAPI = false;
   String? error;
   Map<String, dynamic>? _responseData;
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -136,9 +138,9 @@ class _StocksState extends State<Stocks> {
               .toList() ??
           [];
 
-      for (var f in filteredStocks) {
-        print(f.uuid);
-      }
+      // for (var s in filteredStocks) {
+      //   print(s .uuid);
+      // }
 
       setState(() {
         stocks = filteredStocks;
@@ -179,11 +181,73 @@ class _StocksState extends State<Stocks> {
                       style: const TextStyle(color: Colors.red)))
               : Column(
                   children: [
+                    _searchField(),
+                    const SizedBox(
+                      height: 5,
+                    ),
                     _orderByDropdown(),
                     const SizedBox(height: 5),
                     Expanded(child: _results()),
                   ],
                 ),
+    );
+  }
+
+  Widget _searchField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          // Search Field (Expanded to take remaining space)
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+              style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
+                contentPadding: const EdgeInsets.all(15),
+                hintText: 'Search Stocks',
+                hintStyle: const TextStyle(
+                  color: Color(0xffd9dcd6),
+                  fontSize: 14,
+                ),
+                prefixIcon: const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Icon(
+                    Icons.search,
+                    color: Color(0xffd9dcd6),
+                  ),
+                ),
+                suffixIcon: GestureDetector(
+                  onTap: () {
+                    _searchController.clear();
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Icon(
+                      Icons.cancel,
+                      color: Color(0xffd9dcd6),
+                    ),
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -196,7 +260,28 @@ class _StocksState extends State<Stocks> {
         ),
       );
     }
-    stocks!.sort((a, b) {
+
+    final filteredStocks = stocks!.where((s) {
+      final query = _searchQuery.toLowerCase();
+      // Search all fields of the Fishery record
+      return _searchQuery.isEmpty ||
+          (s.uuid?.toLowerCase().contains(query) ?? false) ||
+          (s.grsfName?.toLowerCase().contains(query) ?? false) ||
+          (s.grsfSemanticID?.toLowerCase().contains(query) ?? false) ||
+          (s.shortName?.toLowerCase().contains(query) ?? false) ||
+          (s.type?.toLowerCase().contains(query) ?? false) ||
+          (s.status?.toLowerCase().contains(query) ?? false) ||
+          (s.parentAreas?.toLowerCase().contains(query) ?? false) ||
+          (s.sdgFlag?.toLowerCase().contains(query) ?? false) ||
+          (s.jurisdictionalDistribution?.toLowerCase().contains(query) ??
+              false) ||
+          (s.firmsCode?.toLowerCase().contains(query) ?? false) ||
+          (s.ramCode?.toLowerCase().contains(query) ?? false) ||
+          (s.fishsourceCode?.toLowerCase().contains(query) ?? false) ||
+          (s.questionnaireCode?.toLowerCase().contains(query) ?? false);
+    }).toList();
+
+    filteredStocks.sort((a, b) {
       int comparison = 0;
       if (_selectedOrder == 'Short Name') {
         comparison = a.shortName?.compareTo(b.shortName ?? '') ?? 0;
@@ -214,7 +299,7 @@ class _StocksState extends State<Stocks> {
           color: const Color(0xffd9dcd6),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: stocks!.isEmpty
+        child: filteredStocks.isEmpty
             ? const Center(
                 child: Text(
                   'Wait for the data to be loaded',
@@ -223,9 +308,9 @@ class _StocksState extends State<Stocks> {
               )
             : ListView.builder(
                 padding: const EdgeInsets.all(10),
-                itemCount: stocks!.length,
+                itemCount: filteredStocks.length,
                 itemBuilder: (context, index) =>
-                    _listViewItem(item: stocks![index]),
+                    _listViewItem(item: filteredStocks[index]),
               ));
   }
 

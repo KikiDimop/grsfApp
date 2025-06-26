@@ -204,8 +204,11 @@ void showMap(BuildContext context, String title, String uuid) {
     },
   );
 }
-Future<void> sourceLink(List<String> sourceUrls, BuildContext context,   ) async {
 
+Future<void> sourceLink(
+  List<String> sourceUrls,
+  BuildContext context,
+) async {
   if (sourceUrls.length == 1) {
     openSourceLink(sourceUrls[0]);
   } else {
@@ -261,3 +264,11 @@ Future<void> sourceLink(List<String> sourceUrls, BuildContext context,   ) async
     );
   }
 }
+
+// Text displayTitle(String label) {
+//   return Text(
+//     label,
+//     style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
+//   );
+// }
+

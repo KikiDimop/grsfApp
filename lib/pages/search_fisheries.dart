@@ -4,6 +4,7 @@ import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:grsfApp/widgets/dropdown_text_field.dart';
+// import 'package:grsfApp/widgets/dropdown_text_field.dart';
 
 class Searchfisheries extends StatefulWidget {
   const Searchfisheries({super.key});
@@ -98,11 +99,18 @@ class _SearchfisheriesState extends State<Searchfisheries> {
     }
   }
 
-  // @override
-  // void dispose() {
-  //   flagCodeController.dispose();
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    flagCodeController.dispose();
+    speciesSystemController.dispose();
+    areaSystemController.dispose();
+    faoMajorAreaController.dispose();
+    gearSystemController.dispose();
+    resourceTypeController.dispose();
+    resourceStatusController.dispose();
+    timeseriesController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +227,7 @@ class _SearchfisheriesState extends State<Searchfisheries> {
   ElevatedButton searchButton() {
     return ElevatedButton(
       onPressed: () {
-        validateAllDropdowns();
+        // validateAllDropdowns();
         SearchFishery searchFishery = SearchFishery(
             speciesSystemController.text,
             speciesCodeController.text,

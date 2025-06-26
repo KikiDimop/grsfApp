@@ -4,6 +4,7 @@ import 'package:grsfApp/pages/single_fishery.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:grsfApp/widgets/global_ui.dart';
 
 class Fisheries extends StatefulWidget {
   final dynamic search;
@@ -171,10 +172,26 @@ class _FisheriesState extends State<Fisheries> {
 
     final filteredFisheries = fisheries!.where((f) {
       final query = _searchQuery.toLowerCase();
-
+      // Search all fields of the Fishery record
       return _searchQuery.isEmpty ||
+          (f.uuid?.toLowerCase().contains(query) ?? false) ||
+          (f.grsfName?.toLowerCase().contains(query) ?? false) ||
+          (f.grsfSemanticID?.toLowerCase().contains(query) ?? false) ||
           (f.shortName?.toLowerCase().contains(query) ?? false) ||
-          (f.uuid?.toLowerCase().contains(query) ?? false);
+          (f.type?.toLowerCase().contains(query) ?? false) ||
+          (f.status?.toLowerCase().contains(query) ?? false) ||
+          (f.traceabilityFlag?.toLowerCase().contains(query) ?? false) ||
+          (f.speciesCode?.toLowerCase().contains(query) ?? false) ||
+          (f.speciesName?.toLowerCase().contains(query) ?? false) ||
+          (f.speciesType?.toLowerCase().contains(query) ?? false) ||
+          (f.gearCode?.toLowerCase().contains(query) ?? false) ||
+          (f.gearType?.toLowerCase().contains(query) ?? false) ||
+          (f.flagCode?.toLowerCase().contains(query) ?? false) ||
+          (f.managementEntities?.toLowerCase().contains(query) ?? false) ||
+          (f.parentAreas?.toLowerCase().contains(query) ?? false) ||
+          (f.firmsCode?.toLowerCase().contains(query) ?? false) ||
+          (f.fishsourceCode?.toLowerCase().contains(query) ?? false) ||
+          (f.questionnaireCode?.toLowerCase().contains(query) ?? false);
     }).toList();
 
     filteredFisheries.sort((a, b) {
@@ -184,30 +201,31 @@ class _FisheriesState extends State<Fisheries> {
       } else if (_selectedOrder == 'Semantic ID') {
         comparison = a.grsfSemanticID?.compareTo(b.grsfSemanticID ?? '') ?? 0;
       }
-
       return _sortOrder == 'asc' ? comparison : -comparison;
     });
 
     return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color(0xffd9dcd6),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: filteredFisheries.isEmpty
-            ? const Center(
-                child: Text(
-                  'No fisheries found',
-                  style: TextStyle(color: Color(0xffd9dcd6)),
-                ),
-              )
-            : ListView.builder(
-                padding: const EdgeInsets.all(10),
-                itemCount: filteredFisheries.length,
-                itemBuilder: (context, index) =>
-                    _listViewItem(item: filteredFisheries[index]),
-              ));
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xffd9dcd6),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: filteredFisheries.isEmpty
+          ? const Center(
+              child: Text(
+                'No fisheries found',
+                style: TextStyle(
+                    color: Color(0xff16425B)), // Adjusted for visibility
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(10),
+              itemCount: filteredFisheries.length,
+              itemBuilder: (context, index) =>
+                  _listViewItem(item: filteredFisheries[index]),
+            ),
+    );
   }
 
   Widget _listViewItem({required Fishery item}) {
@@ -258,37 +276,16 @@ class _FisheriesState extends State<Fisheries> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Short Name',
-              style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-            ),
-            Text(
-              item.shortName ?? 'No Short Name',
-              style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xff16425B),
-                  fontWeight: FontWeight.bold),
-              softWrap: true,
-              overflow: TextOverflow.visible,
-            ),
+            dataDisplay(
+                label: 'Short Name', value: item.shortName ?? 'No Short Name'),
           ],
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Semantic ID',
-              style: TextStyle(fontSize: 12, color: Color(0xff16425B)),
-            ),
-            Text(
-              item.grsfSemanticID ?? 'No Semantic ID',
-              style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xff16425B),
-                  fontWeight: FontWeight.bold),
-              softWrap: true,
-              overflow: TextOverflow.visible,
-            ),
+            dataDisplay(
+                label: 'Semantic ID',
+                value: item.grsfSemanticID ?? 'No Semantic ID'),
           ],
         ),
       ],

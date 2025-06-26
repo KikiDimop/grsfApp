@@ -1,9 +1,11 @@
+import 'package:grsfApp/models/area.dart';
 import 'package:grsfApp/models/areasForFishery.dart';
 import 'package:grsfApp/models/faoMajorArea.dart';
 import 'package:grsfApp/models/fishery.dart';
 import 'package:grsfApp/models/fisheryOwner.dart';
 import 'package:grsfApp/models/fishingGear.dart';
 import 'package:grsfApp/models/flag.dart';
+import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +39,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedOrder = 'Name';
+  String _selectedOrderStockData = 'Value';
   String _sortOrder = 'asc';
 
   @override
@@ -231,10 +234,17 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
-                                  searchHint: 'Search Area',
-                                  listDisplay: _areasList(),
-                                  displayDropDown: true,
-                                ),
+                                    searchHint: 'Search Area',
+                                    listDisplay: dataList<AreasForFishery>(
+                                        items: areas,
+                                        searchQuery: _searchQuery,
+                                        sortField: _selectedOrder,
+                                        sortOrder: _sortOrder,
+                                        listViewItem: ({required item}) =>
+                                            listViewItem(
+                                                item: item)), //_areasList(),
+                                    displayDropDown: true,
+                                    forStockData: false),
                               ),
                             ],
                           ),
@@ -249,11 +259,17 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
-                                  searchHint: 'Search Owner',
-                                  listDisplay: dataList<FisheryOwner>(
-                                      items: owners), //_ownersList(),
-                                  displayDropDown: true,
-                                ),
+                                    searchHint: 'Search Owner',
+                                    listDisplay: dataList<FisheryOwner>(
+                                        items: owners,
+                                        searchQuery: _searchQuery,
+                                        sortField: _selectedOrder,
+                                        sortOrder: _sortOrder,
+                                        listViewItem: ({required item}) =>
+                                            listViewItem(
+                                                item: item)), //_ownersList(),
+                                    displayDropDown: true,
+                                    forStockData: false),
                               ),
                             ],
                           ),
@@ -268,10 +284,17 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
-                                  searchHint: 'Search Fishing Gears',
-                                  listDisplay: _gearsList(),
-                                  displayDropDown: true,
-                                ),
+                                    searchHint: 'Search Fishing Gears',
+                                    listDisplay: dataList<Gear>(
+                                        items: gears,
+                                        searchQuery: _searchQuery,
+                                        sortField: _selectedOrder,
+                                        sortOrder: _sortOrder,
+                                        listViewItem: ({required item}) =>
+                                            listViewItem(
+                                                item: item)), //_gearsList(),
+                                    displayDropDown: true,
+                                    forStockData: false),
                               ),
                             ],
                           ),
@@ -286,10 +309,10 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
-                                  searchHint: 'Search Management Unit',
-                                  listDisplay: _managementUnitsList(),
-                                  displayDropDown: true,
-                                ),
+                                    searchHint: 'Search Management Unit',
+                                    listDisplay: _managementUnitsList(),
+                                    displayDropDown: true,
+                                    forStockData: false),
                               ),
                             ],
                           ),
@@ -304,11 +327,11 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
-                                  searchHint: 'Search Catch',
-                                  listDisplay:
-                                      _stockDataList(stockData: "catches"),
-                                  displayDropDown: false,
-                                ),
+                                    searchHint: 'Search Catch',
+                                    listDisplay:
+                                        _stockDataList(stockData: "catches"),
+                                    displayDropDown: true,
+                                    forStockData: true),
                               ),
                             ],
                           ),
@@ -323,11 +346,11 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
-                                  searchHint: 'Search Landing',
-                                  listDisplay:
-                                      _stockDataList(stockData: "landings"),
-                                  displayDropDown: false,
-                                ),
+                                    searchHint: 'Search Landing',
+                                    listDisplay:
+                                        _stockDataList(stockData: "landings"),
+                                    displayDropDown: true,
+                                    forStockData: true),
                               ),
                             ],
                           ),
@@ -342,11 +365,18 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
-                                  searchHint: 'Search Fao Major Area',
-                                  listDisplay: dataList<FaoMajorArea>(
-                                      items: faoAreas), //_faoMajorAreaList(),
-                                  displayDropDown: false,
-                                ),
+                                    searchHint: 'Search Fao Major Area',
+                                    listDisplay: dataList<FaoMajorArea>(
+                                        items: faoAreas,
+                                        searchQuery: _searchQuery,
+                                        sortField: _selectedOrder,
+                                        sortOrder: _sortOrder,
+                                        listViewItem: ({required item}) =>
+                                            listViewItem(
+                                                item:
+                                                    item)), //_faoMajorAreaList(),
+                                    displayDropDown: false,
+                                    forStockData: false),
                               ),
                             ],
                           ),
@@ -361,11 +391,18 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
-                                  searchHint: 'Search flag state',
-                                  listDisplay: dataList<FlagStates>(
-                                      items: flags), //_flagStatesList(),
-                                  displayDropDown: false,
-                                ),
+                                    searchHint: 'Search flag state',
+                                    listDisplay: dataList<FlagStates>(
+                                        items: flags,
+                                        searchQuery: _searchQuery,
+                                        sortField: _selectedOrder,
+                                        sortOrder: _sortOrder,
+                                        listViewItem: ({required item}) =>
+                                            listViewItem(
+                                                item:
+                                                    item)), //_flagStatesList(),
+                                    displayDropDown: false,
+                                    forStockData: false),
                               ),
                             ],
                           ),
@@ -396,7 +433,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   Widget _displayList(
       {required String searchHint,
       required Widget listDisplay,
-      required bool displayDropDown}) {
+      required bool displayDropDown,
+      required bool forStockData}) {
     return Container(
       margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
       padding: const EdgeInsets.all(10),
@@ -409,7 +447,10 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
           Column(
             children: [
               _searchField(hint: searchHint),
-              if (displayDropDown) _orderByDropdown(),
+              if (displayDropDown && !forStockData)
+                _orderByDropdown()
+              else if (displayDropDown && forStockData)
+                _orderByDropdownStockData(),
             ],
           ),
           Expanded(
@@ -473,6 +514,97 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                     DropdownMenuItem(
                         value: 'System',
                         child: Text('Order by System',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          IconButton(
+            icon: Icon(
+              _sortOrder == 'asc'
+                  ? Icons.arrow_circle_up
+                  : Icons.arrow_circle_down,
+              color: const Color(0xffd9dcd6),
+              size: 40,
+            ),
+            onPressed: () {
+              setState(() {
+                _sortOrder = _sortOrder == 'asc' ? 'desc' : 'asc';
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _orderByDropdownStockData() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xff16425B),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  value: _selectedOrderStockData,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedOrderStockData = value ?? 'Value';
+                    });
+                  },
+                  buttonStyleData: const ButtonStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                  ),
+                  dropdownStyleData: DropdownStyleData(
+                    maxHeight: 200,
+                    offset: const Offset(
+                        0, 8), // Ensures a consistent dropdown position
+                    decoration: BoxDecoration(
+                      color: const Color(0xff16425B),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  iconStyleData: const IconStyleData(
+                    icon: Icon(Icons.arrow_drop_down,
+                        color: Color(0xffd9dcd6), size: 30),
+                  ),
+                  menuItemStyleData: const MenuItemStyleData(
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                        value: 'Value',
+                        child: Text(
+                          'Order by Value',
+                          style: TextStyle(color: Color(0xffd9dcd6)),
+                        )),
+                    DropdownMenuItem(
+                        value: 'Unit',
+                        child: Text('Order by Unit',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(
+                        value: 'Data Owner',
+                        child: Text('Order by Data Owner',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(
+                        value: 'Type',
+                        child: Text('Order by Type',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(
+                        value: 'Ref. Year',
+                        child: Text('Order by Ref. Year',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(
+                        value: 'Rep. Year',
+                        child: Text('Order by Rep. Year',
                             style: TextStyle(color: Color(0xffd9dcd6)))),
                   ],
                 ),
@@ -613,14 +745,6 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
         ),
       ],
     );
-  }
-
-  Future<void> openSourceLink(String link) async {
-    final Uri url = Uri.parse(link);
-
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      throw Exception('Could not launch $url');
-    }
   }
 
   Widget _detailsSection(BuildContext context) {
@@ -826,13 +950,6 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     );
   }
 
-  Text displayTitle(String label) {
-    return Text(
-      label,
-      style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
-    );
-  }
-
   void dataInfoDialogDisplay() {
     showDialog(
       context: context,
@@ -976,131 +1093,127 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     );
   }
 
-  Widget _areasList() {
-    if (areas == null) {
-      return const Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(color: Color(0xffd9dcd6)),
-        ),
-      );
-    }
+  // Widget _areasList() {
+  //   if (areas == null) {
+  //     return const Center(
+  //       child: Text(
+  //         'No data available',
+  //         style: TextStyle(color: Color(0xffd9dcd6)),
+  //       ),
+  //     );
+  //   }
 
-    final filteredAreas = areas!
-        .where((area) =>
-            _searchQuery.isEmpty ||
-            (area.areaName
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (area.areaCode
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (area.areaType
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false))
-        .toList();
+  //   final filteredAreas = areas!
+  //       .where((area) =>
+  //           _searchQuery.isEmpty ||
+  //           (area.areaName
+  //                   ?.toLowerCase()
+  //                   .contains(_searchQuery.toLowerCase()) ??
+  //               false) ||
+  //           (area.areaCode
+  //                   ?.toLowerCase()
+  //                   .contains(_searchQuery.toLowerCase()) ??
+  //               false) ||
+  //           (area.areaType
+  //                   ?.toLowerCase()
+  //                   .contains(_searchQuery.toLowerCase()) ??
+  //               false))
+  //       .toList();
 
-    filteredAreas.sort((a, b) {
-      int comparison = 0;
-      if (_selectedOrder == 'Name') {
-        comparison = a.areaName?.compareTo(b.areaName ?? '') ?? 0;
-      } else if (_selectedOrder == 'Code') {
-        comparison = a.areaCode?.compareTo(b.areaCode ?? '') ?? 0;
-      } else if (_selectedOrder == 'System') {
-        comparison = a.areaType?.compareTo(b.areaType ?? '') ?? 0;
-      }
-      return _sortOrder == 'asc' ? comparison : -comparison;
-    });
+  //   filteredAreas.sort((a, b) {
+  //     int comparison = 0;
+  //     if (_selectedOrder == 'Name') {
+  //       comparison = a.areaName?.compareTo(b.areaName ?? '') ?? 0;
+  //     } else if (_selectedOrder == 'Code') {
+  //       comparison = a.areaCode?.compareTo(b.areaCode ?? '') ?? 0;
+  //     } else if (_selectedOrder == 'System') {
+  //       comparison = a.areaType?.compareTo(b.areaType ?? '') ?? 0;
+  //     }
+  //     return _sortOrder == 'asc' ? comparison : -comparison;
+  //   });
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      padding: const EdgeInsets.all(10),
-      child: filteredAreas.isEmpty
-          ? const Center(
-              child: Text(
-                'No areas found',
-                style: TextStyle(color: Color(0xffd9dcd6)),
-              ),
-            )
-          : ListView.builder(
-              itemCount: filteredAreas.length,
-              itemBuilder: (context, index) {
-                final area = filteredAreas[index];
-                return listViewItem(item: area
-                    // name: area.areaName ?? 'No Name',
-                    // system: area.areaType ?? 'No System',
-                    // code: area.areaCode ?? 'No Code'
-                    );
-              },
-            ),
-    );
-  }
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(horizontal: 5),
+  //     padding: const EdgeInsets.all(10),
+  //     child: filteredAreas.isEmpty
+  //         ? const Center(
+  //             child: Text(
+  //               'No areas found',
+  //               style: TextStyle(color: Color(0xffd9dcd6)),
+  //             ),
+  //           )
+  //         : ListView.builder(
+  //             itemCount: filteredAreas.length,
+  //             itemBuilder: (context, index) {
+  //               final area = filteredAreas[index];
+  //               return listViewItem(item: area);
+  //             },
+  //           ),
+  //   );
+  // }
 
-  Widget _gearsList() {
-    if (gears == null) {
-      return const Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(color: Color(0xffd9dcd6)),
-        ),
-      );
-    }
+  // Widget _gearsList() {
+  //   if (gears == null) {
+  //     return const Center(
+  //       child: Text(
+  //         'No data available',
+  //         style: TextStyle(color: Color(0xffd9dcd6)),
+  //       ),
+  //     );
+  //   }
 
-    final filteredGears = gears!
-        .where((gear) =>
-            _searchQuery.isEmpty ||
-            (gear.fishingGearName
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (gear.fishingGearId
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (gear.fishingGearType
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false))
-        .toList();
+  //   final filteredGears = gears!
+  //       .where((gear) =>
+  //           _searchQuery.isEmpty ||
+  //           (gear.fishingGearName
+  //                   ?.toLowerCase()
+  //                   .contains(_searchQuery.toLowerCase()) ??
+  //               false) ||
+  //           (gear.fishingGearId
+  //                   ?.toLowerCase()
+  //                   .contains(_searchQuery.toLowerCase()) ??
+  //               false) ||
+  //           (gear.fishingGearType
+  //                   ?.toLowerCase()
+  //                   .contains(_searchQuery.toLowerCase()) ??
+  //               false))
+  //       .toList();
 
-    filteredGears.sort((a, b) {
-      int comparison = 0;
-      if (_selectedOrder == 'Name') {
-        comparison = a.fishingGearName?.compareTo(b.fishingGearName ?? '') ?? 0;
-      } else if (_selectedOrder == 'Code') {
-        comparison = a.fishingGearId?.compareTo(b.fishingGearId ?? '') ?? 0;
-      } else if (_selectedOrder == 'System') {
-        comparison = a.fishingGearType?.compareTo(b.fishingGearType ?? '') ?? 0;
-      }
-      return _sortOrder == 'asc' ? comparison : -comparison;
-    });
+  //   filteredGears.sort((a, b) {
+  //     int comparison = 0;
+  //     if (_selectedOrder == 'Name') {
+  //       comparison = a.fishingGearName?.compareTo(b.fishingGearName ?? '') ?? 0;
+  //     } else if (_selectedOrder == 'Code') {
+  //       comparison = a.fishingGearId?.compareTo(b.fishingGearId ?? '') ?? 0;
+  //     } else if (_selectedOrder == 'System') {
+  //       comparison = a.fishingGearType?.compareTo(b.fishingGearType ?? '') ?? 0;
+  //     }
+  //     return _sortOrder == 'asc' ? comparison : -comparison;
+  //   });
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      padding: const EdgeInsets.all(10),
-      child: filteredGears.isEmpty
-          ? const Center(
-              child: Text(
-                'No areas found',
-                style: TextStyle(color: Color(0xffd9dcd6)),
-              ),
-            )
-          : ListView.builder(
-              itemCount: filteredGears.length,
-              itemBuilder: (context, index) {
-                final i = filteredGears[index];
-                return listViewItem(item: i
-                    // name: i.fishingGearName ?? 'No Name',
-                    // system: i.fishingGearType ?? 'No System',
-                    // code: i.fishingGearId ?? 'No Code'
-                    );
-              },
-            ),
-    );
-  }
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(horizontal: 5),
+  //     padding: const EdgeInsets.all(10),
+  //     child: filteredGears.isEmpty
+  //         ? const Center(
+  //             child: Text(
+  //               'No areas found',
+  //               style: TextStyle(color: Color(0xffd9dcd6)),
+  //             ),
+  //           )
+  //         : ListView.builder(
+  //             itemCount: filteredGears.length,
+  //             itemBuilder: (context, index) {
+  //               final i = filteredGears[index];
+  //               return listViewItem(item: i
+  //                   // name: i.fishingGearName ?? 'No Name',
+  //                   // system: i.fishingGearType ?? 'No System',
+  //                   // code: i.fishingGearId ?? 'No Code'
+  //                   );
+  //             },
+  //           ),
+  //   );
+  // }
 
   Widget _managementUnitsList() {
     if (_responseData == null ||
@@ -1210,14 +1323,20 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
 
     filteredData.sort((a, b) {
       int comparison = 0;
-      if (_selectedOrder == 'Rep. Year') {
+      if (_selectedOrderStockData == 'Value') {
+        comparison = (a["value"]?.compareTo(b["value"] ?? '') ?? 0);
+      } else if (_selectedOrderStockData == 'Unit') {
+        comparison = (a["unit"]?.compareTo(b["unit"] ?? '') ?? 0);
+      } else if (_selectedOrderStockData == 'Type') {
+        comparison = (a["type"]?.compareTo(b["type"] ?? 0) ?? 0);
+      } else if (_selectedOrderStockData == 'Data Owner') {
+        comparison = (a["db_source"]?.compareTo(b["db_source"] ?? '') ?? 0);
+      } else if (_selectedOrderStockData == 'Rep. Year') {
         comparison =
             (a["reporting_year"]?.compareTo(b["reporting_year"] ?? '') ?? 0);
-      } else if (_selectedOrder == 'Value') {
-        comparison = (a["value"]?.compareTo(b["value"] ?? 0) ?? 0);
-      } else if (_selectedOrder == 'Ref. Year') {
+      } else if (_selectedOrderStockData == 'Ref. Year') {
         comparison =
-            (a["reference_ear"]?.compareTo(b["reference_ear"] ?? '') ?? 0);
+            (a["reference_year"]?.compareTo(b["reference_year"] ?? '') ?? 0);
       }
       return _sortOrder == 'asc' ? comparison : -comparison;
     });

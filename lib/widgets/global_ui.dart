@@ -206,13 +206,8 @@ Widget listViewItemStockData(String value, String unit, String type,
               Expanded(child: dataDisplay(label: 'Unit', value: unit)),
             ],
           ),
-          const SizedBox(height: 8),
           dataDisplay(label: 'Data Owner', value: source),
-          const SizedBox(height: 8), // Spacing before Type
           dataDisplay(label: 'Type', value: type),
-          const SizedBox(
-            height: 8,
-          ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -231,7 +226,54 @@ Widget listViewItemStockData(String value, String unit, String type,
   );
 }
 
-Widget dataList<T>({required List<T>? items}) {
+Widget dataList<T>({
+  required List<T>? items,
+  required String searchQuery,
+  required String sortField,
+  required String sortOrder,
+  required Widget Function({required T item}) listViewItem,
+}) {
+  // Helper function to extract fields based on item type
+  Map<String, String> getFields(T? item) {
+    String name = 'No Name';
+    String system = 'No System';
+    String code = 'No Code';
+
+    if (item != null) {
+      if (item is AreasForFishery) {
+        name = item.areaName ?? 'No Name';
+        system = item.areaType ?? 'No System';
+        code = item.areaCode ?? 'No Code';
+      } else if (item is FisheryOwner) {
+        name = item.owner ?? 'No Name';
+        system = '';
+        code = '';
+      } else if (item is Gear) {
+        name = item.fishingGearName ?? 'No Name';
+        system = item.fishingGearType ?? 'No System';
+        code = item.fishingGearId ?? 'No ID';
+      } else if (item is FaoMajorArea) {
+        code = item.faoMajorAreaCode ?? 'No Code';
+        name = item.faoMajorAreaName ?? 'No Name';
+        system = item.faoMajorAreaConcat ?? 'No System';
+      } else if (item is SpeciesForStock) {
+        name = item.speciesName ?? 'No Name';
+        system = item.speciesType ?? 'No System';
+        code = item.speciesCode ?? 'No Code';
+      } else if (item is AreasForStock) {
+        name = item.areaName ?? 'No Name';
+        system = item.areaType ?? 'No System';
+        code = item.areaCode ?? 'No Code';
+      } else if (item is StockOwner) {
+        name = item.owner ?? 'No Name';
+        system = '';
+        code = '';
+      }
+    }
+
+    return {'name': name, 'system': system, 'code': code};
+  }
+
   if (items == null) {
     return const Center(
       child: Text(
@@ -241,12 +283,34 @@ Widget dataList<T>({required List<T>? items}) {
     );
   }
 
-  items = items.toList();
+  // Filter items based on search query
+  final filteredItems = items.where((item) {
+    final fields = getFields(item);
+    return searchQuery.isEmpty ||
+        fields['name']!.toLowerCase().contains(searchQuery.toLowerCase()) ||
+        fields['code']!.toLowerCase().contains(searchQuery.toLowerCase()) ||
+        fields['system']!.toLowerCase().contains(searchQuery.toLowerCase());
+  }).toList();
+
+  // Sort items based on sortField and sortOrder
+  filteredItems.sort((a, b) {
+    final fieldsA = getFields(a);
+    final fieldsB = getFields(b);
+    int comparison = 0;
+    if (sortField == 'Name') {
+      comparison = fieldsA['name']!.compareTo(fieldsB['name']!);
+    } else if (sortField == 'Code') {
+      comparison = fieldsA['code']!.compareTo(fieldsB['code']!);
+    } else if (sortField == 'System') {
+      comparison = fieldsA['system']!.compareTo(fieldsB['system']!);
+    }
+    return sortOrder == 'asc' ? comparison : -comparison;
+  });
 
   return Container(
     margin: const EdgeInsets.symmetric(horizontal: 5),
     padding: const EdgeInsets.all(10),
-    child: items.isEmpty
+    child: filteredItems.isEmpty
         ? const Center(
             child: Text(
               'No data found',
@@ -254,14 +318,46 @@ Widget dataList<T>({required List<T>? items}) {
             ),
           )
         : ListView.builder(
-            itemCount: items.length,
+            itemCount: filteredItems.length,
             itemBuilder: (context, index) {
-              final item = items?[index];
+              final item = filteredItems[index];
               return listViewItem(item: item);
             },
           ),
   );
 }
+
+// Widget dataList<T>({required List<T>? items}) {
+//   if (items == null) {
+//     return const Center(
+//       child: Text(
+//         'No data available',
+//         style: TextStyle(color: Color(0xffd9dcd6)),
+//       ),
+//     );
+//   }
+
+//   items = items.toList();
+
+//   return Container(
+//     margin: const EdgeInsets.symmetric(horizontal: 5),
+//     padding: const EdgeInsets.all(10),
+//     child: items.isEmpty
+//         ? const Center(
+//             child: Text(
+//               'No data found',
+//               style: TextStyle(color: Color(0xffd9dcd6)),
+//             ),
+//           )
+//         : ListView.builder(
+//             itemCount: items.length,
+//             itemBuilder: (context, index) {
+//               final item = items?[index];
+//               return listViewItem(item: item);
+//             },
+//           ),
+//   );
+// }
 
 Widget listViewItem({
   dynamic item,
@@ -271,7 +367,6 @@ Widget listViewItem({
 }) {
   if (item != null) {
     if (item is AreasForFishery) {
-      print('here');
       name = item.areaName ?? 'No Name';
       system = item.areaType ?? 'No System';
       code = item.areaCode ?? 'No Code';
@@ -379,6 +474,20 @@ Widget truncatedDisplay(
           ],
         ),
       ],
+    ),
+  );
+}
+
+Padding listTitle({required String title}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    child: Text(
+      title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Color(0xffd9dcd6),
+      ),
     ),
   );
 }

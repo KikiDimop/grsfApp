@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:grsfApp/widgets/global_ui.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:url_launcher/url_launcher.dart';
 
 class DisplaySingleStock extends StatefulWidget {
   final Stock stock;
@@ -36,6 +35,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedOrder = 'Name';
+  String _selectedOrderStockData = 'Value';
   String _sortOrder = 'asc';
 
   @override
@@ -216,13 +216,21 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _listTitle(title: 'Assessment Areas'),
+                              listTitle(title: 'Assessment Areas'),
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
                                     searchHint: 'Search Area',
-                                    listDisplay: _areasList(),
-                                    displayDropDown: true),
+                                    listDisplay: dataList<AreasForStock>(
+                                        items: areas,
+                                        searchQuery: _searchQuery,
+                                        sortField: _selectedOrder,
+                                        sortOrder: _sortOrder,
+                                        listViewItem: ({required item}) =>
+                                            listViewItem(
+                                                item: item)),//_areasList(),
+                                    displayDropDown: true,
+                                    forStockData: false),
                               ),
                             ],
                           ),
@@ -233,13 +241,21 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _listTitle(title: 'Species'),
+                              listTitle(title: 'Species'),
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
                                     searchHint: 'Search Species',
-                                    listDisplay: _speciesList(),
-                                    displayDropDown: true),
+                                    listDisplay: dataList<SpeciesForStock>(
+                                        items: species,
+                                        searchQuery: _searchQuery,
+                                        sortField: _selectedOrder,
+                                        sortOrder: _sortOrder,
+                                        listViewItem: ({required item}) =>
+                                            listViewItem(
+                                                item: item)),//_speciesList(),
+                                    displayDropDown: true,
+                                    forStockData: false),
                               ),
                             ],
                           ),
@@ -250,14 +266,21 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _listTitle(title: 'Owners'),
+                              listTitle(title: 'Owners'),
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
                                     searchHint: 'Search Owner',
                                     listDisplay: dataList<StockOwner>(
-                                        items: owners), //_ownersList(),
-                                    displayDropDown: false),
+                                        items: owners,
+                                        searchQuery: _searchQuery,
+                                        sortField: _selectedOrder,
+                                        sortOrder: _sortOrder,
+                                        listViewItem: ({required item}) =>
+                                            listViewItem(
+                                                item: item)), //_ownersList(),
+                                    displayDropDown: false,
+                                    forStockData: false),
                               ),
                             ],
                           ),
@@ -268,14 +291,22 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _listTitle(title: 'Fao Major Areas'),
+                              listTitle(title: 'Fao Major Areas'),
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
                                     searchHint: 'Search Fao Major Area',
                                     listDisplay: dataList<FaoMajorArea>(
-                                        items: faoAreas), //_faoMajorAreaList(),
-                                    displayDropDown: false),
+                                        items: faoAreas,
+                                        searchQuery: _searchQuery,
+                                        sortField: _selectedOrder,
+                                        sortOrder: _sortOrder,
+                                        listViewItem: ({required item}) =>
+                                            listViewItem(
+                                                item:
+                                                    item)), //_faoMajorAreaList(),
+                                    displayDropDown: true,
+                                    forStockData: false),
                               ),
                             ],
                           ),
@@ -286,13 +317,14 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _listTitle(title: stockDataTitle),
+                              listTitle(title: stockDataTitle),
                               const SizedBox(height: 5),
                               Expanded(
                                 child: _displayList(
                                     searchHint: 'Search $stockDataTitle',
                                     listDisplay: _stockDataList(),
-                                    displayDropDown: false),
+                                    displayDropDown: true,
+                                    forStockData: true),
                               ),
                             ],
                           ),
@@ -306,24 +338,12 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     );
   }
 
-  Padding _listTitle({required String title}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Color(0xffd9dcd6),
-        ),
-      ),
-    );
-  }
 
   Widget _displayList(
       {required String searchHint,
       required Widget listDisplay,
-      required bool displayDropDown}) {
+      required bool displayDropDown,
+      required bool forStockData}) {
     return Container(
       margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
       padding: const EdgeInsets.all(10),
@@ -336,7 +356,10 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
           Column(
             children: [
               _searchField(hint: searchHint),
-              if (displayDropDown) _orderByDropdown(),
+              if (displayDropDown && !forStockData)
+                _orderByDropdown()
+              else if (displayDropDown && forStockData)
+                _orderByDropdownStockData(),
             ],
           ),
           Expanded(
@@ -400,6 +423,97 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                     DropdownMenuItem(
                         value: 'System',
                         child: Text('Order by System',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          IconButton(
+            icon: Icon(
+              _sortOrder == 'asc'
+                  ? Icons.arrow_circle_up
+                  : Icons.arrow_circle_down,
+              color: const Color(0xffd9dcd6),
+              size: 40,
+            ),
+            onPressed: () {
+              setState(() {
+                _sortOrder = _sortOrder == 'asc' ? 'desc' : 'asc';
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _orderByDropdownStockData() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xff16425B),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton2<String>(
+                  value: _selectedOrderStockData,
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedOrderStockData = value ?? 'Value';
+                    });
+                  },
+                  buttonStyleData: const ButtonStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                  ),
+                  dropdownStyleData: DropdownStyleData(
+                    maxHeight: 200,
+                    offset: const Offset(
+                        0, 8), // Ensures a consistent dropdown position
+                    decoration: BoxDecoration(
+                      color: const Color(0xff16425B),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  iconStyleData: const IconStyleData(
+                    icon: Icon(Icons.arrow_drop_down,
+                        color: Color(0xffd9dcd6), size: 30),
+                  ),
+                  menuItemStyleData: const MenuItemStyleData(
+                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                  ),
+                  items: const [
+                    DropdownMenuItem(
+                        value: 'Value',
+                        child: Text(
+                          'Order by Value',
+                          style: TextStyle(color: Color(0xffd9dcd6)),
+                        )),
+                    DropdownMenuItem(
+                        value: 'Unit',
+                        child: Text('Order by Unit',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(
+                        value: 'Data Owner',
+                        child: Text('Order by Data Owner',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(
+                        value: 'Type',
+                        child: Text('Order by Type',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(
+                        value: 'Ref. Year',
+                        child: Text('Order by Ref. Year',
+                            style: TextStyle(color: Color(0xffd9dcd6)))),
+                    DropdownMenuItem(
+                        value: 'Rep. Year',
+                        child: Text('Order by Rep. Year',
                             style: TextStyle(color: Color(0xffd9dcd6)))),
                   ],
                 ),
@@ -859,131 +973,131 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     );
   }
 
-  Widget _areasList() {
-    if (areas == null) {
-      return const Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(color: Color(0xffd9dcd6)),
-        ),
-      );
-    }
+  // Widget _areasList() {
+  //   if (areas == null) {
+  //     return const Center(
+  //       child: Text(
+  //         'No data available',
+  //         style: TextStyle(color: Color(0xffd9dcd6)),
+  //       ),
+  //     );
+  //   }
 
-    final filteredAreas = areas!
-        .where((area) =>
-            _searchQuery.isEmpty ||
-            (area.areaName
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (area.areaCode
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (area.areaType
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false))
-        .toList();
+  //   final filteredAreas = areas!
+  //       .where((area) =>
+  //           _searchQuery.isEmpty ||
+  //           (area.areaName
+  //                   ?.toLowerCase()
+  //                   .contains(_searchQuery.toLowerCase()) ??
+  //               false) ||
+  //           (area.areaCode
+  //                   ?.toLowerCase()
+  //                   .contains(_searchQuery.toLowerCase()) ??
+  //               false) ||
+  //           (area.areaType
+  //                   ?.toLowerCase()
+  //                   .contains(_searchQuery.toLowerCase()) ??
+  //               false))
+  //       .toList();
 
-    filteredAreas.sort((a, b) {
-      int comparison = 0;
-      if (_selectedOrder == 'Name') {
-        comparison = a.areaName?.compareTo(b.areaName ?? '') ?? 0;
-      } else if (_selectedOrder == 'Code') {
-        comparison = a.areaCode?.compareTo(b.areaCode ?? '') ?? 0;
-      } else if (_selectedOrder == 'System') {
-        comparison = a.areaType?.compareTo(b.areaType ?? '') ?? 0;
-      }
-      return _sortOrder == 'asc' ? comparison : -comparison;
-    });
+  //   filteredAreas.sort((a, b) {
+  //     int comparison = 0;
+  //     if (_selectedOrder == 'Name') {
+  //       comparison = a.areaName?.compareTo(b.areaName ?? '') ?? 0;
+  //     } else if (_selectedOrder == 'Code') {
+  //       comparison = a.areaCode?.compareTo(b.areaCode ?? '') ?? 0;
+  //     } else if (_selectedOrder == 'System') {
+  //       comparison = a.areaType?.compareTo(b.areaType ?? '') ?? 0;
+  //     }
+  //     return _sortOrder == 'asc' ? comparison : -comparison;
+  //   });
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      padding: const EdgeInsets.all(10),
-      child: filteredAreas.isEmpty
-          ? const Center(
-              child: Text(
-                'No areas found',
-                style: TextStyle(color: Color(0xffd9dcd6)),
-              ),
-            )
-          : ListView.builder(
-              itemCount: filteredAreas.length,
-              itemBuilder: (context, index) {
-                final area = filteredAreas[index];
-                return listViewItem(item: area);
-              },
-            ),
-    );
-  }
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(horizontal: 5),
+  //     padding: const EdgeInsets.all(10),
+  //     child: filteredAreas.isEmpty
+  //         ? const Center(
+  //             child: Text(
+  //               'No areas found',
+  //               style: TextStyle(color: Color(0xffd9dcd6)),
+  //             ),
+  //           )
+  //         : ListView.builder(
+  //             itemCount: filteredAreas.length,
+  //             itemBuilder: (context, index) {
+  //               final area = filteredAreas[index];
+  //               return listViewItem(item: area);
+  //             },
+  //           ),
+  //   );
+  // }
 
-  Widget _speciesList() {
-    if (species == null) {
-      return const Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(color: Color(0xffd9dcd6)),
-        ),
-      );
-    }
+  // Widget _speciesList() {
+  //   if (species == null) {
+  //     return const Center(
+  //       child: Text(
+  //         'No data available',
+  //         style: TextStyle(color: Color(0xffd9dcd6)),
+  //       ),
+  //     );
+  //   }
 
-    // Filter by search query
-    final filteredSpecies = species!
-        .where((sp) =>
-            _searchQuery.isEmpty ||
-            (sp.speciesName
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (sp.speciesCode
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (sp.speciesType
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false))
-        .toList();
+  //   // Filter by search query
+  //   final filteredSpecies = species!
+  //       .where((sp) =>
+  //           _searchQuery.isEmpty ||
+  //           (sp.speciesName
+  //                   ?.toLowerCase()
+  //                   .contains(_searchQuery.toLowerCase()) ??
+  //               false) ||
+  //           (sp.speciesCode
+  //                   ?.toLowerCase()
+  //                   .contains(_searchQuery.toLowerCase()) ??
+  //               false) ||
+  //           (sp.speciesType
+  //                   ?.toLowerCase()
+  //                   .contains(_searchQuery.toLowerCase()) ??
+  //               false))
+  //       .toList();
 
-    // Apply sorting logic
-    filteredSpecies.sort((a, b) {
-      int comparison = 0;
-      if (_selectedOrder == 'Name') {
-        comparison = a.speciesName?.compareTo(b.speciesName ?? '') ?? 0;
-      } else if (_selectedOrder == 'Code') {
-        comparison = a.speciesCode?.compareTo(b.speciesCode ?? '') ?? 0;
-      } else if (_selectedOrder == 'System') {
-        comparison = a.speciesType?.compareTo(b.speciesType ?? '') ?? 0;
-      }
-      return _sortOrder == 'asc' ? comparison : -comparison;
-    });
+  //   // Apply sorting logic
+  //   filteredSpecies.sort((a, b) {
+  //     int comparison = 0;
+  //     if (_selectedOrder == 'Name') {
+  //       comparison = a.speciesName?.compareTo(b.speciesName ?? '') ?? 0;
+  //     } else if (_selectedOrder == 'Code') {
+  //       comparison = a.speciesCode?.compareTo(b.speciesCode ?? '') ?? 0;
+  //     } else if (_selectedOrder == 'System') {
+  //       comparison = a.speciesType?.compareTo(b.speciesType ?? '') ?? 0;
+  //     }
+  //     return _sortOrder == 'asc' ? comparison : -comparison;
+  //   });
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      padding: const EdgeInsets.all(10),
-      child: filteredSpecies.isEmpty
-          ? const Center(
-              child: Text(
-                'No areas found',
-                style: TextStyle(color: Color(0xffd9dcd6)),
-              ),
-            )
-          : ListView.builder(
-              itemCount: filteredSpecies.length,
-              itemBuilder: (context, index) {
-                final item = filteredSpecies[index];
-                return listViewItem(item: item);
-              },
-            ),
-    );
-  }
+  //   return Container(
+  //     margin: const EdgeInsets.symmetric(horizontal: 5),
+  //     padding: const EdgeInsets.all(10),
+  //     child: filteredSpecies.isEmpty
+  //         ? const Center(
+  //             child: Text(
+  //               'No areas found',
+  //               style: TextStyle(color: Color(0xffd9dcd6)),
+  //             ),
+  //           )
+  //         : ListView.builder(
+  //             itemCount: filteredSpecies.length,
+  //             itemBuilder: (context, index) {
+  //               final item = filteredSpecies[index];
+  //               return listViewItem(item: item);
+  //             },
+  //           ),
+  //   );
+  // }
 
   Widget _stockDataList() {
     final List<dynamic> list =
         List.from(_responseDataInfo!["result"][stockData]);
 
-    final filteredCatches = list
+    final filteredData = list
         .where((data) =>
             _searchQuery.isEmpty ||
             (data["value"]?.toString().contains(_searchQuery) ?? false) ||
@@ -1001,16 +1115,22 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                 false))
         .toList();
 
-    filteredCatches.sort((a, b) {
+    filteredData.sort((a, b) {
       int comparison = 0;
-      if (_selectedOrder == 'Rep. Year') {
+      if (_selectedOrderStockData == 'Value') {
+        comparison = (a["value"]?.compareTo(b["value"] ?? '') ?? 0);
+      } else if (_selectedOrderStockData == 'Unit') {
+        comparison = (a["unit"]?.compareTo(b["unit"] ?? '') ?? 0);
+      } else if (_selectedOrderStockData == 'Type') {
+        comparison = (a["type"]?.compareTo(b["type"] ?? 0) ?? 0);
+      } else if (_selectedOrderStockData == 'Data Owner') {
+        comparison = (a["db_source"]?.compareTo(b["db_source"] ?? '') ?? 0);
+      } else if (_selectedOrderStockData == 'Rep. Year') {
         comparison =
             (a["reporting_year"]?.compareTo(b["reporting_year"] ?? '') ?? 0);
-      } else if (_selectedOrder == 'Value') {
-        comparison = (a["value"]?.compareTo(b["value"] ?? 0) ?? 0);
-      } else if (_selectedOrder == 'Ref. Year') {
+      } else if (_selectedOrderStockData == 'Ref. Year') {
         comparison =
-            (a["reference_ear"]?.compareTo(b["reference_ear"] ?? '') ?? 0);
+            (a["reference_year"]?.compareTo(b["reference_year"] ?? '') ?? 0);
       }
       return _sortOrder == 'asc' ? comparison : -comparison;
     });
@@ -1018,7 +1138,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 5),
       padding: const EdgeInsets.all(10),
-      child: filteredCatches.isEmpty
+      child: filteredData.isEmpty
           ? const Center(
               child: Text(
                 'No matching catch records found',
@@ -1026,9 +1146,9 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               ),
             )
           : ListView.builder(
-              itemCount: filteredCatches.length,
+              itemCount: filteredData.length,
               itemBuilder: (context, index) {
-                final data = filteredCatches[index];
+                final data = filteredData[index];
                 return listViewItemStockData(
                   data["value"]?.toString() ?? "",
                   data["unit"] ?? "",
