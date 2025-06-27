@@ -341,15 +341,15 @@ class _AreasState extends State<Areas> {
                             ElevatedButton(
                               onPressed: () {
                                 SearchStock searchStock = SearchStock(
-                                  'All',
-                                  '',
-                                  '',
-                                  a.areaCodeType ?? 'All',
-                                  a.areaCode ?? '',
-                                  a.areaName ?? '',
-                                  'All',
-                                  'All',
-                                  'All',
+                                  selectedSpeciesSystem: 'All',
+                                  speciesCode: '',
+                                  speciesName: '',
+                                  selectedAreaSystem: a.areaCodeType ?? 'All',
+                                  areaCode: a.areaCode ?? '',
+                                  areaName: a.areaName ?? '',
+                                  selectedFAOMajorArea: 'All',
+                                  selectedResourceType: 'All',
+                                  selectedResourceStatus: 'All',
                                 );
 
                                 Navigator.push(
@@ -382,19 +382,20 @@ class _AreasState extends State<Areas> {
                             ElevatedButton(
                               onPressed: () {
                                 SearchFishery searchFishery = SearchFishery(
-                                    'All',
-                                    '',
-                                    '',
-                                    a.areaCodeType ?? 'All',
-                                    a.areaCode ?? '',
-                                    a.areaName ?? '',
-                                    'All',
-                                    '',
-                                    '',
-                                    'All',
-                                    'All',
-                                    'All',
-                                    '');
+                                  selectedSpeciesSystem: 'All',
+                                  speciesCode: '',
+                                  speciesName: '',
+                                  selectedAreaSystem: a.areaCodeType ?? 'All',
+                                  areaCode: a.areaCode ?? '',
+                                  areaName: a.areaName ?? '',
+                                  selectedGearSystem: 'All',
+                                  gearCode: '',
+                                  gearName: '',
+                                  selectedFAOMajorArea: 'All',
+                                  selectedResourceType: 'All',
+                                  selectedResourceStatus: 'All',
+                                  flagCode: '',
+                                );
 
                                 Navigator.push(
                                   context,

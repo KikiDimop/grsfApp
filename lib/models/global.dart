@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -19,15 +17,15 @@ class SearchStock {
       selectedResourceStatus;
 
   SearchStock(
-      this.selectedSpeciesSystem,
-      this.speciesCode,
-      this.speciesName,
-      this.selectedAreaSystem,
-      this.areaCode,
-      this.areaName,
-      this.selectedFAOMajorArea,
-      this.selectedResourceType,
-      this.selectedResourceStatus);
+      {this.selectedSpeciesSystem = '',
+      this.speciesCode = '',
+      this.speciesName = '',
+      this.selectedAreaSystem = '',
+      this.areaCode = '',
+      this.areaName = '',
+      this.selectedFAOMajorArea = '',
+      this.selectedResourceType = '',
+      this.selectedResourceStatus = ''});
 }
 
 class SearchStockForSpecies {
@@ -58,19 +56,19 @@ class SearchFishery {
       flagCode;
 
   SearchFishery(
-      this.selectedSpeciesSystem,
-      this.speciesCode,
-      this.speciesName,
-      this.selectedAreaSystem,
-      this.areaCode,
-      this.areaName,
-      this.selectedGearSystem,
-      this.gearCode,
-      this.gearName,
-      this.selectedFAOMajorArea,
-      this.selectedResourceType,
-      this.selectedResourceStatus,
-      this.flagCode);
+      {this.selectedSpeciesSystem = '',
+      this.speciesCode = '',
+      this.speciesName = '',
+      this.selectedAreaSystem = '',
+      this.areaCode = '',
+      this.areaName = '',
+      this.selectedGearSystem = '',
+      this.gearCode = '',
+      this.gearName = '',
+      this.selectedFAOMajorArea = '',
+      this.selectedResourceType = '',
+      this.selectedResourceStatus = '',
+      this.flagCode = ''});
 }
 
 Color getColor(String? status) {
@@ -264,11 +262,3 @@ Future<void> sourceLink(
     );
   }
 }
-
-// Text displayTitle(String label) {
-//   return Text(
-//     label,
-//     style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
-//   );
-// }
-

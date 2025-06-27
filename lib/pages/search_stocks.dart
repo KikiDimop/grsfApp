@@ -218,16 +218,16 @@ class _SearchstocksState extends State<Searchstocks> {
     return ElevatedButton(
       onPressed: () {
         validateAllDropdowns();
-        SearchStock searchStock = SearchStock(
-          speciesTypesController.text,
-          speciesCodeController.text,
-          speciesNameController.text,
-          areaTypesController.text,
-          areaCodeController.text,
-          areaNameController.text,
-          faoMajorAreaController.text,
-          resourceTypeController.text,
-          resourceStatusController.text,
+        final searchStock = SearchStock(
+          selectedSpeciesSystem: speciesTypesController.text,
+          speciesCode: speciesCodeController.text,
+          speciesName: speciesNameController.text,
+          selectedAreaSystem: areaTypesController.text,
+          areaCode: areaCodeController.text,
+          areaName: areaNameController.text,
+          selectedFAOMajorArea: faoMajorAreaController.text,
+          selectedResourceType: resourceTypeController.text,
+          selectedResourceStatus: resourceStatusController.text,
         );
 
         Navigator.push(

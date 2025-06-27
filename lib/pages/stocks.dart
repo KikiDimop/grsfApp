@@ -1,5 +1,6 @@
 import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/models/stock.dart';
+import 'package:grsfApp/pages/search_stocks.dart';
 import 'package:grsfApp/pages/single_stock.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -245,6 +246,20 @@ class _StocksState extends State<Stocks> {
                 ),
               ),
             ),
+          ),
+          const SizedBox(width: 10),
+          IconButton(
+            icon: const Icon(
+              Icons.tune_rounded,
+              color: Color(0xffd9dcd6),
+              size: 40,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Searchstocks()),
+              );
+            },
           ),
         ],
       ),

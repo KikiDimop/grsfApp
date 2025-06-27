@@ -93,19 +93,19 @@ class SpeciesDetailsScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     SearchFishery searchFishery = SearchFishery(
-                        'All',
-                        '',
-                        species.scientificName,
-                        'All',
-                        '',
-                        '',
-                        'All',
-                        '',
-                        '',
-                        'All',
-                        'All',
-                        'All',
-                        '');
+                        selectedSpeciesSystem: 'All',
+                        speciesCode: '',
+                        speciesName: species.scientificName,
+                        selectedAreaSystem: 'All',
+                        areaCode: '',
+                        areaName: '',
+                        selectedGearSystem: 'All',
+                        gearCode: '',
+                        gearName: '',
+                        selectedFAOMajorArea: 'All',
+                        selectedResourceType: 'All',
+                        selectedResourceStatus: 'All',
+                        flagCode: '');
                     Navigator.push(
                       context,
                       MaterialPageRoute(

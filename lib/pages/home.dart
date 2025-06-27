@@ -1,8 +1,9 @@
+import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/pages/areas.dart';
+import 'package:grsfApp/pages/fisheries.dart';
 import 'package:grsfApp/pages/fishing_gears.dart';
-import 'package:grsfApp/pages/search_fisheries.dart';
-import 'package:grsfApp/pages/search_stocks.dart';
 import 'package:grsfApp/pages/species.dart';
+import 'package:grsfApp/pages/stocks.dart';
 import 'package:grsfApp/pages/sync.dart';
 import 'package:flutter/material.dart';
 
@@ -59,18 +60,40 @@ class HomePage extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      buildImageButton(context, 'assets/icons/area.png',
-                          'Areas', const Areas()),
+                      buildIconButton(
+                          context,
+                          Icons.pin_drop_rounded /*'assets/icons/area.png'*/,
+                          'Areas',
+                          const Areas()),
                       buildImageButton(context, 'assets/icons/species.png',
                           'Species', const DisplaySpecies()),
-                      buildImageButton(context, 'assets/icons/fisheries.png',
-                          'Fisheries', const Searchfisheries()),
-                      buildImageButton(context, 'assets/icons/stocks.png',
-                          'Stocks', const Searchstocks()),
-                      buildImageButton(context, 'assets/icons/gear.png',
-                          'Fishing Gear', const FishingGears()),
-                      buildImageButton(context, 'assets/icons/sync.png',
-                          'Sync Data', const UpdateDataScreen()),
+                      buildIconButton(
+                          context,
+                          Icons
+                              .directions_boat_filled_rounded /*'assets/icons/fisheries.png'*/,
+                          'Fisheries',
+                          Fisheries(search: SearchFishery())),
+                      buildIconButton(
+                          context,
+                          Icons.set_meal_rounded /*'assets/icons/stocks.png'*/,
+                          'Stocks',
+                          Stocks(
+                              search: SearchStock(),
+                              forSpecies: false,
+                              timeseries: '',
+                              refYear: '')),
+                      buildIconButton(
+                          context,
+                          Icons
+                              .construction_rounded /*'assets/icons/gear.png'*/,
+                          'Fishing Gear',
+                          const FishingGears()),
+                      buildIconButton(
+                          context,
+                          Icons
+                              .cloud_download_rounded /*'assets/icons/sync.png'*/,
+                          'Sync Data',
+                          const UpdateDataScreen()),
                     ],
                   ),
                 ),
@@ -110,6 +133,51 @@ class HomePage extends StatelessWidget {
                 imagePath,
                 height: 30.0,
                 width: 30.0,
+              ),
+              const SizedBox(width: 12.0),
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Color(0xff16425B),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20.0,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildIconButton(BuildContext context, IconData icon, String title,
+      Widget destinationPage) {
+    return Padding(
+      padding: const EdgeInsets.only(
+          left: 70.0, right: 70.0, top: 20.0, bottom: 20.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xffd9dcd6),
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+        child: TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => destinationPage),
+            );
+          },
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 15),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(width: 12.0),
+              Icon(
+                icon,
+                size: 30.0,
+                color: const Color(0xff16425B),
               ),
               const SizedBox(width: 12.0),
               Text(

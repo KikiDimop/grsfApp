@@ -1,5 +1,6 @@
 import 'package:grsfApp/models/fishery.dart';
 import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/pages/search_fisheries.dart';
 import 'package:grsfApp/pages/single_fishery.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -20,6 +21,7 @@ class _FisheriesState extends State<Fisheries> {
   String _selectedOrder = 'Short Name';
   String _sortOrder = 'asc';
   bool isLoading = true;
+  bool isLoading2 = false;
   String? error;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -39,6 +41,7 @@ class _FisheriesState extends State<Fisheries> {
 
       setState(() {
         fisheries = results[0];
+        isLoading = false;
         if (fisheries?.isEmpty ?? true) _showNoResultsDialog();
       });
     } catch (e) {
@@ -65,17 +68,23 @@ class _FisheriesState extends State<Fisheries> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          _searchField(),
-          const SizedBox(
-            height: 5,
-          ),
-          _orderByDropdown(),
-          const SizedBox(height: 5),
-          Expanded(child: _results()),
-        ],
-      ),
+      body: (isLoading)
+          ? const Center(child: CircularProgressIndicator())
+          : error != null
+              ? Center(
+                  child: Text('Error: $error',
+                      style: const TextStyle(color: Colors.red)))
+              : Column(
+                  children: [
+                    _searchField(),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    _orderByDropdown(),
+                    const SizedBox(height: 5),
+                    Expanded(child: _results()),
+                  ],
+                ),
     );
   }
 
@@ -84,7 +93,6 @@ class _FisheriesState extends State<Fisheries> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
-          // Search Field (Expanded to take remaining space)
           Expanded(
             child: TextField(
               controller: _searchController,
@@ -131,6 +139,21 @@ class _FisheriesState extends State<Fisheries> {
                 ),
               ),
             ),
+          ),
+          const SizedBox(width: 10),
+          IconButton(
+            icon: const Icon(
+              Icons.tune_rounded,
+              color: Color(0xffd9dcd6),
+              size: 40,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const Searchfisheries()),
+              );
+            },
           ),
         ],
       ),

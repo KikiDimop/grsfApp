@@ -1,4 +1,3 @@
-import 'package:grsfApp/models/area.dart';
 import 'package:grsfApp/models/areasForFishery.dart';
 import 'package:grsfApp/models/faoMajorArea.dart';
 import 'package:grsfApp/models/fishery.dart';
@@ -12,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:grsfApp/widgets/global_ui.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
 
 class DisplaySingleFishery extends StatefulWidget {
   final Fishery fishery;
@@ -689,43 +687,34 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                   else
                     statusDisplay(_responseData!["result"]["status"]),
                   if (!isExistDataFromAPI)
-                    // _truncatedDisplay('Short Name', widget.fishery.shortName ?? '', 35)
                     dataDisplay(
                         label: 'Short Name',
                         value: widget.fishery.shortName ?? '')
                   else
-                    // _truncatedDisplay('Short Name',_responseData!["result"]["short_name"], 35),
                     dataDisplay(
                         label: 'Short Name',
                         value: _responseData!["result"]["short_name"]),
                   if (!isExistDataFromAPI)
-                    // _truncatedDisplay('Semantic ID', widget.fishery.grsfSemanticID ?? '', 35)
                     dataDisplay(
                         label: 'Semantic ID',
                         value: widget.fishery.grsfSemanticID ?? '')
                   else
-                    // _truncatedDisplay('Semantic ID',_responseData!["result"]["semantic_id"], 35),
                     dataDisplay(
                         label: 'Semantic ID',
                         value: _responseData!["result"]["semantic_id"]),
                   if (!isExistDataFromAPI)
-                    // _truncatedDisplay('Semantic Title', widget.fishery.grsfName ?? '', 35)
                     dataDisplay(
                         label: 'Semantic Title',
                         value: widget.fishery.grsfName ?? '')
                   else
-                    // _truncatedDisplay('Semantic Title',_responseData!["result"]["semantic_title"], 35),
                     dataDisplay(
                         label: 'Semantic Title',
                         value: _responseData!["result"]["semantic_title"]),
                   if (!isExistDataFromAPI)
-                    //_truncatedDisplay('UUID', widget.fishery.uuid ?? '', 35)
                     dataDisplay(label: 'UUID', value: widget.fishery.uuid ?? '')
                   else
-                    // _truncatedDisplay('UUID', _responseData!["result"]["uuid"], 35),
                     dataDisplay(
                         label: 'UUID', value: _responseData!["result"]["uuid"]),
-                  // _truncatedDisplay('Type', widget.fishery.type ?? '', 35),
                   dataDisplay(label: 'Type', value: widget.fishery.type ?? ''),
 
                   if (isExistDataFromAPI)

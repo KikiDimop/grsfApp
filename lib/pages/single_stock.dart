@@ -228,7 +228,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                                         sortOrder: _sortOrder,
                                         listViewItem: ({required item}) =>
                                             listViewItem(
-                                                item: item)),//_areasList(),
+                                                item: item)), //_areasList(),
                                     displayDropDown: true,
                                     forStockData: false),
                               ),
@@ -253,7 +253,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                                         sortOrder: _sortOrder,
                                         listViewItem: ({required item}) =>
                                             listViewItem(
-                                                item: item)),//_speciesList(),
+                                                item: item)), //_speciesList(),
                                     displayDropDown: true,
                                     forStockData: false),
                               ),
@@ -337,7 +337,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                 ),
     );
   }
-
 
   Widget _displayList(
       {required String searchHint,
@@ -575,31 +574,35 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                   else
                     statusDisplay(_responseData!["result"]["status"]),
                   if (!isExistDataFromAPI)
-                    truncatedDisplay(
-                        context, 'Short Name', widget.stock.shortName ?? '', 35)
+                    dataDisplay(
+                        label: 'Short Name',
+                        value: widget.stock.shortName ?? '')
                   else
-                    truncatedDisplay(context, 'Short Name',
-                        _responseData!["result"]["short_name"], 35),
+                    dataDisplay(
+                        label: 'Short Name',
+                        value: _responseData!["result"]["short_name"]),
                   if (!isExistDataFromAPI)
-                    truncatedDisplay(context, 'Semantic ID',
-                        widget.stock.grsfSemanticID ?? '', 35)
+                    dataDisplay(
+                        label: 'Semantic ID',
+                        value: widget.stock.grsfSemanticID ?? '')
                   else
-                    truncatedDisplay(context, 'Semantic ID',
-                        _responseData!["result"]["semantic_id"], 35),
+                    dataDisplay(
+                        label: 'Semantic ID',
+                        value: _responseData!["result"]["semantic_id"]),
                   if (!isExistDataFromAPI)
-                    truncatedDisplay(context, 'Semantic Title',
-                        widget.stock.grsfName ?? '', 35)
+                    dataDisplay(
+                        label: 'Semantic Title',
+                        value: widget.stock.grsfName ?? '')
                   else
-                    truncatedDisplay(context, 'Semantic Title',
-                        _responseData!["result"]["semantic_title"], 35),
+                    dataDisplay(
+                        label: 'Semantic Title',
+                        value: _responseData!["result"]["semantic_title"]),
                   if (!isExistDataFromAPI)
-                    truncatedDisplay(
-                        context, 'UUID', widget.stock.uuid ?? '', 35)
+                    dataDisplay(label: 'UUID', value: widget.stock.uuid ?? '')
                   else
-                    truncatedDisplay(
-                        context, 'UUID', _responseData!["result"]["uuid"], 35),
-                  truncatedDisplay(
-                      context, 'Type', widget.stock.type ?? '', 35),
+                    dataDisplay(
+                        label: 'UUID', value: _responseData!["result"]["uuid"]),
+                  dataDisplay(label: 'Type', value: widget.stock.type ?? ''),
                   Row(
                     children: [
                       iButton(
@@ -972,126 +975,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
       ),
     );
   }
-
-  // Widget _areasList() {
-  //   if (areas == null) {
-  //     return const Center(
-  //       child: Text(
-  //         'No data available',
-  //         style: TextStyle(color: Color(0xffd9dcd6)),
-  //       ),
-  //     );
-  //   }
-
-  //   final filteredAreas = areas!
-  //       .where((area) =>
-  //           _searchQuery.isEmpty ||
-  //           (area.areaName
-  //                   ?.toLowerCase()
-  //                   .contains(_searchQuery.toLowerCase()) ??
-  //               false) ||
-  //           (area.areaCode
-  //                   ?.toLowerCase()
-  //                   .contains(_searchQuery.toLowerCase()) ??
-  //               false) ||
-  //           (area.areaType
-  //                   ?.toLowerCase()
-  //                   .contains(_searchQuery.toLowerCase()) ??
-  //               false))
-  //       .toList();
-
-  //   filteredAreas.sort((a, b) {
-  //     int comparison = 0;
-  //     if (_selectedOrder == 'Name') {
-  //       comparison = a.areaName?.compareTo(b.areaName ?? '') ?? 0;
-  //     } else if (_selectedOrder == 'Code') {
-  //       comparison = a.areaCode?.compareTo(b.areaCode ?? '') ?? 0;
-  //     } else if (_selectedOrder == 'System') {
-  //       comparison = a.areaType?.compareTo(b.areaType ?? '') ?? 0;
-  //     }
-  //     return _sortOrder == 'asc' ? comparison : -comparison;
-  //   });
-
-  //   return Container(
-  //     margin: const EdgeInsets.symmetric(horizontal: 5),
-  //     padding: const EdgeInsets.all(10),
-  //     child: filteredAreas.isEmpty
-  //         ? const Center(
-  //             child: Text(
-  //               'No areas found',
-  //               style: TextStyle(color: Color(0xffd9dcd6)),
-  //             ),
-  //           )
-  //         : ListView.builder(
-  //             itemCount: filteredAreas.length,
-  //             itemBuilder: (context, index) {
-  //               final area = filteredAreas[index];
-  //               return listViewItem(item: area);
-  //             },
-  //           ),
-  //   );
-  // }
-
-  // Widget _speciesList() {
-  //   if (species == null) {
-  //     return const Center(
-  //       child: Text(
-  //         'No data available',
-  //         style: TextStyle(color: Color(0xffd9dcd6)),
-  //       ),
-  //     );
-  //   }
-
-  //   // Filter by search query
-  //   final filteredSpecies = species!
-  //       .where((sp) =>
-  //           _searchQuery.isEmpty ||
-  //           (sp.speciesName
-  //                   ?.toLowerCase()
-  //                   .contains(_searchQuery.toLowerCase()) ??
-  //               false) ||
-  //           (sp.speciesCode
-  //                   ?.toLowerCase()
-  //                   .contains(_searchQuery.toLowerCase()) ??
-  //               false) ||
-  //           (sp.speciesType
-  //                   ?.toLowerCase()
-  //                   .contains(_searchQuery.toLowerCase()) ??
-  //               false))
-  //       .toList();
-
-  //   // Apply sorting logic
-  //   filteredSpecies.sort((a, b) {
-  //     int comparison = 0;
-  //     if (_selectedOrder == 'Name') {
-  //       comparison = a.speciesName?.compareTo(b.speciesName ?? '') ?? 0;
-  //     } else if (_selectedOrder == 'Code') {
-  //       comparison = a.speciesCode?.compareTo(b.speciesCode ?? '') ?? 0;
-  //     } else if (_selectedOrder == 'System') {
-  //       comparison = a.speciesType?.compareTo(b.speciesType ?? '') ?? 0;
-  //     }
-  //     return _sortOrder == 'asc' ? comparison : -comparison;
-  //   });
-
-  //   return Container(
-  //     margin: const EdgeInsets.symmetric(horizontal: 5),
-  //     padding: const EdgeInsets.all(10),
-  //     child: filteredSpecies.isEmpty
-  //         ? const Center(
-  //             child: Text(
-  //               'No areas found',
-  //               style: TextStyle(color: Color(0xffd9dcd6)),
-  //             ),
-  //           )
-  //         : ListView.builder(
-  //             itemCount: filteredSpecies.length,
-  //             itemBuilder: (context, index) {
-  //               final item = filteredSpecies[index];
-  //               return listViewItem(item: item);
-  //             },
-  //           ),
-  //   );
-  // }
 
   Widget _stockDataList() {
     final List<dynamic> list =

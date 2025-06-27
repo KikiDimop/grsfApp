@@ -431,53 +431,6 @@ Widget listViewItem({
   );
 }
 
-Widget truncatedDisplay(
-    BuildContext context, String title, String value, int maxLength) {
-  if (value.isEmpty) return const SizedBox.shrink();
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 4),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 12, color: Color(0xff16425B)),
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Text(
-                value.length > maxLength
-                    ? '${value.substring(0, maxLength)}...'
-                    : value,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xff16425B),
-                  fontWeight: FontWeight.bold,
-                ),
-                softWrap: true,
-              ),
-            ),
-            if (value.length > maxLength)
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0),
-                child: InkWell(
-                  onTap: () => showFullText(context, title, value),
-                  child: const Icon(
-                    Icons.more_horiz,
-                    color: Color(0xff16425B),
-                    size: 20,
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
 Padding listTitle({required String title}) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 20),

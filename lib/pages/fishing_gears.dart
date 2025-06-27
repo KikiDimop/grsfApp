@@ -473,19 +473,19 @@ class _FishingGearsState extends State<FishingGears> {
               ElevatedButton(
                 onPressed: () {
                   SearchFishery searchFishery = SearchFishery(
-                      'All',
-                      '',
-                      '',
-                      'All',
-                      '',
-                      '',
-                      'All',
-                      g.fishingGearId ?? '',
-                      g.fishingGearName ?? '',
-                      'All',
-                      'All',
-                      'All',
-                      '');
+                      selectedSpeciesSystem: 'All',
+                      speciesCode: '',
+                      speciesName: '',
+                      selectedAreaSystem: 'All',
+                      areaCode: '',
+                      areaName: '',
+                      selectedGearSystem: 'All',
+                      gearCode: g.fishingGearId ?? '',
+                      gearName: g.fishingGearName ?? '',
+                      selectedFAOMajorArea: 'All',
+                      selectedResourceType: 'All',
+                      selectedResourceStatus: 'All',
+                      flagCode: '');
 
                   Navigator.push(
                     context,

@@ -229,19 +229,20 @@ class _SearchfisheriesState extends State<Searchfisheries> {
       onPressed: () {
         // validateAllDropdowns();
         SearchFishery searchFishery = SearchFishery(
-            speciesSystemController.text,
-            speciesCodeController.text,
-            speciesNameController.text,
-            areaSystemController.text,
-            areaCodeController.text,
-            areaNameController.text,
-            gearSystemController.text,
-            gearCodeController.text,
-            gearNameController.text,
-            faoMajorAreaController.text,
-            resourceTypeController.text,
-            resourceStatusController.text,
-            flagCodeController.text);
+          selectedSpeciesSystem: speciesSystemController.text,
+          speciesCode: speciesCodeController.text,
+          speciesName: speciesNameController.text,
+          selectedAreaSystem: areaSystemController.text,
+          areaCode: areaCodeController.text,
+          areaName: areaNameController.text,
+          selectedGearSystem: gearSystemController.text,
+          gearCode: gearCodeController.text,
+          gearName: gearNameController.text,
+          selectedFAOMajorArea: faoMajorAreaController.text,
+          selectedResourceType: resourceTypeController.text,
+          selectedResourceStatus: resourceStatusController.text,
+          flagCode: flagCodeController.text,
+        );
         Navigator.push(
           context,
           MaterialPageRoute(
