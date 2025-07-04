@@ -1,48 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:dropdown_search/dropdown_search.dart';
-
-// class DropdownWidget extends StatefulWidget {
-//   final List<String> items;
-//   final ValueChanged<String>? onSelected; // Callback for selection changes
-
-//   const DropdownWidget({
-//     super.key,
-//     required this.items,
-//     this.onSelected,
-//   });
-
-//   @override
-//   DropdownWidgetState createState() => DropdownWidgetState();
-// }
-
-// class DropdownWidgetState extends State<DropdownWidget> {
-//   late String selected;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     selected = '';
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return DropdownSearch<String>(
-//       popupProps:
-//           const PopupProps.menu(showSearchBox: true, fit: FlexFit.loose),
-//       items: (String? filter, _) async => widget.items,
-//       onChanged: (String? value) {
-//         if (value != null) {
-//           setState(() {
-//             selected = value;
-//           });
-//           widget.onSelected?.call(value);
-//         }
-//       },
-//       selectedItem: selected,
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 
@@ -91,12 +46,8 @@ class DropdownWidgetState extends State<DropdownWidget> {
           // Customize the dropdown button decoration
           decoratorProps: DropDownDecoratorProps(
             decoration: InputDecoration(
-              // labelText: 'Select an item',
-              labelStyle: TextStyle(color: Colors.grey[600]),
-              // hintText: 'Search or select...',
-              hintStyle: TextStyle(color: Colors.grey[400]),
               filled: true,
-              fillColor: Colors.grey[100],
+              fillColor: const Color(0xffd9dcd6),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16.0,
                 vertical: 12.0,
@@ -104,61 +55,52 @@ class DropdownWidgetState extends State<DropdownWidget> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
                 borderSide: const BorderSide(
-                  color: Colors.blueAccent,
+                  color: Color(0xff16425B),
                   width: 1.5,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
-                borderSide: BorderSide(
-                  color: Colors.grey[300]!,
+                borderSide: const BorderSide(
+                  color: Color(0xff16425B),
                   width: 1.0,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.0),
                 borderSide: const BorderSide(
-                  color: Colors.blueAccent,
+                  color: Color(0xff16425B),
                   width: 2.0,
-                ),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                borderSide: const BorderSide(
-                  color: Colors.red,
-                  width: 1.5,
                 ),
               ),
               suffixIcon: const Icon(
                 Icons.arrow_drop_down,
-                color: Colors.blueAccent,
+                color: Color(0xff16425B),
               ),
             ),
           ),
-          // Customize the popup menu
           popupProps: PopupProps.menu(
             showSearchBox: true,
             fit: FlexFit.loose,
-            // Customize the search field in the popup
             searchFieldProps: TextFieldProps(
               decoration: InputDecoration(
-                // hintText: 'Type to search...',
-                hintStyle: TextStyle(color: Colors.grey[500]),
                 prefixIcon: const Icon(
                   Icons.search,
-                  color: Colors.blueAccent,
+                  color: Color(0xff16425B),
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
+                  borderSide: const BorderSide(color: Color(0xffd9dcd6)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(color: Colors.grey[300]!),
+                  borderSide: const BorderSide(
+                    color: Color(0xff16425B),
+                  ),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  borderSide: const BorderSide(color: Colors.blueAccent),
+                  borderSide: const BorderSide(color: Color(0xff16425B)),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12.0,
@@ -166,17 +108,16 @@ class DropdownWidgetState extends State<DropdownWidget> {
                 ),
               ),
             ),
-            // Customize the popup menu container
             containerBuilder: (context, popupWidget) {
               return Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: const Color(0xffd9dcd6),
                   borderRadius: BorderRadius.circular(12.0),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Color(0xff16425B),
                       blurRadius: 8.0,
-                      offset: const Offset(0, 2),
+                      offset: Offset(0, 2),
                     ),
                   ],
                 ),
