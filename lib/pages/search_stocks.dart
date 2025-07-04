@@ -3,7 +3,8 @@ import 'package:grsfApp/pages/stocks.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:grsfApp/widgets/dropdown_text_field.dart';
+import 'package:grsfApp/widgets/dropdown.dart';
+import 'package:grsfApp/widgets/global_ui.dart';
 
 class Searchstocks extends StatefulWidget {
   const Searchstocks({super.key});
@@ -67,13 +68,12 @@ class _SearchstocksState extends State<Searchstocks> {
     });
   }
 
-  final TextEditingController speciesTypesController = TextEditingController();
-  final TextEditingController areaTypesController = TextEditingController();
-  final TextEditingController faoMajorAreaController = TextEditingController();
-  final TextEditingController resourceTypeController = TextEditingController();
-  final TextEditingController resourceStatusController =
-      TextEditingController();
-  final TextEditingController timeseriesController = TextEditingController();
+  String speciesTypesController = '';
+  String areaTypesController = '';
+  String faoMajorAreaController = '';
+  String resourceTypeController = '';
+  String resourceStatusController = '';
+  String timeseriesController = '';
 
   validateDropdown(
       {required List<String> list, required TextEditingController controller}) {
@@ -97,17 +97,6 @@ class _SearchstocksState extends State<Searchstocks> {
         controller.text = matchedItem!;
       });
     }
-  }
-
-  @override
-  void dispose() {
-    faoMajorAreaController.dispose();
-    resourceTypeController.dispose();
-    resourceStatusController.dispose();
-    timeseriesController.dispose();
-    speciesTypesController.dispose();
-    areaTypesController.dispose();
-    super.dispose();
   }
 
   @override
@@ -180,23 +169,24 @@ class _SearchstocksState extends State<Searchstocks> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownTextField(
+                    child: DropdownWidget(
+                      label: 'Species Type',
                       items: speciesTypes,
-                      label: 'Species System',
-                      controller: speciesTypesController,
-                      onValidate: validateDropdown(
-                          list: speciesTypes,
-                          controller: speciesTypesController),
+                      onSelected: (value) {
+                        setState(() {
+                          speciesTypesController = value;
+                        });
+                      },
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _textField("Species Code", speciesCodeController),
+                    child: textField("Species Code", speciesCodeController),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              _textField("Scientific Name", speciesNameController),
+              textField("Scientific Name", speciesNameController),
             ],
           ),
         ),
@@ -204,30 +194,19 @@ class _SearchstocksState extends State<Searchstocks> {
     );
   }
 
-  void validateAllDropdowns() {
-    validateDropdown(list: speciesTypes, controller: speciesTypesController);
-    validateDropdown(list: areaTypes, controller: areaTypesController);
-    validateDropdown(list: faoMajorAreas, controller: faoMajorAreaController);
-    validateDropdown(list: resourceType, controller: resourceTypeController);
-    validateDropdown(
-        list: resourceStatus, controller: resourceStatusController);
-    validateDropdown(list: timeseries, controller: timeseriesController);
-  }
-
   ElevatedButton searchButton() {
     return ElevatedButton(
       onPressed: () {
-        validateAllDropdowns();
         final searchStock = SearchStock(
-          selectedSpeciesSystem: speciesTypesController.text,
+          selectedSpeciesSystem: speciesTypesController,
           speciesCode: speciesCodeController.text,
           speciesName: speciesNameController.text,
-          selectedAreaSystem: areaTypesController.text,
+          selectedAreaSystem: areaTypesController,
           areaCode: areaCodeController.text,
           areaName: areaNameController.text,
-          selectedFAOMajorArea: faoMajorAreaController.text,
-          selectedResourceType: resourceTypeController.text,
-          selectedResourceStatus: resourceStatusController.text,
+          selectedFAOMajorArea: faoMajorAreaController,
+          selectedResourceType: resourceTypeController,
+          selectedResourceStatus: resourceStatusController,
         );
 
         Navigator.push(
@@ -236,7 +215,7 @@ class _SearchstocksState extends State<Searchstocks> {
             builder: (context) => Stocks(
                 search: searchStock,
                 forSpecies: false,
-                timeseries: timeseriesController.text,
+                timeseries: timeseriesController,
                 refYear: refYear.text),
           ),
         );
@@ -288,29 +267,33 @@ class _SearchstocksState extends State<Searchstocks> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownTextField(
+                    child: DropdownWidget(
+                      label: 'Area Type',
                       items: areaTypes,
-                      label: 'Area System',
-                      controller: areaTypesController,
-                      onValidate: validateDropdown(
-                          list: areaTypes, controller: areaTypesController),
+                      onSelected: (value) {
+                        setState(() {
+                          areaTypesController = value;
+                        });
+                      },
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _textField("Area Code", areaCodeController),
+                    child: textField("Area Code", areaCodeController),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              _textField("Area Name", areaNameController),
+              textField("Area Name", areaNameController),
               const SizedBox(height: 8),
-              DropdownTextField(
+              DropdownWidget(
+                label: 'Fao Major Area',
                 items: faoMajorAreas,
-                label: 'FAO Major Area',
-                controller: faoMajorAreaController,
-                onValidate: validateDropdown(
-                    list: faoMajorAreas, controller: faoMajorAreaController),
+                onSelected: (value) {
+                  setState(() {
+                    faoMajorAreaController = value;
+                  });
+                },
               ),
             ],
           ),
@@ -347,24 +330,26 @@ class _SearchstocksState extends State<Searchstocks> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownTextField(
-                      items: resourceType,
+                    child: DropdownWidget(
                       label: 'Resource Type',
-                      controller: resourceTypeController,
-                      onValidate: validateDropdown(
-                          list: resourceType,
-                          controller: resourceTypeController),
+                      items: resourceType,
+                      onSelected: (value) {
+                        setState(() {
+                          resourceTypeController = value;
+                        });
+                      },
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: DropdownTextField(
-                      items: resourceStatus,
+                    child: DropdownWidget(
                       label: 'Resource Status',
-                      controller: resourceStatusController,
-                      onValidate: validateDropdown(
-                          list: resourceStatus,
-                          controller: resourceStatusController),
+                      items: resourceStatus,
+                      onSelected: (value) {
+                        setState(() {
+                          resourceStatusController = value;
+                        });
+                      },
                     ),
                   ),
                 ],
@@ -404,128 +389,21 @@ class _SearchstocksState extends State<Searchstocks> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownTextField(
+                    child: DropdownWidget(
+                      label: 'Timeserie',
                       items: timeseries,
-                      label: 'Timeseries',
-                      controller: timeseriesController,
-                      onValidate: validateDropdown(
-                          list: timeseries, controller: timeseriesController),
+                      onSelected: (value) {
+                        setState(() {
+                          timeseriesController = value;
+                        });
+                      },
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              _textField("Reference Year", refYear),
+              textField("Reference Year", refYear),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _dropdownField(String label, List<String> items, String? selectedValue,
-      void Function(String?) onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (label != '')
-          Padding(
-            padding: const EdgeInsets.only(left: 10, bottom: 4),
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Color(0xff16425B),
-              ),
-            ),
-          ),
-        SizedBox(
-          height: 48,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: const Color(0xffd9dcd6),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xff16425B)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton2<String>(
-                  isExpanded: true,
-                  value: selectedValue,
-                  style: const TextStyle(
-                    color: Color(0xff16425B),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                  items: items.map((item) {
-                    return DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(item),
-                    );
-                  }).toList(),
-                  dropdownStyleData: DropdownStyleData(
-                    decoration: BoxDecoration(
-                      color: const Color(0xffd9dcd6),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onChanged: onChanged,
-                  iconStyleData: const IconStyleData(
-                    icon: Icon(Icons.arrow_drop_down),
-                  ),
-                  buttonStyleData: const ButtonStyleData(
-                    padding: EdgeInsets.only(right: 10),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _textField(String label, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 10, bottom: 4),
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Color(0xff16425B),
-            ),
-          ),
-        ),
-        TextField(
-          controller: controller,
-          style: const TextStyle(color: Color(0xff16425B)),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-            suffixIcon: GestureDetector(
-              onTap: () {
-                controller.clear();
-              },
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Icon(
-                  Icons.cancel,
-                  color: Color(0xff16425B),
-                ),
-              ),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Color(0xff16425B)),
-            ),
           ),
         ),
       ],

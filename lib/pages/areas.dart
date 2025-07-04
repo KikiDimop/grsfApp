@@ -65,9 +65,9 @@ class _AreasState extends State<Areas> {
       body: Column(
         children: [
           _searchField(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 5),
           _orderByDropdown(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 5),
           Expanded(
             child: _results(),
           ),

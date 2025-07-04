@@ -6,6 +6,7 @@ import 'package:grsfApp/pages/species.dart';
 import 'package:grsfApp/pages/stocks.dart';
 import 'package:grsfApp/pages/sync.dart';
 import 'package:flutter/material.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -60,40 +61,25 @@ class HomePage extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      buildIconButton(
-                          context,
-                          Icons.pin_drop_rounded /*'assets/icons/area.png'*/,
-                          'Areas',
-                          const Areas()),
+                      buildImageButton(context, 'assets/icons/area.png',
+                          'Areas', const Areas()),
                       buildImageButton(context, 'assets/icons/species.png',
                           'Species', const DisplaySpecies()),
-                      buildIconButton(
+                      buildImageButton(context, 'assets/icons/fisheries.png',
+                          'Fisheries', Fisheries(search: SearchFishery())),
+                      buildImageButton(
                           context,
-                          Icons
-                              .directions_boat_filled_rounded /*'assets/icons/fisheries.png'*/,
-                          'Fisheries',
-                          Fisheries(search: SearchFishery())),
-                      buildIconButton(
-                          context,
-                          Icons.set_meal_rounded /*'assets/icons/stocks.png'*/,
+                          'assets/icons/stocks.png',
                           'Stocks',
                           Stocks(
                               search: SearchStock(),
                               forSpecies: false,
                               timeseries: '',
                               refYear: '')),
-                      buildIconButton(
-                          context,
-                          Icons
-                              .construction_rounded /*'assets/icons/gear.png'*/,
-                          'Fishing Gear',
-                          const FishingGears()),
-                      buildIconButton(
-                          context,
-                          Icons
-                              .cloud_download_rounded /*'assets/icons/sync.png'*/,
-                          'Sync Data',
-                          const UpdateDataScreen()),
+                      buildImageButton(context, 'assets/icons/gear.png',
+                          'Fishing Gear', const FishingGears()),
+                      buildImageButton(context, 'assets/icons/sync.png',
+                          'Sync Data', const UpdateDataScreen()),
                     ],
                   ),
                 ),

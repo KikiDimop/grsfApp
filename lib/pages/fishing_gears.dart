@@ -4,6 +4,7 @@ import 'package:grsfApp/pages/fisheries.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:grsfApp/widgets/global_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class FishingGears extends StatefulWidget {
@@ -65,9 +66,9 @@ class _FishingGearsState extends State<FishingGears> {
       body: Column(
         children: [
           _searchField(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 5),
           _orderByDropdown(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 5),
           Expanded(
             child: _results(),
           ),
@@ -302,25 +303,7 @@ class _FishingGearsState extends State<FishingGears> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Name',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              g.fishingGearName ?? 'No Name',
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xff16425B),
-                fontWeight: FontWeight.bold,
-              ),
-              softWrap: true,
-              overflow: TextOverflow.visible,
-            ),
+            dataDisplay(label: 'Name', value: g.fishingGearName ?? ''),
             const SizedBox(height: 1),
             Column(
               children: [
@@ -331,24 +314,8 @@ class _FishingGearsState extends State<FishingGears> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Code',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xff16425B),
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          const SizedBox(height: 1),
-                          Text(
-                            g.fishingGearId ?? 'No Code',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Color(0xff16425B),
-                              fontWeight: FontWeight.w500,
-                            ),
-                            overflow: TextOverflow.visible,
-                          ),
+                          dataDisplay(
+                              label: 'Code', value: g.fishingGearId ?? ''),
                         ],
                       ),
                     ),
@@ -357,171 +324,89 @@ class _FishingGearsState extends State<FishingGears> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'System',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xff16425B),
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            g.fishingGearType ?? 'No System',
-                            style: const TextStyle(
-                              fontSize: 15,
-                              color: Color(0xff16425B),
-                              fontWeight: FontWeight.w500,
-                            ),
-                            softWrap: true,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                          dataDisplay(
+                              label: 'System', value: g.fishingGearType ?? ''),
                         ],
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 5),
-                if (g.fishingGearGroupId != null)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Group Code',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xff16425B),
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                            const SizedBox(height: 1),
-                            Text(
-                              g.fishingGearGroupId ?? 'No Group Code',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Color(0xff16425B),
-                                fontWeight: FontWeight.w500,
-                              ),
-                              overflow: TextOverflow.visible,
-                            ),
-                          ],
-                        ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          dataDisplay(
+                              label: 'Group Code',
+                              value: g.fishingGearGroupId ?? '')
+                        ],
                       ),
-                      const SizedBox(width: 5),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Group Name',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Color(0xff16425B),
-                                fontWeight: FontWeight.normal,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              g.fishingGearGroupName ?? 'No Group Name',
-                              style: const TextStyle(
-                                fontSize: 15,
-                                color: Color(0xff16425B),
-                                fontWeight: FontWeight.w500,
-                              ),
-                              softWrap: true,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
+                    ),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          dataDisplay(
+                              label: 'Group Name',
+                              value: g.fishingGearGroupName ?? '')
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 5),
               ],
             ),
-            if (g.fishingGearAbbreviation != null)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Abbreviation',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xff16425B),
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                  const SizedBox(height: 1),
-                  Text(
-                    g.fishingGearAbbreviation ?? 'No Abbreviation',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xff16425B),
-                      fontWeight: FontWeight.bold,
-                    ),
-                    softWrap: true,
-                    overflow: TextOverflow.visible,
-                  ),
-                ],
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                dataDisplay(
+                    label: 'Abbreviation',
+                    value: g.fishingGearAbbreviation ?? '')
+              ],
+            ),
             const SizedBox(height: 5),
             Row(children: [
-              ElevatedButton(
-                onPressed: () {
-                  SearchFishery searchFishery = SearchFishery(
-                      selectedSpeciesSystem: 'All',
-                      speciesCode: '',
-                      speciesName: '',
-                      selectedAreaSystem: 'All',
-                      areaCode: '',
-                      areaName: '',
-                      selectedGearSystem: 'All',
-                      gearCode: g.fishingGearId ?? '',
-                      gearName: g.fishingGearName ?? '',
-                      selectedFAOMajorArea: 'All',
-                      selectedResourceType: 'All',
-                      selectedResourceStatus: 'All',
-                      flagCode: '');
+              customButton(
+                  label: 'Show related fisheries',
+                  onPressed: () {
+                    SearchFishery searchFishery = SearchFishery(
+                        selectedSpeciesSystem: 'All',
+                        speciesCode: '',
+                        speciesName: '',
+                        selectedAreaSystem: 'All',
+                        areaCode: '',
+                        areaName: '',
+                        selectedGearSystem: 'All',
+                        gearCode: g.fishingGearId ?? '',
+                        gearName: g.fishingGearName ?? '',
+                        selectedFAOMajorArea: 'All',
+                        selectedResourceType: 'All',
+                        selectedResourceStatus: 'All',
+                        flagCode: '');
 
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Fisheries(
-                        search: searchFishery,
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Fisheries(
+                          search: searchFishery,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff16425B), // Background color
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8), // Rounded edges
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8), // Button padding
-                ),
-                child: const Text(
-                  'Show related fisheries',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Color(0xffd9dcd6), // Text color
-                  ),
-                ),
-              ),
+                    );
+                  }),
               const Spacer(),
-              InkWell(
-                onTap: () => _openSourceLink(
-                    'https://images.google.com/search?tbm=isch&q=${g.fishingGearName ?? ''}'),
-                child: const Icon(
-                  Icons.image,
-                  color: Color(0xff16425B),
-                  size: 40,
-                ),
-              ),
+              iButton(
+                  onPressed: () {
+                    _openSourceLink(
+                        'https://images.google.com/search?tbm=isch&q=${g.fishingGearName ?? ''}');
+                  },
+                  icon: Icons.image,
+                  assetPath: '',
+                  iconSize: 40),
             ])
           ],
         ),

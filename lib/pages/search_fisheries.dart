@@ -3,8 +3,8 @@ import 'package:grsfApp/pages/fisheries.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:grsfApp/widgets/dropdown_text_field.dart';
-// import 'package:grsfApp/widgets/dropdown_text_field.dart';
+import 'package:grsfApp/widgets/dropdown.dart';
+import 'package:grsfApp/widgets/global_ui.dart';
 
 class Searchfisheries extends StatefulWidget {
   const Searchfisheries({super.key});
@@ -65,15 +65,14 @@ class _SearchfisheriesState extends State<Searchfisheries> {
     });
   }
 
-  final TextEditingController flagCodeController = TextEditingController();
-  final TextEditingController speciesSystemController = TextEditingController();
-  final TextEditingController areaSystemController = TextEditingController();
-  final TextEditingController faoMajorAreaController = TextEditingController();
-  final TextEditingController gearSystemController = TextEditingController();
-  final TextEditingController resourceTypeController = TextEditingController();
-  final TextEditingController resourceStatusController =
-      TextEditingController();
-  final TextEditingController timeseriesController = TextEditingController();
+  String timeseriesController = '';
+  String flagCodeController = '';
+  String speciesSystemController = '';
+  String areaSystemController = '';
+  String faoMajorAreaController = '';
+  String gearSystemController = '';
+  String resourceTypeController = '';
+  String resourceStatusController = '';
 
   validateDropdown(
       {required List<String> list, required TextEditingController controller}) {
@@ -97,19 +96,6 @@ class _SearchfisheriesState extends State<Searchfisheries> {
         controller.text = matchedItem!;
       });
     }
-  }
-
-  @override
-  void dispose() {
-    flagCodeController.dispose();
-    speciesSystemController.dispose();
-    areaSystemController.dispose();
-    faoMajorAreaController.dispose();
-    gearSystemController.dispose();
-    resourceTypeController.dispose();
-    resourceStatusController.dispose();
-    timeseriesController.dispose();
-    super.dispose();
   }
 
   @override
@@ -188,23 +174,24 @@ class _SearchfisheriesState extends State<Searchfisheries> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownTextField(
+                    child: DropdownWidget(
+                      label: 'Species Type',
                       items: speciesTypes,
-                      label: 'Species System',
-                      controller: speciesSystemController,
-                      onValidate: validateDropdown(
-                          list: speciesTypes,
-                          controller: speciesSystemController),
+                      onSelected: (value) {
+                        setState(() {
+                          speciesSystemController = value;
+                        });
+                      },
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _textField("Species Code", speciesCodeController),
+                    child: textField("Species Code", speciesCodeController),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              _textField("Scientific Name", speciesNameController),
+              textField("Scientific Name", speciesNameController),
             ],
           ),
         ),
@@ -212,36 +199,23 @@ class _SearchfisheriesState extends State<Searchfisheries> {
     );
   }
 
-  void validateAllDropdowns() {
-    validateDropdown(list: speciesTypes, controller: speciesSystemController);
-    validateDropdown(list: areaTypes, controller: areaSystemController);
-    validateDropdown(list: faoMajorAreas, controller: faoMajorAreaController);
-    validateDropdown(list: gearTypes, controller: gearSystemController);
-    validateDropdown(list: flagCodes, controller: flagCodeController);
-    validateDropdown(list: resourceType, controller: resourceTypeController);
-    validateDropdown(
-        list: resourceStatus, controller: resourceStatusController);
-    validateDropdown(list: timeseries, controller: timeseriesController);
-  }
-
   ElevatedButton searchButton() {
     return ElevatedButton(
       onPressed: () {
-        // validateAllDropdowns();
         SearchFishery searchFishery = SearchFishery(
-          selectedSpeciesSystem: speciesSystemController.text,
+          selectedSpeciesSystem: speciesSystemController,
           speciesCode: speciesCodeController.text,
           speciesName: speciesNameController.text,
-          selectedAreaSystem: areaSystemController.text,
+          selectedAreaSystem: areaSystemController,
           areaCode: areaCodeController.text,
           areaName: areaNameController.text,
-          selectedGearSystem: gearSystemController.text,
+          selectedGearSystem: gearSystemController,
           gearCode: gearCodeController.text,
           gearName: gearNameController.text,
-          selectedFAOMajorArea: faoMajorAreaController.text,
-          selectedResourceType: resourceTypeController.text,
-          selectedResourceStatus: resourceStatusController.text,
-          flagCode: flagCodeController.text,
+          selectedFAOMajorArea: faoMajorAreaController,
+          selectedResourceType: resourceTypeController,
+          selectedResourceStatus: resourceStatusController,
+          flagCode: flagCodeController,
         );
         Navigator.push(
           context,
@@ -297,30 +271,32 @@ class _SearchfisheriesState extends State<Searchfisheries> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownTextField(
-                      items: areaTypes,
-                      label: 'Area System',
-                      controller: areaSystemController,
-                      onValidate: validateDropdown(
-                          list: areaTypes, controller: areaSystemController),
-                    ),
-                  ),
+                      child: DropdownWidget(
+                        label: 'Area Type',
+                    items: areaTypes,
+                    onSelected: (value) {
+                      setState(() {
+                        areaSystemController = value;
+                      });
+                    },
+                  )),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _textField("Area Code", areaCodeController),
+                    child: textField("Area Code", areaCodeController),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              _textField("Area Name", areaNameController),
+              textField("Area Name", areaNameController),
               const SizedBox(height: 8),
-              DropdownTextField(
-                items: faoMajorAreas,
-                label: 'FAO Mojor Area',
-                controller: faoMajorAreaController,
-                onValidate: validateDropdown(
-                    list: faoMajorAreas, controller: faoMajorAreaController),
-              ),
+              DropdownWidget(
+                label: 'Fao Major Area',
+                  items: faoMajorAreas,
+                  onSelected: (value) {
+                    setState(() {
+                      faoMajorAreaController = value;
+                    });
+                  })
             ],
           ),
         ),
@@ -356,22 +332,22 @@ class _SearchfisheriesState extends State<Searchfisheries> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownTextField(
-                      items: gearTypes,
-                      label: 'Fishing Gear System',
-                      controller: gearSystemController,
-                      onValidate: validateDropdown(
-                          list: gearTypes, controller: gearSystemController),
-                    ),
-                  ),
+                      child: DropdownWidget(
+                        label: 'Fishing Gear Type',
+                          items: gearTypes,
+                          onSelected: (value) {
+                            setState(() {
+                              gearSystemController = value;
+                            });
+                          })),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: _textField("Fishing Gear Code", gearCodeController),
+                    child: textField("Fishing Gear Code", gearCodeController),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              _textField("Fishing Gear Name", gearNameController),
+              textField("Fishing Gear Name", gearNameController),
             ],
           ),
         ),
@@ -407,25 +383,24 @@ class _SearchfisheriesState extends State<Searchfisheries> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownTextField(
-                      items: resourceType,
-                      label: 'Resource Type',
-                      controller: resourceTypeController,
-                      onValidate: validateDropdown(
-                          list: resourceType,
-                          controller: resourceTypeController),
-                    ),
-                  ),
+                      child: DropdownWidget(
+                        label: 'Resource Type',
+                          items: resourceType,
+                          onSelected: (value) {
+                            setState(() {
+                              resourceTypeController = value;
+                            });
+                          })),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: DropdownTextField(
-                      items: resourceStatus,
+                    child: DropdownWidget(
                       label: 'Resource Status',
-                      controller: resourceStatusController,
-                      onValidate: validateDropdown(
-                          list: resourceStatus,
-                          controller: resourceStatusController),
-                    ),
+                        items: resourceStatus,
+                        onSelected: (value) {
+                          setState(() {
+                            resourceStatusController = value;
+                          });
+                        }),
                   ),
                 ],
               ),
@@ -459,13 +434,14 @@ class _SearchfisheriesState extends State<Searchfisheries> {
             color: const Color(0xffd9dcd6),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: DropdownTextField(
-            items: flagCodes,
+          child: DropdownWidget(
             label: 'Flag Code',
-            controller: flagCodeController,
-            onValidate: validateDropdown(
-                list: flagCodes, controller: flagCodeController),
-          ),
+              items: flagCodes,
+              onSelected: (value) {
+                setState(() {
+                  flagCodeController = value;
+                });
+              }),
         ),
       ],
     );
@@ -499,18 +475,19 @@ class _SearchfisheriesState extends State<Searchfisheries> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownTextField(
-                      items: timeseries,
-                      label: 'Timeseries',
-                      controller: timeseriesController,
-                      onValidate: validateDropdown(
-                          list: timeseries, controller: timeseriesController),
-                    ),
+                    child: DropdownWidget(
+                      label: 'Timeserie',
+                        items: timeseries,
+                        onSelected: (value) {
+                          setState(() {
+                            timeseriesController = value;
+                          });
+                        }),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              _textField("Reference Year", refYear),
+              textField("Reference Year", refYear),
             ],
           ),
         ),
@@ -575,51 +552,6 @@ class _SearchfisheriesState extends State<Searchfisheries> {
                   ),
                 ),
               ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _textField(String label, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 10, bottom: 4),
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Color(0xff16425B),
-            ),
-          ),
-        ),
-        TextField(
-          controller: controller,
-          style: const TextStyle(color: Color(0xff16425B)),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-            suffixIcon: GestureDetector(
-              onTap: () {
-                controller.clear();
-              },
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Icon(
-                  Icons.cancel,
-                  color: Color(0xff16425B),
-                ),
-              ),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Color(0xff16425B)),
             ),
           ),
         ),

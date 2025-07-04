@@ -7,7 +7,8 @@ import 'package:grsfApp/models/fishingGear.dart';
 import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/models/speciesForStock.dart';
 import 'package:grsfApp/models/stockOwner.dart';
-import 'package:path/path.dart';
+// import 'package:path/path.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 
 Widget dataDisplay({required String label, required String value}) {
   if (value.isNotEmpty) {
@@ -162,6 +163,7 @@ Widget iButton({
   required VoidCallback onPressed,
   required IconData? icon,
   required String assetPath,
+  required double iconSize,
 }) {
   return IconButton(
     onPressed: onPressed,
@@ -169,7 +171,7 @@ Widget iButton({
         ? Icon(
             icon,
             color: const Color(0xff16425B),
-            size: 24,
+            size: iconSize,
           )
         : Image.asset(
             assetPath,
@@ -327,38 +329,6 @@ Widget dataList<T>({
   );
 }
 
-// Widget dataList<T>({required List<T>? items}) {
-//   if (items == null) {
-//     return const Center(
-//       child: Text(
-//         'No data available',
-//         style: TextStyle(color: Color(0xffd9dcd6)),
-//       ),
-//     );
-//   }
-
-//   items = items.toList();
-
-//   return Container(
-//     margin: const EdgeInsets.symmetric(horizontal: 5),
-//     padding: const EdgeInsets.all(10),
-//     child: items.isEmpty
-//         ? const Center(
-//             child: Text(
-//               'No data found',
-//               style: TextStyle(color: Color(0xffd9dcd6)),
-//             ),
-//           )
-//         : ListView.builder(
-//             itemCount: items.length,
-//             itemBuilder: (context, index) {
-//               final item = items?[index];
-//               return listViewItem(item: item);
-//             },
-//           ),
-//   );
-// }
-
 Widget listViewItem({
   dynamic item,
   String name = '',
@@ -442,5 +412,50 @@ Padding listTitle({required String title}) {
         color: Color(0xffd9dcd6),
       ),
     ),
+  );
+}
+
+Widget textField(String label, TextEditingController controller) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.only(left: 10, bottom: 4),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Color(0xff16425B),
+          ),
+        ),
+      ),
+      TextField(
+        controller: controller,
+        style: const TextStyle(color: Color(0xff16425B)),
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+          suffixIcon: GestureDetector(
+            onTap: () {
+              controller.clear();
+            },
+            child: const Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: Icon(
+                Icons.cancel,
+                color: Color(0xff16425B),
+              ),
+            ),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Color(0xff16425B)),
+          ),
+        ),
+      ),
+    ],
   );
 }

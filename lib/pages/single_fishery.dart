@@ -725,6 +725,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                         onPressed: () => openSourceLink(
                             _responseData!["result"]["source_urls"][0] ?? ''),
                         assetPath: '',
+                        iconSize: 24
                       ),
                     )
                 ],

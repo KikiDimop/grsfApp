@@ -52,7 +52,7 @@ class SpeciesDetailsScreen extends StatelessWidget {
               _buildExpandableCard(
                   title: "Common Names",
                   content: _buildCommonNamesList(species.commonNames!),
-                  isExpanded: false),
+                  isExpanded: true),
             const SizedBox(height: 16),
             Row(
               children: [

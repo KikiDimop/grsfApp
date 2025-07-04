@@ -337,8 +337,7 @@ class DatabaseService {
       if (fields?.selectedFAOMajorArea != null &&
           fields!.selectedFAOMajorArea.isNotEmpty) {
         conditions.add("s.parent_areas LIKE ?");
-        parameters.add(
-            '${'%' + fields.selectedFAOMajorArea}%');
+        parameters.add('${'%' + fields.selectedFAOMajorArea}%');
       }
       if (fields?.selectedResourceType != null &&
           fields!.selectedResourceType.isNotEmpty) {
@@ -355,7 +354,7 @@ class DatabaseService {
         query += " AND ${conditions.join(" AND ")}";
       }
     } else {
-      query += ''' WHERE uuid in (
+      query += ''' s WHERE uuid in (
         SELECT uuid FROM SpeciesForStock WHERE ''';
 
       if (fields.speciesName.isNotEmpty) {
@@ -368,6 +367,9 @@ class DatabaseService {
       }
     }
     query += ' GROUP BY s.UUID';
+
+    print(query);
+    print(parameters);
 
     final result = await db.rawQuery(query, parameters);
 
@@ -448,7 +450,8 @@ class DatabaseService {
       query += " AND ${conditions.join(" AND ")}";
     }
 
-
+    print(query);
+    print(parameters);
     final result = await db.rawQuery(query, parameters);
     return result.map((json) => fromMap(json)).toList();
   }

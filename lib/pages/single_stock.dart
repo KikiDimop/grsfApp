@@ -610,6 +610,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                         onPressed: () =>
                             showMap(context, 'Map', widget.stock.uuid ?? ''),
                         icon: null,
+                        iconSize: 24
                       ),
                       const Spacer(),
                       if (isExistDataFromAPI)
@@ -621,6 +622,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                                   []),
                               context),
                           assetPath: '',
+                        iconSize: 24
                         ),
                     ],
                   )

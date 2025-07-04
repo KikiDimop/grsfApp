@@ -63,7 +63,7 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
       body: Column(
         children: [
           _searchField(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 5),
           Expanded(
             child: _results(),
           ),
