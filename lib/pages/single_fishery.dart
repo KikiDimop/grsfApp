@@ -129,7 +129,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
         _responseData = null;
         isLoading2 = false;
       });
-      print('Error fetching API data: $e');
+      debugPrint('Error fetching API data: $e');
     }
   }
 
@@ -153,7 +153,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
       setState(() {
         _responseDataInfo = null;
       });
-      print('Error fetching API data: $e');
+      debugPrint('Error fetching API data: $e');
     }
   }
 
@@ -716,17 +716,15 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                     dataDisplay(
                         label: 'UUID', value: _responseData!["result"]["uuid"]),
                   dataDisplay(label: 'Type', value: widget.fishery.type ?? ''),
-
                   if (isExistDataFromAPI)
                     Align(
                       alignment: Alignment.centerRight,
                       child: iButton(
-                        icon: Icons.link,
-                        onPressed: () => openSourceLink(
-                            _responseData!["result"]["source_urls"][0] ?? ''),
-                        assetPath: '',
-                        iconSize: 24
-                      ),
+                          icon: Icons.link,
+                          onPressed: () => openSourceLink(
+                              _responseData!["result"]["source_urls"][0] ?? ''),
+                          assetPath: '',
+                          iconSize: 24),
                     )
                 ],
               ),

@@ -1,9 +1,8 @@
 import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/pages/fisheries.dart';
 import 'package:grsfApp/services/database_service.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:grsfApp/widgets/dropdown.dart';
+import 'package:grsfApp/widgets/autocomplete.dart';
 import 'package:grsfApp/widgets/global_ui.dart';
 
 class Searchfisheries extends StatefulWidget {
@@ -14,22 +13,27 @@ class Searchfisheries extends StatefulWidget {
 }
 
 class _SearchfisheriesState extends State<Searchfisheries> {
-  TextEditingController speciesCodeController = TextEditingController();
-  TextEditingController speciesNameController = TextEditingController();
-  TextEditingController areaCodeController = TextEditingController();
-  TextEditingController areaNameController = TextEditingController();
-  TextEditingController gearCodeController = TextEditingController();
-  TextEditingController gearNameController = TextEditingController();
-  TextEditingController refYear = TextEditingController();
-
   List<String> speciesTypes = [];
+  List<String> speciesCodes = [];
+  List<String> speciesNames = [];
+
   List<String> areaTypes = [];
-  List<String> gearTypes = [];
+  List<String> areaCodes = [];
+  List<String> areaNames = [];
+
   List<String> faoMajorAreas = [];
+
+  List<String> gearTypes = [];
+  List<String> gearCodes = [];
+  List<String> gearNames = [];
+
   List<String> resourceType = [];
   List<String> resourceStatus = [];
+
   List<String> flagCodes = [];
+
   List<String> timeseries = ['Catch', 'Landing'];
+  List<String> refYears = [];
 
   @override
   void initState() {
@@ -39,14 +43,18 @@ class _SearchfisheriesState extends State<Searchfisheries> {
 
   Future<void> _loadDropdownLists() async {
     final dbService = DatabaseService.instance;
+
+    //Get distinct data for search in table Fishery
     final List<String> fetchedSpeciesTypes =
         await dbService.getDistinct('species_type', 'Fishery');
-    final List<String> fetchedAreaTypes =
-        await dbService.getDistinct('area_type', 'AreasForFishery');
+    final List<String> fetchedSpeciesCodes =
+        await dbService.getDistinct('species_code', 'Fishery');
+    final List<String> fetchedSpeciesNames =
+        await dbService.getDistinct('species_name', 'Fishery');
     final List<String> fetchedGearTypes =
         await dbService.getDistinct('gear_type', 'Fishery');
-    final List<String> fetchedFAOMajorAreas =
-        await dbService.getDistinct('fao_major_area_concat', 'FaoMajorArea');
+    final List<String> fetchedGearCodes =
+        await dbService.getDistinct('gear_code', 'Fishery');
     final List<String> fetchedResourceType =
         await dbService.getDistinct('type', 'Fishery');
     final List<String> fetchedResourceStatus =
@@ -54,49 +62,63 @@ class _SearchfisheriesState extends State<Searchfisheries> {
     final List<String> fetchedFlagCodes =
         await dbService.getDistinct('flag_code', 'Fishery');
 
+    //Get distinct data for search in table AreasForFishery
+    final List<String> fetchedAreaTypes =
+        await dbService.getDistinct('area_type', 'AreasForFishery');
+    final List<String> fetchedAreaCodes =
+        await dbService.getDistinct('area_code', 'AreasForFishery');
+    final List<String> fetchedAreaNames =
+        await dbService.getDistinct('area_name', 'AreasForFishery');
+
+    //Get distinct data for search in table Gear
+    final List<String> fetchedGearNames =
+        await dbService.getDistinct('fishing_gear_name', 'Gear');
+
+    //Get distinct data for search in table FaoMajorArea
+    final List<String> fetchedFAOMajorAreas =
+        await dbService.getDistinct('fao_major_area_concat', 'FaoMajorArea');
+
     setState(() {
       speciesTypes = fetchedSpeciesTypes;
+      speciesCodes = fetchedSpeciesCodes;
+      speciesNames = fetchedSpeciesNames;
+
       areaTypes = fetchedAreaTypes;
-      gearTypes = fetchedGearTypes;
+      areaCodes = fetchedAreaCodes;
+      areaNames = fetchedAreaNames;
       faoMajorAreas = fetchedFAOMajorAreas;
+
+      gearTypes = fetchedGearTypes;
+      gearNames = fetchedGearNames;
+      gearCodes = fetchedGearCodes;
+
       resourceType = fetchedResourceType;
       resourceStatus = fetchedResourceStatus;
+
       flagCodes = fetchedFlagCodes;
     });
   }
 
-  String timeseriesController = '';
-  String flagCodeController = '';
-  String speciesSystemController = '';
-  String areaSystemController = '';
-  String faoMajorAreaController = '';
-  String gearSystemController = '';
-  String resourceTypeController = '';
-  String resourceStatusController = '';
+  String spType = '';
+  String spCode = '';
+  String spName = '';
 
-  validateDropdown(
-      {required List<String> list, required TextEditingController controller}) {
-    final input = controller.text.trim();
-    String? matchedItem;
+  String aType = '';
+  String aCode = '';
+  String aName = '';
+  String faoMajArea = '';
 
-    // Find a case-insensitive match
-    for (var item in list) {
-      if (item.toLowerCase() == input.toLowerCase()) {
-        matchedItem = item;
-        break;
-      }
-    }
+  String gType = '';
+  String gCode = '';
+  String gName = '';
 
-    if (input.isNotEmpty && matchedItem == null) {
-      setState(() {
-        controller.clear();
-      });
-    } else if (input.isNotEmpty && matchedItem != null) {
-      setState(() {
-        controller.text = matchedItem!;
-      });
-    }
-  }
+  String flagCode = '';
+
+  String rType = '';
+  String rStatus = '';
+
+  String timeserie = '';
+  TextEditingController refYear = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -174,24 +196,46 @@ class _SearchfisheriesState extends State<Searchfisheries> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownWidget(
-                      label: 'Species Type',
-                      items: speciesTypes,
-                      onSelected: (value) {
-                        setState(() {
-                          speciesSystemController = value;
-                        });
+                    child: CustomAutocomplete(
+                      suggestions: speciesTypes,
+                      labelText: 'Species Type',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        spType = selection;
+                      },
+                      onCleared: () {
+                        spType = '';
                       },
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: textField("Species Code", speciesCodeController),
+                    child: CustomAutocomplete(
+                      suggestions: speciesCodes,
+                      labelText: 'Species Code',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        spCode = selection;
+                      },
+                      onCleared: () {
+                        spCode = '';
+                      },
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              textField("Scientific Name", speciesNameController),
+              CustomAutocomplete(
+                suggestions: speciesNames,
+                labelText: 'Scientific Name',
+                hintText: '',
+                onSelected: (String selection) {
+                  spName = selection;
+                },
+                onCleared: () {
+                  spName = '';
+                },
+              ),
             ],
           ),
         ),
@@ -203,19 +247,19 @@ class _SearchfisheriesState extends State<Searchfisheries> {
     return ElevatedButton(
       onPressed: () {
         SearchFishery searchFishery = SearchFishery(
-          selectedSpeciesSystem: speciesSystemController,
-          speciesCode: speciesCodeController.text,
-          speciesName: speciesNameController.text,
-          selectedAreaSystem: areaSystemController,
-          areaCode: areaCodeController.text,
-          areaName: areaNameController.text,
-          selectedGearSystem: gearSystemController,
-          gearCode: gearCodeController.text,
-          gearName: gearNameController.text,
-          selectedFAOMajorArea: faoMajorAreaController,
-          selectedResourceType: resourceTypeController,
-          selectedResourceStatus: resourceStatusController,
-          flagCode: flagCodeController,
+          selectedSpeciesSystem: spType, //speciesSystemController,
+          speciesCode: spCode, //speciesCodeController.text,
+          speciesName: spName, //speciesNameController.text,
+          selectedAreaSystem: aType,
+          areaCode: aCode,
+          areaName: aName,
+          selectedGearSystem: gType,
+          gearCode: gCode,
+          gearName: gName,
+          selectedFAOMajorArea: faoMajArea,
+          selectedResourceType: rType,
+          selectedResourceStatus: rStatus,
+          flagCode: flagCode,
         );
         Navigator.push(
           context,
@@ -271,32 +315,58 @@ class _SearchfisheriesState extends State<Searchfisheries> {
               Row(
                 children: [
                   Expanded(
-                      child: DropdownWidget(
-                        label: 'Area Type',
-                    items: areaTypes,
-                    onSelected: (value) {
-                      setState(() {
-                        areaSystemController = value;
-                      });
-                    },
-                  )),
+                    child: CustomAutocomplete(
+                      suggestions: areaTypes,
+                      labelText: 'Area Type',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        aType = selection;
+                      },
+                      onCleared: () {
+                        aType = '';
+                      },
+                    ),
+                  ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: textField("Area Code", areaCodeController),
+                    child: CustomAutocomplete(
+                      suggestions: areaCodes,
+                      labelText: 'Area Code',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        aCode = selection;
+                      },
+                      onCleared: () {
+                        aCode = '';
+                      },
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              textField("Area Name", areaNameController),
+              CustomAutocomplete(
+                suggestions: areaNames,
+                labelText: 'Area Name',
+                hintText: '',
+                onSelected: (String selection) {
+                  aName = selection;
+                },
+                onCleared: () {
+                  aName = '';
+                },
+              ),
               const SizedBox(height: 8),
-              DropdownWidget(
-                label: 'Fao Major Area',
-                  items: faoMajorAreas,
-                  onSelected: (value) {
-                    setState(() {
-                      faoMajorAreaController = value;
-                    });
-                  })
+              CustomAutocomplete(
+                suggestions: faoMajorAreas,
+                labelText: 'Fao Major Area',
+                hintText: '',
+                onSelected: (String selection) {
+                  faoMajArea = selection;
+                },
+                onCleared: () {
+                  faoMajArea = '';
+                },
+              ),
             ],
           ),
         ),
@@ -332,22 +402,46 @@ class _SearchfisheriesState extends State<Searchfisheries> {
               Row(
                 children: [
                   Expanded(
-                      child: DropdownWidget(
-                        label: 'Fishing Gear Type',
-                          items: gearTypes,
-                          onSelected: (value) {
-                            setState(() {
-                              gearSystemController = value;
-                            });
-                          })),
+                    child: CustomAutocomplete(
+                      suggestions: gearTypes,
+                      labelText: 'Fishing Gear Type',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        gType = selection;
+                      },
+                      onCleared: () {
+                        gType = '';
+                      },
+                    ),
+                  ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: textField("Fishing Gear Code", gearCodeController),
+                    child: CustomAutocomplete(
+                      suggestions: gearCodes,
+                      labelText: 'Fishing Gear Codes',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        gCode = selection;
+                      },
+                      onCleared: () {
+                        gCode = '';
+                      },
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              textField("Fishing Gear Name", gearNameController),
+              CustomAutocomplete(
+                suggestions: gearNames,
+                labelText: 'Fishing Gear Name',
+                hintText: '',
+                onSelected: (String selection) {
+                  gName = selection;
+                },
+                onCleared: () {
+                  gName = '';
+                },
+              ),
             ],
           ),
         ),
@@ -383,24 +477,31 @@ class _SearchfisheriesState extends State<Searchfisheries> {
               Row(
                 children: [
                   Expanded(
-                      child: DropdownWidget(
-                        label: 'Resource Type',
-                          items: resourceType,
-                          onSelected: (value) {
-                            setState(() {
-                              resourceTypeController = value;
-                            });
-                          })),
+                    child: CustomAutocomplete(
+                      suggestions: resourceType,
+                      labelText: 'Resource Type',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        rType = selection;
+                      },
+                      onCleared: () {
+                        rType = '';
+                      },
+                    ),
+                  ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: DropdownWidget(
-                      label: 'Resource Status',
-                        items: resourceStatus,
-                        onSelected: (value) {
-                          setState(() {
-                            resourceStatusController = value;
-                          });
-                        }),
+                    child: CustomAutocomplete(
+                      suggestions: resourceStatus,
+                      labelText: 'Resource Status',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        rStatus = selection;
+                      },
+                      onCleared: () {
+                        rStatus = '';
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -434,14 +535,17 @@ class _SearchfisheriesState extends State<Searchfisheries> {
             color: const Color(0xffd9dcd6),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: DropdownWidget(
-            label: 'Flag Code',
-              items: flagCodes,
-              onSelected: (value) {
-                setState(() {
-                  flagCodeController = value;
-                });
-              }),
+          child: CustomAutocomplete(
+            suggestions: flagCodes,
+            labelText: 'Flag Code',
+            hintText: '',
+            onSelected: (String selection) {
+              flagCode = selection;
+            },
+            onCleared: () {
+              flagCode = '';
+            },
+          ),
         ),
       ],
     );
@@ -475,84 +579,23 @@ class _SearchfisheriesState extends State<Searchfisheries> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownWidget(
-                      label: 'Timeserie',
-                        items: timeseries,
-                        onSelected: (value) {
-                          setState(() {
-                            timeseriesController = value;
-                          });
-                        }),
+                    child: CustomAutocomplete(
+                      suggestions: timeseries,
+                      labelText: 'Timeserie',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        timeserie = selection;
+                      },
+                      onCleared: () {
+                        timeserie = '';
+                      },
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
               textField("Reference Year", refYear),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _dropdownField(String label, List<String> items, String? selectedValue,
-      void Function(String?) onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (label != '')
-          Padding(
-            padding: const EdgeInsets.only(left: 10, bottom: 4),
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Color(0xff16425B),
-              ),
-            ),
-          ),
-        SizedBox(
-          height: 48,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: const Color(0xffd9dcd6),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xff16425B)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton2<String>(
-                  isExpanded: true,
-                  value: selectedValue,
-                  style: const TextStyle(
-                    color: Color(0xff16425B),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                  items: items.map((item) {
-                    return DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(item),
-                    );
-                  }).toList(),
-                  dropdownStyleData: DropdownStyleData(
-                    decoration: BoxDecoration(
-                      color: const Color(0xffd9dcd6),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onChanged: onChanged,
-                  iconStyleData: const IconStyleData(
-                    icon: Icon(Icons.arrow_drop_down),
-                  ),
-                  buttonStyleData: const ButtonStyleData(
-                    padding: EdgeInsets.only(right: 10),
-                  ),
-                ),
-              ),
-            ),
           ),
         ),
       ],

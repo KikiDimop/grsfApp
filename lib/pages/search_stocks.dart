@@ -1,9 +1,8 @@
 import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/pages/stocks.dart';
 import 'package:grsfApp/services/database_service.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:grsfApp/widgets/dropdown.dart';
+import 'package:grsfApp/widgets/autocomplete.dart';
 import 'package:grsfApp/widgets/global_ui.dart';
 
 class Searchstocks extends StatefulWidget {
@@ -14,17 +13,20 @@ class Searchstocks extends StatefulWidget {
 }
 
 class _SearchstocksState extends State<Searchstocks> {
-  TextEditingController speciesCodeController = TextEditingController();
-  TextEditingController speciesNameController = TextEditingController();
-  TextEditingController areaCodeController = TextEditingController();
-  TextEditingController areaNameController = TextEditingController();
-  TextEditingController refYear = TextEditingController();
-
   List<String> speciesTypes = [];
+  List<String> speciesCodes = [];
+  List<String> speciesNames = [];
+
   List<String> areaTypes = [];
+  List<String> areaCodes = [];
+  List<String> areaNames = [];
+
   List<String> faoMajorAreas = [];
   List<String> resourceType = [];
   List<String> resourceStatus = [];
+
+  List<String> refYears = [];
+
   List<String> timeseries = [
     'Abundance Level',
     'Abundance Level - Standard',
@@ -48,12 +50,24 @@ class _SearchstocksState extends State<Searchstocks> {
 
   Future<void> _loadDropdownLists() async {
     final dbService = DatabaseService.instance;
+    //Get distinct data for search in table SpeciesForStock
     final List<String> fetchedSpeciesTypes =
         await dbService.getDistinct('species_type', 'SpeciesForStock');
+    final List<String> fetchedSpeciesCodes =
+        await dbService.getDistinct('species_code', 'SpeciesForStock');
+    final List<String> fetchedSpeciesNames =
+        await dbService.getDistinct('species_name', 'SpeciesForStock');
+    //Get distinct data for search in table AreasForStock
     final List<String> fetchedAreaTypes =
         await dbService.getDistinct('area_type', 'AreasForStock');
+    final List<String> fetchedAreaCodes =
+        await dbService.getDistinct('area_code', 'AreasForStock');
+    final List<String> fetchedAreaNames =
+        await dbService.getDistinct('area_name', 'AreasForStock');
+    //Get distinct data for search in table FaoMajorArea
     final List<String> fetchedFAOMajorAreas =
         await dbService.getDistinct('fao_major_area_concat', 'FaoMajorArea');
+    //Get distinct data for search in table Stock
     final List<String> fetchedResourceType =
         await dbService.getDistinct('type', 'Stock');
     final List<String> fetchedResourceStatus =
@@ -61,43 +75,34 @@ class _SearchstocksState extends State<Searchstocks> {
 
     setState(() {
       speciesTypes = fetchedSpeciesTypes;
+      speciesCodes = fetchedSpeciesCodes;
+      speciesNames = fetchedSpeciesNames;
+
       areaTypes = fetchedAreaTypes;
+      areaCodes = fetchedAreaCodes;
+      areaNames = fetchedAreaNames;
       faoMajorAreas = fetchedFAOMajorAreas;
+
       resourceType = fetchedResourceType;
       resourceStatus = fetchedResourceStatus;
     });
   }
 
-  String speciesTypesController = '';
-  String areaTypesController = '';
-  String faoMajorAreaController = '';
-  String resourceTypeController = '';
-  String resourceStatusController = '';
-  String timeseriesController = '';
+  String spType = '';
+  String spCode = '';
+  String spName = '';
 
-  validateDropdown(
-      {required List<String> list, required TextEditingController controller}) {
-    final input = controller.text.trim();
-    String? matchedItem;
+  String aType = '';
+  String aCode = '';
+  String aName = '';
+  String faoMajArea = '';
 
-    // Find a case-insensitive match
-    for (var item in list) {
-      if (item.toLowerCase() == input.toLowerCase()) {
-        matchedItem = item;
-        break;
-      }
-    }
+  String rType = '';
+  String rStatus = '';
 
-    if (input.isNotEmpty && matchedItem == null) {
-      setState(() {
-        controller.clear();
-      });
-    } else if (input.isNotEmpty && matchedItem != null) {
-      setState(() {
-        controller.text = matchedItem!;
-      });
-    }
-  }
+  String timeserie = '';
+
+  TextEditingController refYear = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -169,24 +174,46 @@ class _SearchstocksState extends State<Searchstocks> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownWidget(
-                      label: 'Species Type',
-                      items: speciesTypes,
-                      onSelected: (value) {
-                        setState(() {
-                          speciesTypesController = value;
-                        });
+                    child: CustomAutocomplete(
+                      suggestions: speciesTypes,
+                      labelText: 'Species Type',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        spType = selection;
+                      },
+                      onCleared: () {
+                        spType = '';
                       },
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: textField("Species Code", speciesCodeController),
+                    child: CustomAutocomplete(
+                      suggestions: speciesCodes,
+                      labelText: 'Species Code',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        spCode = selection;
+                      },
+                      onCleared: () {
+                        spCode = '';
+                      },
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              textField("Scientific Name", speciesNameController),
+              CustomAutocomplete(
+                suggestions: speciesNames,
+                labelText: 'Scientific Name',
+                hintText: '',
+                onSelected: (String selection) {
+                  spName = selection;
+                },
+                onCleared: () {
+                  spName = '';
+                },
+              ),
             ],
           ),
         ),
@@ -198,15 +225,15 @@ class _SearchstocksState extends State<Searchstocks> {
     return ElevatedButton(
       onPressed: () {
         final searchStock = SearchStock(
-          selectedSpeciesSystem: speciesTypesController,
-          speciesCode: speciesCodeController.text,
-          speciesName: speciesNameController.text,
-          selectedAreaSystem: areaTypesController,
-          areaCode: areaCodeController.text,
-          areaName: areaNameController.text,
-          selectedFAOMajorArea: faoMajorAreaController,
-          selectedResourceType: resourceTypeController,
-          selectedResourceStatus: resourceStatusController,
+          selectedSpeciesSystem: spType,
+          speciesCode: spCode,
+          speciesName: spName,
+          selectedAreaSystem: aType,
+          areaCode: aCode,
+          areaName: aName,
+          selectedFAOMajorArea: faoMajArea,
+          selectedResourceType: rType,
+          selectedResourceStatus: rStatus,
         );
 
         Navigator.push(
@@ -215,7 +242,7 @@ class _SearchstocksState extends State<Searchstocks> {
             builder: (context) => Stocks(
                 search: searchStock,
                 forSpecies: false,
-                timeseries: timeseriesController,
+                timeseries: timeserie,
                 refYear: refYear.text),
           ),
         );
@@ -267,32 +294,56 @@ class _SearchstocksState extends State<Searchstocks> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownWidget(
-                      label: 'Area Type',
-                      items: areaTypes,
-                      onSelected: (value) {
-                        setState(() {
-                          areaTypesController = value;
-                        });
+                    child: CustomAutocomplete(
+                      suggestions: areaTypes,
+                      labelText: 'Area Type',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        aType = selection;
+                      },
+                      onCleared: () {
+                        aType = '';
                       },
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: textField("Area Code", areaCodeController),
+                    child: CustomAutocomplete(
+                      suggestions: areaCodes,
+                      labelText: 'Area Code',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        aCode = selection;
+                      },
+                      onCleared: () {
+                        aCode = '';
+                      },
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              textField("Area Name", areaNameController),
+              CustomAutocomplete(
+                suggestions: areaNames,
+                labelText: 'Area Name',
+                hintText: '',
+                onSelected: (String selection) {
+                  aName = selection;
+                },
+                onCleared: () {
+                  aName = '';
+                },
+              ),
               const SizedBox(height: 8),
-              DropdownWidget(
-                label: 'Fao Major Area',
-                items: faoMajorAreas,
-                onSelected: (value) {
-                  setState(() {
-                    faoMajorAreaController = value;
-                  });
+              CustomAutocomplete(
+                suggestions: faoMajorAreas,
+                labelText: 'Fao Major Area',
+                hintText: '',
+                onSelected: (String selection) {
+                  faoMajArea = selection;
+                },
+                onCleared: () {
+                  faoMajArea = '';
                 },
               ),
             ],
@@ -330,25 +381,29 @@ class _SearchstocksState extends State<Searchstocks> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownWidget(
-                      label: 'Resource Type',
-                      items: resourceType,
-                      onSelected: (value) {
-                        setState(() {
-                          resourceTypeController = value;
-                        });
+                    child: CustomAutocomplete(
+                      suggestions: resourceType,
+                      labelText: 'Resource Type',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        rType = selection;
+                      },
+                      onCleared: () {
+                        rType = '';
                       },
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: DropdownWidget(
-                      label: 'Resource Status',
-                      items: resourceStatus,
-                      onSelected: (value) {
-                        setState(() {
-                          resourceStatusController = value;
-                        });
+                    child: CustomAutocomplete(
+                      suggestions: resourceStatus,
+                      labelText: 'Resource Status',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        rStatus = selection;
+                      },
+                      onCleared: () {
+                        rStatus = '';
                       },
                     ),
                   ),
@@ -389,13 +444,15 @@ class _SearchstocksState extends State<Searchstocks> {
               Row(
                 children: [
                   Expanded(
-                    child: DropdownWidget(
-                      label: 'Timeserie',
-                      items: timeseries,
-                      onSelected: (value) {
-                        setState(() {
-                          timeseriesController = value;
-                        });
+                    child: CustomAutocomplete(
+                      suggestions: timeseries,
+                      labelText: 'Timeserie',
+                      hintText: '',
+                      onSelected: (String selection) {
+                        timeserie = selection;
+                      },
+                      onCleared: () {
+                        timeserie = '';
                       },
                     ),
                   ),

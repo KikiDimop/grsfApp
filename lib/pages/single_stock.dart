@@ -121,7 +121,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
         _responseData = null;
         isLoading2 = false;
       });
-      print('Error fetching API data: $e');
+      debugPrint('Error fetching API data: $e');
     }
   }
 
@@ -145,7 +145,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
       setState(() {
         _responseDataInfo = null;
       });
-      print('Error fetching API data: $e');
+      debugPrint('Error fetching API data: $e');
     }
   }
 
@@ -606,24 +606,22 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                   Row(
                     children: [
                       iButton(
-                        assetPath: 'assets/icons/map.png',
-                        onPressed: () =>
-                            showMap(context, 'Map', widget.stock.uuid ?? ''),
-                        icon: null,
-                        iconSize: 24
-                      ),
+                          assetPath: 'assets/icons/map.png',
+                          onPressed: () =>
+                              showMap(context, 'Map', widget.stock.uuid ?? ''),
+                          icon: null,
+                          iconSize: 24),
                       const Spacer(),
                       if (isExistDataFromAPI)
                         iButton(
-                          icon: Icons.link,
-                          onPressed: () => sourceLink(
-                              List<String>.from(_responseData!["result"]
-                                      ["source_urls"] ??
-                                  []),
-                              context),
-                          assetPath: '',
-                        iconSize: 24
-                        ),
+                            icon: Icons.link,
+                            onPressed: () => sourceLink(
+                                List<String>.from(_responseData!["result"]
+                                        ["source_urls"] ??
+                                    []),
+                                context),
+                            assetPath: '',
+                            iconSize: 24),
                     ],
                   )
                 ],

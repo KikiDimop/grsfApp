@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:csv/csv.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
@@ -9,7 +10,7 @@ class CsvService {
   static Future<void> downloadCsvData(url) async {
     String filename = 'data.csv';
     String filePath = await downloadAndSaveCSV(url, filename);
-    print('CSV saved to: $filePath');
+    debugPrint('CSV saved to: $filePath');
   }
 
   static Future<List<Map<String, dynamic>>> loadCsvData(String filePath) async {
@@ -62,7 +63,7 @@ class CsvService {
         return rowMap;
       }).toList();
     } catch (e) {
-      print('[loadCsvData] Error loading CSV: $e');
+      debugPrint('[loadCsvData] Error loading CSV: $e');
       rethrow;
     }
   }

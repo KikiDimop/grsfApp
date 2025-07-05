@@ -96,7 +96,7 @@ class _StocksState extends State<Stocks> {
         _responseData = null;
         isLoading2 = false;
       });
-      print('Error fetching API data: $e');
+      debugPrint('Error fetching API data: $e');
     }
   }
 
@@ -131,7 +131,7 @@ class _StocksState extends State<Stocks> {
       }
 
       Set<String> apiIdSet = apiIds.toSet();
-      //print(apiIdSet.toString());
+      //debugPrint(apiIdSet.toString());
 
       List<Stock> filteredStocks = stocks
               ?.where((stock) =>
@@ -140,7 +140,7 @@ class _StocksState extends State<Stocks> {
           [];
 
       // for (var s in filteredStocks) {
-      //   print(s .uuid);
+      //   debugPrint(s .uuid);
       // }
 
       setState(() {
@@ -154,7 +154,7 @@ class _StocksState extends State<Stocks> {
         error = e.toString();
         isLoading2 = false;
       });
-      print('Error merging and filtering stocks: $e');
+      debugPrint('Error merging and filtering stocks: $e');
     }
   }
 

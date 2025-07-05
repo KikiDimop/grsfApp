@@ -127,7 +127,7 @@ class _UpdateDataScreenState extends State<UpdateDataScreen> {
         _isLoading = false;
         stopwatch.stop();
         final neededTime = stopwatch.elapsed;
-        print('Needed Time : ${neededTime.inSeconds} seconds');
+        debugPrint('Needed Time : ${neededTime.inSeconds} seconds');
       });
     }
   }
