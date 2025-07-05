@@ -7,8 +7,6 @@ import 'package:grsfApp/models/fishingGear.dart';
 import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/models/speciesForStock.dart';
 import 'package:grsfApp/models/stockOwner.dart';
-// import 'package:path/path.dart';
-import 'package:dropdown_search/dropdown_search.dart';
 
 Widget dataDisplay({required String label, required String value}) {
   if (value.isNotEmpty) {
@@ -435,7 +433,7 @@ Widget textField(String label, TextEditingController controller) {
         style: const TextStyle(color: Color(0xff16425B)),
         decoration: InputDecoration(
           filled: true,
-          fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
+          fillColor: const Color(0xffd9dcd6),
           contentPadding:
               const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
           suffixIcon: GestureDetector(
@@ -459,3 +457,4 @@ Widget textField(String label, TextEditingController controller) {
     ],
   );
 }
+

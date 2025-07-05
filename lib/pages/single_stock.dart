@@ -121,7 +121,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
         _responseData = null;
         isLoading2 = false;
       });
-      debugPrint('Error fetching API data: $e');
+      //debugPrint('Error fetching API data: $e');
     }
   }
 
@@ -145,7 +145,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
       setState(() {
         _responseDataInfo = null;
       });
-      debugPrint('Error fetching API data: $e');
+      //debugPrint('Error fetching API data: $e');
     }
   }
 

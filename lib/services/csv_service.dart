@@ -10,7 +10,7 @@ class CsvService {
   static Future<void> downloadCsvData(url) async {
     String filename = 'data.csv';
     String filePath = await downloadAndSaveCSV(url, filename);
-    debugPrint('CSV saved to: $filePath');
+    //debugPrint('CSV saved to: $filePath');
   }
 
   static Future<List<Map<String, dynamic>>> loadCsvData(String filePath) async {
@@ -63,7 +63,7 @@ class CsvService {
         return rowMap;
       }).toList();
     } catch (e) {
-      debugPrint('[loadCsvData] Error loading CSV: $e');
+      //debugPrint('[loadCsvData] Error loading CSV: $e');
       rethrow;
     }
   }

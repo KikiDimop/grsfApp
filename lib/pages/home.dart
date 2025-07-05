@@ -6,7 +6,6 @@ import 'package:grsfApp/pages/species.dart';
 import 'package:grsfApp/pages/stocks.dart';
 import 'package:grsfApp/pages/sync.dart';
 import 'package:flutter/material.dart';
-import 'package:icons_plus/icons_plus.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

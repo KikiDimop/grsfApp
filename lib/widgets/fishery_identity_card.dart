@@ -1,0 +1,54 @@
+import 'package:flutter/material.dart';
+import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/widgets/global_ui.dart';
+
+class FisheryIdentityCard extends StatefulWidget {
+  final String name, id, title, uuid, type, status;
+  final String? url;
+  const FisheryIdentityCard(
+      {super.key,
+      required this.name,
+      required this.id,
+      required this.title,
+      required this.uuid,
+      required this.type,
+      required this.status,
+      this.url});
+
+  @override
+  State<FisheryIdentityCard> createState() => _FisheryIdentityCardState();
+}
+
+class _FisheryIdentityCardState extends State<FisheryIdentityCard> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.9,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xffd9dcd6),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          statusDisplay(widget.status),
+          dataDisplay(label: 'Short Name', value: widget.name),
+          dataDisplay(label: 'Semantic ID', value: widget.id),
+          dataDisplay(label: 'Semantic Title', value: widget.title),
+          dataDisplay(label: 'UUID', value: widget.uuid),
+          dataDisplay(label: 'Type', value: widget.type),
+          if (widget.url != null)
+            Align(
+              alignment: Alignment.centerRight,
+              child: iButton(
+                  icon: Icons.link,
+                  onPressed: () => openSourceLink(widget.url ?? ''),
+                  assetPath: '',
+                  iconSize: 24),
+            )
+        ],
+      ),
+    );
+  }
+}

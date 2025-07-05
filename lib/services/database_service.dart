@@ -20,7 +20,7 @@ class DatabaseService {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
-    debugPrint(path);
+    //debugPrint(path);
     return await openDatabase(
       path,
       version: 1,
@@ -48,7 +48,7 @@ class DatabaseService {
           FAO_SDG14_4_1_questionnaire_code TEXT
         )
         ''');
-        debugPrint('Fishery table created');
+        //debugPrint('Fishery table created');
 
         await db.execute('''
         CREATE TABLE AreasForFishery (     
@@ -59,7 +59,7 @@ class DatabaseService {
           area_name TEXT
         )
         ''');
-        debugPrint('AreasForFishery table created');
+        //debugPrint('AreasForFishery table created');
 
         await db.execute('''
         CREATE TABLE FisheryOwner (
@@ -69,7 +69,7 @@ class DatabaseService {
           source_name TEXT
         )
         ''');
-        debugPrint('FisheryOwner table created');
+        //debugPrint('FisheryOwner table created');
 
         await db.execute('''
         CREATE TABLE Stock (
@@ -89,7 +89,7 @@ class DatabaseService {
           FAO_SDG14_4_1_questionnaire_code TEXT
         )
         ''');
-        debugPrint('Stock table created');
+        //debugPrint('Stock table created');
 
         await db.execute('''
         CREATE TABLE SpeciesForStock (     
@@ -100,7 +100,7 @@ class DatabaseService {
           species_name TEXT
         )
         ''');
-        debugPrint('SpeciesForStock table created');
+        //debugPrint('SpeciesForStock table created');
 
         await db.execute('''
         CREATE TABLE AreasForStock (     
@@ -111,7 +111,7 @@ class DatabaseService {
           area_name TEXT
         )
         ''');
-        debugPrint('AreasForStock table created');
+        //debugPrint('AreasForStock table created');
 
         await db.execute('''
         CREATE TABLE StockOwner (     
@@ -121,7 +121,7 @@ class DatabaseService {
           source_name TEXT NOT NULL
         )
         ''');
-        debugPrint('StockOwner table created');
+        //debugPrint('StockOwner table created');
 
         await db.execute('''
           CREATE TABLE Gear (
@@ -135,7 +135,7 @@ class DatabaseService {
             fishing_gear_group_name TEXT
           )
         ''');
-        debugPrint('Gear table created');
+        //debugPrint('Gear table created');
 
         await db.execute('''
           CREATE TABLE Species (
@@ -152,7 +152,7 @@ class DatabaseService {
             common_names TEXT
           )
         ''');
-        debugPrint('Species table created');
+        //debugPrint('Species table created');
 
         await db.execute('''
         CREATE TABLE Area (   
@@ -165,7 +165,7 @@ class DatabaseService {
           fishery_occurrences TEXT
         )
         ''');
-        debugPrint('Area table created');
+        //debugPrint('Area table created');
 
         await db.execute('''
         CREATE TABLE FaoMajorArea (   
@@ -175,7 +175,7 @@ class DatabaseService {
           fao_major_area_name TEXT
         )
         ''');
-        debugPrint('FaoMajorArea table created');
+        //debugPrint('FaoMajorArea table created');
       },
     );
   }
@@ -188,10 +188,10 @@ class DatabaseService {
     try {
       final db = await database;
       final result = await db.query(tableName, where: where ?? '1=1');
-      //debugPrint(result);
+      ////debugPrint(result);
       return result.map((json) => fromMap(json)).toList();
     } catch (e) {
-      debugPrint("Error in readAll for table $tableName: $e");
+      //debugPrint("Error in readAll for table $tableName: $e");
       return [];
     }
   }
@@ -213,8 +213,8 @@ class DatabaseService {
 
       return result.map((row) => FaoMajorArea.fromMap(row)).toList();
     } catch (e, stackTrace) {
-      debugPrint('Error in getFaoMajorAreas: $e');
-      print(stackTrace);
+      //debugPrint('Error in getFaoMajorAreas: $e');
+      // print(stackTrace);
       return [];
     }
   }
@@ -229,10 +229,10 @@ class DatabaseService {
       final db = await database;
       final result =
           await db.query(tableName, columns: columns, where: where ?? '1=1');
-      //debugPrint(result);
+      ////debugPrint(result);
       return result.map((json) => fromMap(json)).toList();
     } catch (e) {
-      debugPrint("Error in readAll for table $tableName: $e");
+      //debugPrint("Error in readAll for table $tableName: $e");
       return [];
     }
   }
@@ -270,7 +270,7 @@ class DatabaseService {
       );
       return count ?? 0;
     } catch (e) {
-      debugPrint('Error getting record count on $tableName: $e');
+      //debugPrint('Error getting record count on $tableName: $e');
       return 0; // Return 0 on error
     }
   }
@@ -369,8 +369,8 @@ class DatabaseService {
     }
     query += ' GROUP BY s.UUID';
 
-    debugPrint(query);
-    print(parameters);
+    //debugPrint(query);
+    // print(parameters);
 
     final result = await db.rawQuery(query, parameters);
 
@@ -451,8 +451,8 @@ class DatabaseService {
       query += " AND ${conditions.join(" AND ")}";
     }
 
-    debugPrint(query);
-    print(parameters);
+    //debugPrint(query);
+    // print(parameters);
     final result = await db.rawQuery(query, parameters);
     return result.map((json) => fromMap(json)).toList();
   }
