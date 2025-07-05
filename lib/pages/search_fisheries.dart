@@ -261,7 +261,7 @@ class _SearchfisheriesState extends State<Searchfisheries> {
           selectedResourceStatus: rStatus,
           flagCode: flagCode,
         );
-        Navigator.push(
+        Navigator.pop(
           context,
           MaterialPageRoute(
             builder: (context) => Fisheries(search: searchFishery),

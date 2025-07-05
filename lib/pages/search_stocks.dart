@@ -236,7 +236,7 @@ class _SearchstocksState extends State<Searchstocks> {
           selectedResourceStatus: rStatus,
         );
 
-        Navigator.push(
+        Navigator.pop(
           context,
           MaterialPageRoute(
             builder: (context) => Stocks(
