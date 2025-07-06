@@ -4,9 +4,10 @@ import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/models/speciesForStock.dart';
 import 'package:grsfApp/models/stock.dart';
 import 'package:grsfApp/models/stockOwner.dart';
+import 'package:grsfApp/pages/list_display.dart';
 import 'package:grsfApp/services/database_service.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:grsfApp/widgets/identity_card.dart';
 import 'package:grsfApp/widgets/global_ui.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -32,18 +33,29 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   Map<String, dynamic>? _responseData;
   Map<String, dynamic>? _responseDataInfo;
 
-  final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-  String _selectedOrder = 'Name';
-  String _selectedOrderStockData = 'Value';
-  String _sortOrder = 'asc';
-
   @override
   void initState() {
     super.initState();
-    _fetchData();
-    _fetchDataFromAPI();
-    _fetchDataInfoFromAPI();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    setState(() {
+      isLoading = true;
+      isLoading2 = true;
+    });
+
+    try {
+      await Future.wait([
+        _fetchData(),
+        _fetchDataFromAPI(),
+        _fetchDataInfoFromAPI(),
+      ]);
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+      });
+    }
   }
 
   Future<void> _fetchData() async {
@@ -149,13 +161,6 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     }
   }
 
-  bool _showDetails = true;
-  bool _showAreasList = false;
-  bool _showSpeciesList = false;
-  bool _showOwnerList = false;
-  bool _showFaoMajorAreaList = false;
-  bool _showStockDataList = false;
-
   String stockDataTitle = '';
   String stockData = '';
 
@@ -166,22 +171,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            if (_showAreasList ||
-                _showSpeciesList ||
-                _showOwnerList ||
-                _showFaoMajorAreaList ||
-                _showStockDataList) {
-              setState(() {
-                _showDetails = true;
-                _showAreasList = false;
-                _showSpeciesList = false;
-                _showOwnerList = false;
-                _showFaoMajorAreaList = false;
-                _showStockDataList = false;
-              });
-            } else {
-              Navigator.pop(context);
-            }
+            Navigator.pop(context);
           },
           icon: const Icon(Icons.arrow_back),
         ),
@@ -206,427 +196,57 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _identitySection(context),
+                      _identitySection(),
                       const SizedBox(height: 5),
-                      if (_showDetails)
-                        _detailsSection(context)
-                      else if (_showAreasList)
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.5,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              listTitle(title: 'Assessment Areas'),
-                              const SizedBox(height: 5),
-                              Expanded(
-                                child: _displayList(
-                                    searchHint: 'Search Area',
-                                    listDisplay: dataList<AreasForStock>(
-                                        items: areas,
-                                        searchQuery: _searchQuery,
-                                        sortField: _selectedOrder,
-                                        sortOrder: _sortOrder,
-                                        listViewItem: ({required item}) =>
-                                            listViewItem(
-                                                item: item)), //_areasList(),
-                                    displayDropDown: true,
-                                    forStockData: false),
-                              ),
-                            ],
-                          ),
-                        )
-                      else if (_showSpeciesList)
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.5,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              listTitle(title: 'Species'),
-                              const SizedBox(height: 5),
-                              Expanded(
-                                child: _displayList(
-                                    searchHint: 'Search Species',
-                                    listDisplay: dataList<SpeciesForStock>(
-                                        items: species,
-                                        searchQuery: _searchQuery,
-                                        sortField: _selectedOrder,
-                                        sortOrder: _sortOrder,
-                                        listViewItem: ({required item}) =>
-                                            listViewItem(
-                                                item: item)), //_speciesList(),
-                                    displayDropDown: true,
-                                    forStockData: false),
-                              ),
-                            ],
-                          ),
-                        )
-                      else if (_showOwnerList)
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.5,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              listTitle(title: 'Owners'),
-                              const SizedBox(height: 5),
-                              Expanded(
-                                child: _displayList(
-                                    searchHint: 'Search Owner',
-                                    listDisplay: dataList<StockOwner>(
-                                        items: owners,
-                                        searchQuery: _searchQuery,
-                                        sortField: _selectedOrder,
-                                        sortOrder: _sortOrder,
-                                        listViewItem: ({required item}) =>
-                                            listViewItem(
-                                                item: item)), //_ownersList(),
-                                    displayDropDown: false,
-                                    forStockData: false),
-                              ),
-                            ],
-                          ),
-                        )
-                      else if (_showFaoMajorAreaList)
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.5,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              listTitle(title: 'Fao Major Areas'),
-                              const SizedBox(height: 5),
-                              Expanded(
-                                child: _displayList(
-                                    searchHint: 'Search Fao Major Area',
-                                    listDisplay: dataList<FaoMajorArea>(
-                                        items: faoAreas,
-                                        searchQuery: _searchQuery,
-                                        sortField: _selectedOrder,
-                                        sortOrder: _sortOrder,
-                                        listViewItem: ({required item}) =>
-                                            listViewItem(
-                                                item:
-                                                    item)), //_faoMajorAreaList(),
-                                    displayDropDown: true,
-                                    forStockData: false),
-                              ),
-                            ],
-                          ),
-                        )
-                      else if (_showStockDataList)
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.5,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              listTitle(title: stockDataTitle),
-                              const SizedBox(height: 5),
-                              Expanded(
-                                child: _displayList(
-                                    searchHint: 'Search $stockDataTitle',
-                                    listDisplay: _stockDataList(),
-                                    displayDropDown: true,
-                                    forStockData: true),
-                              ),
-                            ],
-                          ),
-                        ),
+                      _detailsSection(context),
                       const SizedBox(height: 5),
-                      if (isExistDataInfoFromAPI && _showDetails)
-                        _dataSection(context)
+                      if (isExistDataInfoFromAPI) _dataSection(context)
                     ],
                   ),
                 ),
     );
   }
 
-  Widget _displayList(
-      {required String searchHint,
-      required Widget listDisplay,
-      required bool displayDropDown,
-      required bool forStockData}) {
-    return Container(
-      margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: const Color(0xffd9dcd6).withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Column(
-            children: [
-              _searchField(hint: searchHint),
-              if (displayDropDown && !forStockData)
-                _orderByDropdown()
-              else if (displayDropDown && forStockData)
-                _orderByDropdownStockData(),
-            ],
-          ),
-          Expanded(
-            child: listDisplay,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _orderByDropdown() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xff16425B),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton2<String>(
-                  value: _selectedOrder,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedOrder = value ?? 'Name';
-                    });
-                  },
-                  buttonStyleData: const ButtonStyleData(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                  ),
-                  dropdownStyleData: DropdownStyleData(
-                    maxHeight: 200,
-                    offset: const Offset(
-                        0, 8), // Ensures a consistent dropdown position
-                    decoration: BoxDecoration(
-                      color: const Color(0xff16425B),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  iconStyleData: const IconStyleData(
-                    icon: Icon(Icons.arrow_drop_down,
-                        color: Color(0xffd9dcd6), size: 30),
-                  ),
-                  menuItemStyleData: const MenuItemStyleData(
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                  ),
-                  items: const [
-                    DropdownMenuItem(
-                        value: 'Name',
-                        child: Text(
-                          'Order by Name',
-                          style: TextStyle(color: Color(0xffd9dcd6)),
-                        )),
-                    DropdownMenuItem(
-                        value: 'Code',
-                        child: Text('Order by Code',
-                            style: TextStyle(color: Color(0xffd9dcd6)))),
-                    DropdownMenuItem(
-                        value: 'System',
-                        child: Text('Order by System',
-                            style: TextStyle(color: Color(0xffd9dcd6)))),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          IconButton(
-            icon: Icon(
-              _sortOrder == 'asc'
-                  ? Icons.arrow_circle_up
-                  : Icons.arrow_circle_down,
-              color: const Color(0xffd9dcd6),
-              size: 40,
-            ),
-            onPressed: () {
-              setState(() {
-                _sortOrder = _sortOrder == 'asc' ? 'desc' : 'asc';
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _orderByDropdownStockData() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xff16425B),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton2<String>(
-                  value: _selectedOrderStockData,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedOrderStockData = value ?? 'Value';
-                    });
-                  },
-                  buttonStyleData: const ButtonStyleData(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                  ),
-                  dropdownStyleData: DropdownStyleData(
-                    maxHeight: 200,
-                    offset: const Offset(
-                        0, 8), // Ensures a consistent dropdown position
-                    decoration: BoxDecoration(
-                      color: const Color(0xff16425B),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  iconStyleData: const IconStyleData(
-                    icon: Icon(Icons.arrow_drop_down,
-                        color: Color(0xffd9dcd6), size: 30),
-                  ),
-                  menuItemStyleData: const MenuItemStyleData(
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                  ),
-                  items: const [
-                    DropdownMenuItem(
-                        value: 'Value',
-                        child: Text(
-                          'Order by Value',
-                          style: TextStyle(color: Color(0xffd9dcd6)),
-                        )),
-                    DropdownMenuItem(
-                        value: 'Unit',
-                        child: Text('Order by Unit',
-                            style: TextStyle(color: Color(0xffd9dcd6)))),
-                    DropdownMenuItem(
-                        value: 'Data Owner',
-                        child: Text('Order by Data Owner',
-                            style: TextStyle(color: Color(0xffd9dcd6)))),
-                    DropdownMenuItem(
-                        value: 'Type',
-                        child: Text('Order by Type',
-                            style: TextStyle(color: Color(0xffd9dcd6)))),
-                    DropdownMenuItem(
-                        value: 'Ref. Year',
-                        child: Text('Order by Ref. Year',
-                            style: TextStyle(color: Color(0xffd9dcd6)))),
-                    DropdownMenuItem(
-                        value: 'Rep. Year',
-                        child: Text('Order by Rep. Year',
-                            style: TextStyle(color: Color(0xffd9dcd6)))),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          IconButton(
-            icon: Icon(
-              _sortOrder == 'asc'
-                  ? Icons.arrow_circle_up
-                  : Icons.arrow_circle_down,
-              color: const Color(0xffd9dcd6),
-              size: 40,
-            ),
-            onPressed: () {
-              setState(() {
-                _sortOrder = _sortOrder == 'asc' ? 'desc' : 'asc';
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _identitySection(BuildContext context) {
+  Widget _identitySection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 20),
-          child: Text(
-            'Stock Identity',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color(0xffd9dcd6),
-            ),
+          child: Row(
+            children: [
+              Text(
+                'Stock Identity',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xffd9dcd6),
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 10),
         Row(
-          mainAxisAlignment: MainAxisAlignment.center, // Center the white box
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width:
-                  MediaQuery.of(context).size.width * 0.9, // Make it responsive
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xffd9dcd6),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (!isExistDataFromAPI)
-                    statusDisplay(widget.stock.status ?? '')
-                  else
-                    statusDisplay(_responseData!["result"]["status"]),
-                  if (!isExistDataFromAPI)
-                    dataDisplay(
-                        label: 'Short Name',
-                        value: widget.stock.shortName ?? '')
-                  else
-                    dataDisplay(
-                        label: 'Short Name',
-                        value: _responseData!["result"]["short_name"]),
-                  if (!isExistDataFromAPI)
-                    dataDisplay(
-                        label: 'Semantic ID',
-                        value: widget.stock.grsfSemanticID ?? '')
-                  else
-                    dataDisplay(
-                        label: 'Semantic ID',
-                        value: _responseData!["result"]["semantic_id"]),
-                  if (!isExistDataFromAPI)
-                    dataDisplay(
-                        label: 'Semantic Title',
-                        value: widget.stock.grsfName ?? '')
-                  else
-                    dataDisplay(
-                        label: 'Semantic Title',
-                        value: _responseData!["result"]["semantic_title"]),
-                  if (!isExistDataFromAPI)
-                    dataDisplay(label: 'UUID', value: widget.stock.uuid ?? '')
-                  else
-                    dataDisplay(
-                        label: 'UUID', value: _responseData!["result"]["uuid"]),
-                  dataDisplay(label: 'Type', value: widget.stock.type ?? ''),
-                  Row(
-                    children: [
-                      iButton(
-                          assetPath: 'assets/icons/map.png',
-                          onPressed: () =>
-                              showMap(context, 'Map', widget.stock.uuid ?? ''),
-                          icon: null,
-                          iconSize: 24),
-                      const Spacer(),
-                      if (isExistDataFromAPI)
-                        iButton(
-                            icon: Icons.link,
-                            onPressed: () => sourceLink(
-                                List<String>.from(_responseData!["result"]
-                                        ["source_urls"] ??
-                                    []),
-                                context),
-                            assetPath: '',
-                            iconSize: 24),
-                    ],
+            (!isExistDataFromAPI)
+                ? IdentityCard(
+                    name: widget.stock.shortName ?? '',
+                    id: widget.stock.grsfSemanticID ?? '',
+                    title: widget.stock.grsfName ?? '',
+                    uuid: widget.stock.uuid ?? '',
+                    type: widget.stock.type ?? '',
+                    status: widget.stock.status ?? '')
+                : IdentityCard(
+                    name: _responseData!["result"]["short_name"],
+                    id: _responseData!["result"]["semantic_id"],
+                    title: _responseData!["result"]["semantic_title"],
+                    uuid: _responseData!["result"]["uuid"],
+                    type: widget.stock.type ?? '',
+                    status: _responseData!["result"]["status"],
+                    url: _responseData!["result"]["source_urls"][0] ?? '',
                   )
-                ],
-              ),
-            ),
           ],
         ),
       ],
@@ -709,52 +329,115 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                         customButton(
                           label: 'Species',
                           onPressed: () {
-                            setState(() {
-                              _showDetails = false;
-                              _showAreasList = false;
-                              _showOwnerList = false;
-                              _showSpeciesList = true;
-                              _showFaoMajorAreaList = false;
-                            });
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    GenericDisplayList<SpeciesForStock>(
+                                  items: species,
+                                  identity: _identitySection(),
+                                  listTitle: 'Species',
+                                  searchHint: 'Search Species',
+                                  sortOptions: const [
+                                    SortOption(
+                                        value: 'Name', label: 'Order by Name'),
+                                    SortOption(
+                                        value: 'Code', label: 'Order by Code'),
+                                    SortOption(
+                                        value: 'System',
+                                        label: 'Order by System'),
+                                  ],
+                                  itemBuilder: (item) =>
+                                      listViewItem(item: item),
+                                  stockdataList: const [],
+                                ),
+                              ),
+                            );
                           },
                         ),
                       if (areas!.length > 1)
                         customButton(
                           label: 'Areas',
                           onPressed: () {
-                            setState(() {
-                              _showDetails = false;
-                              _showAreasList = true;
-                              _showOwnerList = false;
-                              _showSpeciesList = false;
-                              _showFaoMajorAreaList = false;
-                            });
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    GenericDisplayList<AreasForStock>(
+                                  items: areas,
+                                  identity: _identitySection(),
+                                  listTitle: 'Areas',
+                                  searchHint: 'Search Area',
+                                  sortOptions: const [
+                                    SortOption(
+                                        value: 'Name', label: 'Order by Name'),
+                                    SortOption(
+                                        value: 'Code', label: 'Order by Code'),
+                                    SortOption(
+                                        value: 'System',
+                                        label: 'Order by System'),
+                                  ],
+                                  itemBuilder: (item) =>
+                                      listViewItem(item: item),
+                                  stockdataList: const [],
+                                ),
+                              ),
+                            );
                           },
                         ),
                       if (owners!.length > 1)
                         customButton(
                           label: 'Owners',
                           onPressed: () {
-                            setState(() {
-                              _showDetails = false;
-                              _showAreasList = false;
-                              _showOwnerList = true;
-                              _showSpeciesList = false;
-                              _showFaoMajorAreaList = false;
-                            });
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    GenericDisplayList<StockOwner>(
+                                  items: owners,
+                                  identity: _identitySection(),
+                                  listTitle: 'Owners',
+                                  searchHint: 'Search Owner',
+                                  sortOptions: const [
+                                    SortOption(
+                                        value: 'Name', label: 'Order by Name'),
+                                  ],
+                                  itemBuilder: (item) =>
+                                      listViewItem(item: item),
+                                  stockdataList: const [],
+                                ),
+                              ),
+                            );
                           },
                         ),
                       if (faoAreas!.length > 1)
                         customButton(
                           label: 'FAO Major Areas',
                           onPressed: () {
-                            setState(() {
-                              _showDetails = false;
-                              _showAreasList = false;
-                              _showOwnerList = false;
-                              _showSpeciesList = false;
-                              _showFaoMajorAreaList = true;
-                            });
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    GenericDisplayList<FaoMajorArea>(
+                                  items: faoAreas,
+                                  identity: _identitySection(),
+                                  listTitle: 'Fao Major Areas',
+                                  searchHint: 'Search Fao Major Area',
+                                  sortOptions: const [
+                                    SortOption(
+                                        value: 'Name', label: 'Order by Name'),
+                                    SortOption(
+                                        value: 'Code', label: 'Order by Code'),
+                                    SortOption(
+                                        value: 'System',
+                                        label: 'Order by System'),
+                                  ],
+                                  itemBuilder: (item) =>
+                                      listViewItem(item: item),
+                                  stockdataList: const [],
+                                ),
+                              ),
+                            );
                           },
                         ),
                     ],
@@ -816,232 +499,76 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   }
 
   void display() {
-    setState(() {
-      _showDetails = false;
-      _showAreasList = false;
-      _showOwnerList = false;
-      _showSpeciesList = false;
-      _showFaoMajorAreaList = false;
-      _showStockDataList = true;
-    });
-  }
-
-  Widget displayTimeseries() {
-    return Column(
-      children: [
-        if (isExistDataInfoFromAPI &&
-            _responseDataInfo?["result"]["scientific_advices"].length != 0)
-          customButton(
-              label: 'scientific_advices',
-              onPressed: () {
-                stockDataTitle = 'Scientific Advices';
-                stockData = 'scientific_advices';
-                display();
-              }),
-        if (isExistDataInfoFromAPI &&
-            _responseDataInfo?["result"]["assessment_methods"].length != 0)
-          customButton(
-              label: 'assessment_methods',
-              onPressed: () {
-                stockDataTitle = 'Assessment Methods';
-                stockData = 'assessment_methods';
-                display();
-              }),
-        if (isExistDataInfoFromAPI &&
-            _responseDataInfo?["result"]["abundance_level"].length != 0)
-          customButton(
-              label: 'abundance_level',
-              onPressed: () {
-                stockDataTitle = 'Abundance Level';
-                stockData = 'abundance_level';
-                display();
-              }),
-        if (isExistDataInfoFromAPI &&
-            _responseDataInfo?["result"]["abundance_level_standard"].length !=
-                0)
-          customButton(
-              label: 'abundance_level_standard',
-              onPressed: () {
-                stockDataTitle = 'Abundance Level Standard';
-                stockData = 'abundance_level_standard';
-                display();
-              }),
-        if (isExistDataInfoFromAPI &&
-            _responseDataInfo?["result"]["fishing_pressure"].length != 0)
-          customButton(
-              label: 'fishing_pressure',
-              onPressed: () {
-                stockDataTitle = 'Fishing Pressure';
-                stockData = 'fishing_pressure';
-                display();
-              }),
-        if (isExistDataInfoFromAPI &&
-            _responseDataInfo?["result"]["fishing_pressure_standard"].length !=
-                0)
-          customButton(
-              label: 'fishing_pressure_standard',
-              onPressed: () {
-                stockDataTitle = 'Fishing Pressure Standard';
-                stockData = 'fishing_pressure_standard';
-                display();
-              }),
-        if (isExistDataInfoFromAPI &&
-            _responseDataInfo?["result"]["catches"].length != 0)
-          customButton(
-              label: 'catches',
-              onPressed: () {
-                stockDataTitle = 'Catches';
-                stockData = 'catches';
-                display();
-              }),
-        if (isExistDataInfoFromAPI &&
-            _responseDataInfo?["result"]["landings"].length != 0)
-          customButton(
-              label: 'landings',
-              onPressed: () {
-                stockDataTitle = 'Landings';
-                stockData = 'landings';
-                display();
-              }),
-        if (isExistDataInfoFromAPI &&
-            _responseDataInfo?["result"]["landed_volumes"].length != 0)
-          customButton(
-              label: 'landed_volumes',
-              onPressed: () {
-                stockDataTitle = 'Landed Volumes';
-                stockData = 'landed_volumes';
-                display();
-              }),
-        if (isExistDataInfoFromAPI &&
-            _responseDataInfo?["result"]["biomass"].length != 0)
-          customButton(
-              label: 'biomass',
-              onPressed: () {
-                stockDataTitle = 'Biomas';
-                stockData = 'biomass';
-                display();
-              }),
-      ],
-    );
-  }
-
-  Widget _searchField({required String hint}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: TextField(
-        controller: _searchController,
-        onChanged: (value) {
-          setState(() {
-            _searchQuery = value;
-          });
-        },
-        style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: const Color(0xff16425B),
-          contentPadding: const EdgeInsets.all(15),
-          hintText: hint,
-          hintStyle: const TextStyle(
-            color: Color(0xffd9dcd6),
-            fontSize: 14,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => GenericDisplayList(
+          forStockData: true,
+          items: const [],
+          identity: _identitySection(),
+          listTitle: stockDataTitle,
+          searchHint: 'Search $stockDataTitle',
+          sortOptions: const [
+            SortOption(value: 'Value', label: 'Order by Value'),
+            SortOption(value: 'Unit', label: 'Order by Unit'),
+            SortOption(value: 'Data Owner', label: 'Order by Data Owner'),
+            // SortOption(value: 'Type', label: 'Order by Type'),
+            SortOption(value: 'Ref. Year', label: 'Order by Ref. Year'),
+            SortOption(value: 'Rep. Year', label: 'Order by Rep. Year'),
+          ],
+          itemBuilder: (data) => listViewItemStockData(
+            data["value"]?.toString() ?? "",
+            data["unit"] ?? "",
+            data["type"] ?? "",
+            data["db_source"] ?? "",
+            data["reporting_year"]?.toString() ?? "",
+            data["reference_year"]?.toString() ?? "",
           ),
-          prefixIcon: const Padding(
-            padding: EdgeInsets.all(10),
-            child: Icon(
-              Icons.search,
-              color: Color(0xffd9dcd6),
-            ),
-          ),
-          suffixIcon: GestureDetector(
-            onTap: () {
-              _searchController.clear();
-              setState(() {
-                _searchQuery = '';
-              });
-            },
-            child: const Padding(
-              padding: EdgeInsets.all(10),
-              child: Icon(
-                Icons.cancel,
-                color: Color(0xffd9dcd6),
-              ),
-            ),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide.none,
-          ),
+          stockdataList: List.from(_responseDataInfo!["result"][stockData]),
         ),
       ),
     );
   }
 
-  Widget _stockDataList() {
-    final List<dynamic> list =
-        List.from(_responseDataInfo!["result"][stockData]);
+  Widget displayTimeseries() {
+    if (!isExistDataInfoFromAPI || _responseDataInfo == null) {
+      return const SizedBox.shrink();
+    }
 
-    final filteredData = list
-        .where((data) =>
-            _searchQuery.isEmpty ||
-            (data["value"]?.toString().contains(_searchQuery) ?? false) ||
-            (data["unit"]?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (data["type"]?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (data["db_source"]
-                    ?.toLowerCase()
-                    .contains(_searchQuery.toLowerCase()) ??
-                false) ||
-            (data["reporting_year"]?.toString().contains(_searchQuery) ??
-                false) ||
-            (data["reference_year"]?.toString().contains(_searchQuery) ??
-                false))
-        .toList();
+    final result = _responseDataInfo!["result"];
+    List<Widget> buttons = [];
 
-    filteredData.sort((a, b) {
-      int comparison = 0;
-      if (_selectedOrderStockData == 'Value') {
-        comparison = (a["value"]?.compareTo(b["value"] ?? '') ?? 0);
-      } else if (_selectedOrderStockData == 'Unit') {
-        comparison = (a["unit"]?.compareTo(b["unit"] ?? '') ?? 0);
-      } else if (_selectedOrderStockData == 'Type') {
-        comparison = (a["type"]?.compareTo(b["type"] ?? 0) ?? 0);
-      } else if (_selectedOrderStockData == 'Data Owner') {
-        comparison = (a["db_source"]?.compareTo(b["db_source"] ?? '') ?? 0);
-      } else if (_selectedOrderStockData == 'Rep. Year') {
-        comparison =
-            (a["reporting_year"]?.compareTo(b["reporting_year"] ?? '') ?? 0);
-      } else if (_selectedOrderStockData == 'Ref. Year') {
-        comparison =
-            (a["reference_year"]?.compareTo(b["reference_year"] ?? '') ?? 0);
+    // Helper method to create buttons conditionally
+    void addButtonIfDataExists(String key, String label, String title) {
+      if (result[key]?.isNotEmpty == true) {
+        buttons.add(customButton(
+          label: label,
+          onPressed: () {
+            stockDataTitle = title;
+            stockData = key;
+            display();
+          },
+        ));
       }
-      return _sortOrder == 'asc' ? comparison : -comparison;
-    });
+    }
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 5),
-      padding: const EdgeInsets.all(10),
-      child: filteredData.isEmpty
-          ? const Center(
-              child: Text(
-                'No matching catch records found',
-                style: TextStyle(color: Color(0xffd9dcd6)),
-              ),
-            )
-          : ListView.builder(
-              itemCount: filteredData.length,
-              itemBuilder: (context, index) {
-                final data = filteredData[index];
-                return listViewItemStockData(
-                  data["value"]?.toString() ?? "",
-                  data["unit"] ?? "",
-                  data["type"] ?? "",
-                  data["db_source"] ?? "",
-                  data["reporting_year"]?.toString() ?? "",
-                  data["reference_year"]?.toString() ?? "",
-                );
-              },
-            ),
-    );
+    addButtonIfDataExists(
+        'scientific_advices', 'scientific_advices', 'Scientific Advices');
+    addButtonIfDataExists(
+        'assessment_methods', 'assessment_methods', 'Assessment Methods');
+    addButtonIfDataExists(
+        'abundance_level', 'abundance_level', 'Abundance Level');
+    addButtonIfDataExists('abundance_level_standard',
+        'abundance_level_standard', 'Abundance Level Standard');
+    addButtonIfDataExists(
+        'fishing_pressure', 'fishing_pressure', 'Fishing Pressure');
+    addButtonIfDataExists('fishing_pressure_standard',
+        'fishing_pressure_standard', 'Fishing Pressure Standard');
+    addButtonIfDataExists('catches', 'catches', 'Catches');
+    addButtonIfDataExists('landings', 'landings', 'Landings');
+    addButtonIfDataExists('landed_volumes', 'landed_volumes', 'Landed Volumes');
+    addButtonIfDataExists('biomass', 'biomass', 'Biomass');
+
+    return Column(children: buttons);
   }
 }

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/widgets/global_ui.dart';
 
-class FisheryIdentityCard extends StatefulWidget {
+class IdentityCard extends StatefulWidget {
   final String name, id, title, uuid, type, status;
   final String? url;
-  const FisheryIdentityCard(
+  const IdentityCard(
       {super.key,
       required this.name,
       required this.id,
@@ -16,10 +16,10 @@ class FisheryIdentityCard extends StatefulWidget {
       this.url});
 
   @override
-  State<FisheryIdentityCard> createState() => _FisheryIdentityCardState();
+  State<IdentityCard> createState() => _IdentityCardState();
 }
 
-class _FisheryIdentityCardState extends State<FisheryIdentityCard> {
+class _IdentityCardState extends State<IdentityCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
