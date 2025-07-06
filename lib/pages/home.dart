@@ -6,87 +6,133 @@ import 'package:grsfApp/pages/species.dart';
 import 'package:grsfApp/pages/stocks.dart';
 import 'package:grsfApp/pages/sync.dart';
 import 'package:flutter/material.dart';
+import 'package:grsfApp/services/database_service.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  HomePageState createState() => HomePageState();
+}
+
+class HomePageState extends State<HomePage> {
+  String _databaseInfo = '';
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeDatabase();
+  }
+
+  Future<void> _initializeDatabase() async {
+    setState(() => _isLoading = true);
+
+    try {
+      // This will trigger database creation/recreation logic
+      await DatabaseService.instance.database;
+      await _loadDatabaseInfo();
+    } catch (e) {
+      debugPrint('Error initializing database: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _loadDatabaseInfo() async {
+    final info = await DatabaseService.instance.getDatabaseInfo();
+    setState(() => _databaseInfo = info);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xff16425B),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(right: 25.0, left: 25.0),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xffd9dcd6).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  height: 70,
-                  width: 362,
-                  child: Row(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Center(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 25.0, left: 25.0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Image.asset(
-                        'assets/icons/grsf.jpg',
-                        height: 50.0,
-                        width: 50.0,
-                      ),
-                      const SizedBox(width: 12.0),
-                      const Text(
-                        'Welcome to\nGRSF Mobile App',
-                        style: TextStyle(
-                          color: Color(0xffd9dcd6),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20.0,
-                          height: 1.1,
+                      Container(
+                        padding: const EdgeInsets.all(10.0),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffd9dcd6).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        height: 70,
+                        width: 362,
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              'assets/icons/grsf.jpg',
+                              height: 50.0,
+                              width: 50.0,
+                            ),
+                            const SizedBox(width: 12.0),
+                            const Text(
+                              'Welcome to\nGRSF Mobile App',
+                              style: TextStyle(
+                                color: Color(0xffd9dcd6),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20.0,
+                                height: 1.1,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
+                      const SizedBox(height: 30.0),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 16.0, horizontal: 8.0),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffd9dcd6).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        child: Column(
+                          children: [
+                            buildImageButton(context, 'assets/icons/area.png',
+                                'Areas', const Areas()),
+                            buildImageButton(
+                                context,
+                                'assets/icons/species.png',
+                                'Species',
+                                const DisplaySpecies()),
+                            buildImageButton(
+                                context,
+                                'assets/icons/fisheries.png',
+                                'Fisheries',
+                                Fisheries(search: SearchFishery())),
+                            buildImageButton(
+                                context,
+                                'assets/icons/stocks.png',
+                                'Stocks',
+                                Stocks(
+                                    search: SearchStock(),
+                                    forSpecies: false,
+                                    timeseries: '',
+                                    refYear: '')),
+                            buildImageButton(context, 'assets/icons/gear.png',
+                                'Fishing Gear', const FishingGears()),
+                            buildImageButton(context, 'assets/icons/sync.png',
+                                'Sync Data', const UpdateDataScreen()),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        _databaseInfo,
+                        style: const TextStyle(color: Color(0xffd9dcd6),fontSize: 14),
+                      ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 30.0),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 16.0, horizontal: 8.0),
-                  decoration: BoxDecoration(
-                    color: const Color(0xffd9dcd6).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  child: Column(
-                    children: [
-                      buildImageButton(context, 'assets/icons/area.png',
-                          'Areas', const Areas()),
-                      buildImageButton(context, 'assets/icons/species.png',
-                          'Species', const DisplaySpecies()),
-                      buildImageButton(context, 'assets/icons/fisheries.png',
-                          'Fisheries', Fisheries(search: SearchFishery())),
-                      buildImageButton(
-                          context,
-                          'assets/icons/stocks.png',
-                          'Stocks',
-                          Stocks(
-                              search: SearchStock(),
-                              forSpecies: false,
-                              timeseries: '',
-                              refYear: '')),
-                      buildImageButton(context, 'assets/icons/gear.png',
-                          'Fishing Gear', const FishingGears()),
-                      buildImageButton(context, 'assets/icons/sync.png',
-                          'Sync Data', const UpdateDataScreen()),
-                    ],
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 

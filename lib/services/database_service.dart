@@ -1,31 +1,104 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:grsfApp/models/faoMajorArea.dart';
 import 'package:grsfApp/models/fishery.dart';
+import 'package:grsfApp/models/global.dart';
 import 'package:grsfApp/models/stock.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseService {
+  static const String _databaseName = 'grsf.db';
+  static const int _databaseVersion = 1;
+  static const int _maxDatabaseAge = 30; //days
+
   static final DatabaseService instance = DatabaseService._init();
   static Database? _database;
 
   DatabaseService._init();
 
   Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDB('grsf.db');
+    if (_database != null) {
+      // if (await _isDatabaseTooOld()) {
+      //   await _recreateDatabase();
+      // }
+      return _database!;
+    }
+
+    _database = await _initDatabase();
     return _database!;
   }
 
-  Future<Database> _initDB(String filePath) async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, filePath);
-    //debugPrint(path);
+  Future<Database> _initDatabase() async {
+    String path = join(await getDatabasesPath(), _databaseName);
+
+    if (await File(path).exists() && await _isDatabaseTooOld()) {
+      await deleteDatabase(path);
+      debugPrint('Database was too old and has been deleted');
+    }
+
     return await openDatabase(
       path,
-      version: 1,
-      onCreate: (db, version) async {
-        await db.execute('''
+      version: _databaseVersion,
+      onCreate: _onCreate,
+      onOpen: (db) {
+        debugPrint('Database opened: $path');
+      },
+    );
+  }
+
+  Future<String> getDatabaseInfo() async {
+    try {
+      String path = join(await getDatabasesPath(), _databaseName);
+      File dbFile = File(path);
+
+      if (await dbFile.exists()) {
+        DateTime lastModified = await dbFile.lastModified();
+        int daysSinceModified = DateTime.now().difference(lastModified).inDays;
+
+        //return 'Database exists\nPath: $path\nLast modified: $lastModified\nAge: $daysSinceModified days';
+        return daysSinceModified.toString();
+      } else {
+        return 'Database does not exist';
+      }
+    } catch (e) {
+      return 'Error getting database info: $e';
+    }
+  }
+
+  Future<bool> _isDatabaseTooOld() async {
+    try {
+      String path = join(await getDatabasesPath(), _databaseName);
+      File dbFile = File(path);
+
+      if (!await dbFile.exists()) {
+        return false;
+      }
+
+      DateTime lastModified = await dbFile.lastModified();
+      DateTime now = DateTime.now();
+      int daysDifference = now.difference(lastModified).inDays;
+
+      // debugPrint('Database age: $daysDifference days');
+      return daysDifference > _maxDatabaseAge;
+    } catch (e) {
+      debugPrint('Error checking database age: $e');
+      return false;
+    }
+  }
+
+  Future<void> _recreateDatabase() async {
+    await _database?.close();
+    String path = join(await getDatabasesPath(), _databaseName);
+    await deleteDatabase(path);
+    _database = await _initDatabase();
+    debugPrint('Database recreated due to age');
+  }
+
+  Future<void> _onCreate(Database db, int version) async {
+    try {
+      await db.execute('''
         CREATE TABLE Fishery (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           uuid TEXT,
@@ -48,9 +121,9 @@ class DatabaseService {
           FAO_SDG14_4_1_questionnaire_code TEXT
         )
         ''');
-        //debugPrint('Fishery table created');
+      //debugPrint('Fishery table created');
 
-        await db.execute('''
+      await db.execute('''
         CREATE TABLE AreasForFishery (     
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           uuid TEXT,
@@ -59,9 +132,9 @@ class DatabaseService {
           area_name TEXT
         )
         ''');
-        //debugPrint('AreasForFishery table created');
+      //debugPrint('AreasForFishery table created');
 
-        await db.execute('''
+      await db.execute('''
         CREATE TABLE FisheryOwner (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           uuid TEXT,
@@ -69,9 +142,9 @@ class DatabaseService {
           source_name TEXT
         )
         ''');
-        //debugPrint('FisheryOwner table created');
+      //debugPrint('FisheryOwner table created');
 
-        await db.execute('''
+      await db.execute('''
         CREATE TABLE Stock (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           uuid TEXT,
@@ -89,9 +162,9 @@ class DatabaseService {
           FAO_SDG14_4_1_questionnaire_code TEXT
         )
         ''');
-        //debugPrint('Stock table created');
+      //debugPrint('Stock table created');
 
-        await db.execute('''
+      await db.execute('''
         CREATE TABLE SpeciesForStock (     
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           uuid TEXT,
@@ -100,9 +173,9 @@ class DatabaseService {
           species_name TEXT
         )
         ''');
-        //debugPrint('SpeciesForStock table created');
+      //debugPrint('SpeciesForStock table created');
 
-        await db.execute('''
+      await db.execute('''
         CREATE TABLE AreasForStock (     
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           uuid TEXT,
@@ -111,9 +184,9 @@ class DatabaseService {
           area_name TEXT
         )
         ''');
-        //debugPrint('AreasForStock table created');
+      //debugPrint('AreasForStock table created');
 
-        await db.execute('''
+      await db.execute('''
         CREATE TABLE StockOwner (     
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           uuid TEXT,
@@ -121,9 +194,9 @@ class DatabaseService {
           source_name TEXT NOT NULL
         )
         ''');
-        //debugPrint('StockOwner table created');
+      //debugPrint('StockOwner table created');
 
-        await db.execute('''
+      await db.execute('''
           CREATE TABLE Gear (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             fishing_gear_type TEXT,
@@ -135,9 +208,9 @@ class DatabaseService {
             fishing_gear_group_name TEXT
           )
         ''');
-        //debugPrint('Gear table created');
+      //debugPrint('Gear table created');
 
-        await db.execute('''
+      await db.execute('''
           CREATE TABLE Species (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             scientific_name TEXT,
@@ -152,9 +225,9 @@ class DatabaseService {
             common_names TEXT
           )
         ''');
-        //debugPrint('Species table created');
+      //debugPrint('Species table created');
 
-        await db.execute('''
+      await db.execute('''
         CREATE TABLE Area (   
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           area_code TEXT,
@@ -165,9 +238,9 @@ class DatabaseService {
           fishery_occurrences TEXT
         )
         ''');
-        //debugPrint('Area table created');
+      //debugPrint('Area table created');
 
-        await db.execute('''
+      await db.execute('''
         CREATE TABLE FaoMajorArea (   
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           fao_major_area_concat TEXT,
@@ -175,10 +248,167 @@ class DatabaseService {
           fao_major_area_name TEXT
         )
         ''');
-        //debugPrint('FaoMajorArea table created');
-      },
-    );
+      //debugPrint('FaoMajorArea table created');
+    } finally {
+      debugPrint(
+        'Database created',
+      );
+      updateAllTables();
+    }
   }
+
+  // Future<Database> _initDB(String filePath) async {
+  //   final dbPath = await getDatabasesPath();
+  //   final path = join(dbPath, filePath);
+  //   //debugPrint(path);
+  //   return await openDatabase(
+  //     path,
+  //     version: 1,
+  //     onCreate: (db, version) async {
+  //       await db.execute('''
+  //       CREATE TABLE Fishery (
+  //         id INTEGER PRIMARY KEY AUTOINCREMENT,
+  //         uuid TEXT,
+  //         grsf_name TEXT,
+  //         grsf_semantic_id TEXT,
+  //         short_name TEXT,
+  //         type TEXT,
+  //         status TEXT,
+  //         traceability_flag TEXT,
+  //         species_code TEXT,
+  //         species_type TEXT,
+  //         species_name TEXT,
+  //         gear_type TEXT,
+  //         gear_code TEXT,
+  //         flag_code TEXT,
+  //         management_entities TEXT,
+  //         parent_areas TEXT,
+  //         firms_code TEXT,
+  //         fishsource_code TEXT,
+  //         FAO_SDG14_4_1_questionnaire_code TEXT
+  //       )
+  //       ''');
+  //       //debugPrint('Fishery table created');
+  //       await db.execute('''
+  //       CREATE TABLE AreasForFishery (
+  //         id INTEGER PRIMARY KEY AUTOINCREMENT,
+  //         uuid TEXT,
+  //         area_type TEXT NOT NULL,
+  //         area_code TEXT NOT NULL,
+  //         area_name TEXT
+  //       )
+  //       ''');
+  //       //debugPrint('AreasForFishery table created');
+  //       await db.execute('''
+  //       CREATE TABLE FisheryOwner (
+  //         id INTEGER PRIMARY KEY AUTOINCREMENT,
+  //         uuid TEXT,
+  //         owner TEXT,
+  //         source_name TEXT
+  //       )
+  //       ''');
+  //       //debugPrint('FisheryOwner table created');
+  //       await db.execute('''
+  //       CREATE TABLE Stock (
+  //         id INTEGER PRIMARY KEY AUTOINCREMENT,
+  //         uuid TEXT,
+  //         grsf_name TEXT NOT NULL,
+  //         grsf_semantic_id TEXT NOT NULL,
+  //         short_name TEXT,
+  //         type TEXT NOT NULL,
+  //         status TEXT,
+  //         parent_areas TEXT,
+  //         sdg_flag INTEGER,
+  //         jurisdictional_distribution TEXT,
+  //         firms_code TEXT,
+  //         ram_code TEXT,
+  //         fishsource_code TEXT,
+  //         FAO_SDG14_4_1_questionnaire_code TEXT
+  //       )
+  //       ''');
+  //       //debugPrint('Stock table created');
+  //       await db.execute('''
+  //       CREATE TABLE SpeciesForStock (
+  //         id INTEGER PRIMARY KEY AUTOINCREMENT,
+  //         uuid TEXT,
+  //         species_type TEXT NOT NULL,
+  //         species_code TEXT NOT NULL,
+  //         species_name TEXT
+  //       )
+  //       ''');
+  //       //debugPrint('SpeciesForStock table created');
+  //       await db.execute('''
+  //       CREATE TABLE AreasForStock (
+  //         id INTEGER PRIMARY KEY AUTOINCREMENT,
+  //         uuid TEXT,
+  //         area_type TEXT NOT NULL,
+  //         area_code TEXT NOT NULL,
+  //         area_name TEXT
+  //       )
+  //       ''');
+  //       //debugPrint('AreasForStock table created');
+  //       await db.execute('''
+  //       CREATE TABLE StockOwner (
+  //         id INTEGER PRIMARY KEY AUTOINCREMENT,
+  //         uuid TEXT,
+  //         owner TEXT NOT NULL,
+  //         source_name TEXT NOT NULL
+  //       )
+  //       ''');
+  //       //debugPrint('StockOwner table created');
+  //       await db.execute('''
+  //         CREATE TABLE Gear (
+  //           id INTEGER PRIMARY KEY AUTOINCREMENT,
+  //           fishing_gear_type TEXT,
+  //           fishing_gear_id TEXT,
+  //           fishing_gear_abbreviation TEXT,
+  //           fishing_gear_name TEXT,
+  //           fishing_gear_group_type TEXT,
+  //           fishing_gear_group_id TEXT,
+  //           fishing_gear_group_name TEXT
+  //         )
+  //       ''');
+  //       //debugPrint('Gear table created');
+  //       await db.execute('''
+  //         CREATE TABLE Species (
+  //           id INTEGER PRIMARY KEY AUTOINCREMENT,
+  //           scientific_name TEXT,
+  //           asfis_id TEXT,
+  //           aphia_id TEXT,
+  //           fishbase_id TEXT,
+  //           tsn_id TEXT,
+  //           gbif_id TEXT,
+  //           taxonomic_id TEXT,
+  //           iucn_id TEXT,
+  //           iucn_characterization TEXT,
+  //           common_names TEXT
+  //         )
+  //       ''');
+  //       //debugPrint('Species table created');
+  //       await db.execute('''
+  //       CREATE TABLE Area (
+  //         id INTEGER PRIMARY KEY AUTOINCREMENT,
+  //         area_code TEXT,
+  //         area_code_type TEXT,
+  //         area_name TEXT,
+  //         total_occurrences TEXT,
+  //         stock_occurrences TEXT,
+  //         fishery_occurrences TEXT
+  //       )
+  //       ''');
+  //       //debugPrint('Area table created');
+  //       await db.execute('''
+  //       CREATE TABLE FaoMajorArea (
+  //         id INTEGER PRIMARY KEY AUTOINCREMENT,
+  //         fao_major_area_concat TEXT,
+  //         fao_major_area_code TEXT,
+  //         fao_major_area_name TEXT
+  //       )
+  //       ''');
+  //       //debugPrint('FaoMajorArea table created');
+  //     },
+  //   );
+  // }
 
   Future<List<T>> readAll<T>({
     required String tableName,
@@ -212,9 +442,7 @@ class DatabaseService {
       List<Map<String, dynamic>> result = await db.rawQuery(sql, codes);
 
       return result.map((row) => FaoMajorArea.fromMap(row)).toList();
-    } catch (e, stackTrace) {
-      //debugPrint('Error in getFaoMajorAreas: $e');
-      // print(stackTrace);
+    } catch (e) {
       return [];
     }
   }

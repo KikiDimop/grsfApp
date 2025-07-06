@@ -1,4 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:grsfApp/models/area.dart';
+import 'package:grsfApp/models/areasForFishery.dart';
+import 'package:grsfApp/models/areasForStock.dart';
+import 'package:grsfApp/models/faoMajorArea.dart';
+import 'package:grsfApp/models/fishery.dart';
+import 'package:grsfApp/models/fisheryOwner.dart';
+import 'package:grsfApp/models/fishingGear.dart';
+import 'package:grsfApp/models/species.dart';
+import 'package:grsfApp/models/speciesForStock.dart';
+import 'package:grsfApp/models/stock.dart';
+import 'package:grsfApp/models/stockOwner.dart';
+import 'package:grsfApp/services/csv_service.dart';
+import 'package:grsfApp/services/database_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 const String urlStockPng =
@@ -260,5 +273,95 @@ Future<void> sourceLink(
         );
       },
     );
+  }
+}
+
+Future<void> updateTable<T>({
+  required String urlCsv,
+  required String tableName,
+  required T Function(Map<String, dynamic>) fromMap,
+}) async {
+  try {
+    // Download and process CSV data
+    await CsvService.downloadCsvData(urlCsv);
+    List<Map<String, dynamic>> csvData = await CsvService.loadCsvData(
+      'data/user/0/com.example.grsfApp/app_flutter/data.csv',
+    );
+
+    if (csvData.isNotEmpty) {
+      // Update the grsfApp table
+      await DatabaseService.instance.deleteAllRows(tableName);
+      await DatabaseService.instance.batchInsertData(
+        csvData.cast<Map<String, dynamic>>(),
+        tableName,
+      );
+    }
+  } catch (e) {
+    throw Exception('Error updating $tableName: $e');
+  }
+}
+
+Future<void> updateAllTables() async {
+  try {
+    // Update all tables sequentially (or parallelize if needed)
+    await updateTable(
+      urlCsv: Area.urlCsv,
+      tableName: Area.tableName,
+      fromMap: Area.fromMap,
+    );
+    await updateTable(
+      urlCsv: Species.urlCsv,
+      tableName: Species.tableName,
+      fromMap: Species.fromMap,
+    );
+    await updateTable(
+      urlCsv: Fishery.urlCsv,
+      tableName: Fishery.tableName,
+      fromMap: Fishery.fromMap,
+    );
+    await updateTable(
+      urlCsv: AreasForFishery.urlCsv,
+      tableName: 'AreasForFishery',
+      fromMap: AreasForFishery.fromMap,
+    );
+    await updateTable(
+      urlCsv: FisheryOwner.urlCsv,
+      tableName: 'FisheryOwner',
+      fromMap: FisheryOwner.fromMap,
+    );
+    await updateTable(
+      urlCsv: Stock.urlCsv,
+      tableName: Stock.tableName,
+      fromMap: Stock.fromMap,
+    );
+    await updateTable(
+      urlCsv: SpeciesForStock.urlCsv,
+      tableName: 'SpeciesForStock',
+      fromMap: SpeciesForStock.fromMap,
+    );
+    await updateTable(
+      urlCsv: AreasForStock.urlCsv,
+      tableName: 'AreasForStock',
+      fromMap: AreasForStock.fromMap,
+    );
+    await updateTable(
+      urlCsv: StockOwner.urlCsv,
+      tableName: 'StockOwner',
+      fromMap: StockOwner.fromMap,
+    );
+    await updateTable(
+      urlCsv: Gear.urlCsv,
+      tableName: 'Gear',
+      fromMap: Gear.fromMap,
+    );
+    await updateTable(
+      urlCsv: FaoMajorArea.urlCsv,
+      tableName: 'FaoMajorArea',
+      fromMap: FaoMajorArea.fromMap,
+    );
+  } catch (e) {
+    debugPrint(e.toString());
+  } finally {
+    debugPrint("All data updated successfully!");
   }
 }
