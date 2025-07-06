@@ -327,6 +327,85 @@ Widget dataList<T>({
   );
 }
 
+Widget stockDataList({
+  required List<dynamic> list,
+  required String searchQuery,
+  required String sortField,
+  required String sortOrder,
+}) {
+  if (list.isEmpty) {
+    return const Center(
+      child: Text(
+        'No data available',
+        style: TextStyle(color: Color(0xffd9dcd6)),
+      ),
+    );
+  }
+
+
+  final filteredData = list
+      .where((data) =>
+          searchQuery.isEmpty ||
+          (data["value"]?.toString().contains(searchQuery) ?? false) ||
+          (data["unit"]?.toLowerCase().contains(searchQuery.toLowerCase()) ??
+              false) ||
+          (data["type"]?.toLowerCase().contains(searchQuery.toLowerCase()) ??
+              false) ||
+          (data["db_source"]
+                  ?.toLowerCase()
+                  .contains(searchQuery.toLowerCase()) ??
+              false) ||
+          (data["reporting_year"]?.toString().contains(searchQuery) ?? false) ||
+          (data["reference_year"]?.toString().contains(searchQuery) ?? false))
+      .toList();
+
+  filteredData.sort((a, b) {
+    int comparison = 0;
+    if (sortField == 'Value') {
+      comparison = (a["value"]?.compareTo(b["value"] ?? '') ?? 0);
+    } else if (sortField == 'Unit') {
+      comparison = (a["unit"]?.compareTo(b["unit"] ?? '') ?? 0);
+    } else if (sortField == 'Type') {
+      comparison = (a["type"]?.compareTo(b["type"] ?? 0) ?? 0);
+    } else if (sortField == 'Data Owner') {
+      comparison = (a["db_source"]?.compareTo(b["db_source"] ?? '') ?? 0);
+    } else if (sortField == 'Rep. Year') {
+      comparison =
+          (a["reporting_year"]?.compareTo(b["reporting_year"] ?? '') ?? 0);
+    } else if (sortField == 'Ref. Year') {
+      comparison =
+          (a["reference_year"]?.compareTo(b["reference_year"] ?? '') ?? 0);
+    }
+    return sortOrder == 'asc' ? comparison : -comparison;
+  });
+
+  return Container(
+    margin: const EdgeInsets.symmetric(horizontal: 5),
+    padding: const EdgeInsets.all(10),
+    child: filteredData.isEmpty
+        ? const Center(
+            child: Text(
+              'No matching records found',
+              style: TextStyle(color: Color(0xffd9dcd6)),
+            ),
+          )
+        : ListView.builder(
+            itemCount: filteredData.length,
+            itemBuilder: (context, index) {
+              final data = filteredData[index];
+              return listViewItemStockData(
+                data["value"]?.toString() ?? "",
+                data["unit"] ?? "",
+                data["type"] ?? "",
+                data["db_source"] ?? "",
+                data["reporting_year"]?.toString() ?? "",
+                data["reference_year"]?.toString() ?? "",
+              );
+            },
+          ),
+  );
+}
+
 Widget listViewItem({
   dynamic item,
   String name = '',
@@ -457,4 +536,3 @@ Widget textField(String label, TextEditingController controller) {
     ],
   );
 }
-

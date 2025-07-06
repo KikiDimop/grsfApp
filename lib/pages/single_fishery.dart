@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:grsfApp/models/areasForFishery.dart';
 import 'package:grsfApp/models/faoMajorArea.dart';
 import 'package:grsfApp/models/fishery.dart';
@@ -178,13 +180,9 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
 
   bool _showDetails = true;
 
-  bool _showOwnerList = false;
-  bool _showGearsList = false;
   bool _showManagementUnitsList = false;
   bool _showCatches = false;
   bool _showLandings = false;
-  bool _showFaoMajorAreaList = false;
-  bool _showFlagStatesList = false;
 
   @override
   Widget build(BuildContext context) {
@@ -220,46 +218,68 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                     children: [
                       _identitySection(true),
                       const SizedBox(height: 5),
-                      _detailsSection(context)
-
-                      // else if (_showManagementUnitsList)
+                      if (_showDetails)
+                        _detailsSection(context)
+                      else if (_showManagementUnitsList)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              listTitle(title: 'Management Units'),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                    searchHint: 'Search Management Unit',
+                                    listDisplay: _managementUnitsList(),
+                                    displayDropDown: true,
+                                    forStockData: false),
+                              ),
+                            ],
+                          ),
+                        )
+                      // else if (_showCatches)
                       //   SizedBox(
                       //     height: MediaQuery.of(context).size.height * 0.5,
                       //     child: Column(
                       //       crossAxisAlignment: CrossAxisAlignment.start,
                       //       children: [
-                      //         listTitle(title: 'Management Units'),
+                      //         listTitle(title: 'Catches'),
                       //         const SizedBox(height: 5),
                       //         Expanded(
                       //           child: _displayList(
-                      //               searchHint: 'Search Management Unit',
-                      //               listDisplay: _managementUnitsList(),
-                      //               displayDropDown: true,
-                      //               forStockData: false),
-                      //         ),
-                      //       ],
-                      //     ),
-                      //   )
-
-                      // else if (_showLandings)
-                      //   SizedBox(
-                      //     height: MediaQuery.of(context).size.height * 0.5,
-                      //     child: Column(
-                      //       crossAxisAlignment: CrossAxisAlignment.start,
-                      //       children: [
-                      //         listTitle(title: 'Landings'),
-                      //         const SizedBox(height: 5),
-                      //         Expanded(
-                      //           child: _displayList(
-                      //               searchHint: 'Search Landing',
-                      //               listDisplay:
-                      //                   _stockDataList(stockData: "landings"),
+                      //               searchHint: 'Search Catch',
+                      //               listDisplay: _stockDataList(
+                      //                   list: List.from(
+                      //                       _responseDataInfo!["result"]
+                      //                           ['catches'])),
                       //               displayDropDown: true,
                       //               forStockData: true),
                       //         ),
                       //       ],
                       //     ),
                       //   )
+                      else if (_showLandings)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.5,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              listTitle(title: 'Landings'),
+                              const SizedBox(height: 5),
+                              Expanded(
+                                child: _displayList(
+                                    searchHint: 'Search Landing',
+                                    listDisplay: _stockDataList(
+                                        list: List.from(
+                                            _responseDataInfo!["result"]
+                                                ['landings'])),
+                                    displayDropDown: true,
+                                    forStockData: true),
+                              ),
+                            ],
+                          ),
+                        )
                     ],
                   ),
                 ),
@@ -676,6 +696,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                                   ],
                                   itemBuilder: (item) =>
                                       listViewItem(item: item),
+                                  stockdataList: const [],
                                 ),
                               ),
                             );
@@ -700,6 +721,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                                   ],
                                   itemBuilder: (item) =>
                                       listViewItem(item: item),
+                                  stockdataList: const [],
                                 ),
                               ),
                             );
@@ -728,6 +750,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                                   ],
                                   itemBuilder: (item) =>
                                       listViewItem(item: item),
+                                  stockdataList: const [],
                                 ),
                               ),
                             );
@@ -754,6 +777,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                                   ],
                                   itemBuilder: (item) =>
                                       listViewItem(item: item),
+                                  stockdataList: const [],
                                 ),
                               ),
                             );
@@ -780,6 +804,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                                   ],
                                   itemBuilder: (item) =>
                                       listViewItem(item: item),
+                                  stockdataList: const [],
                                 ),
                               ),
                             );
@@ -796,25 +821,6 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     );
   }
 
-  // else if (_showCatches)
-  //   SizedBox(
-  //     height: MediaQuery.of(context).size.height * 0.5,
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         listTitle(title: 'Catches'),
-  //         const SizedBox(height: 5),
-  //         Expanded(
-  //           child: _displayList(
-  //               searchHint: 'Search Catch',
-  //               listDisplay:
-  //                   _stockDataList(stockData: "catches"),
-  //               displayDropDown: true,
-  //               forStockData: true),
-  //         ),
-  //       ],
-  //     ),
-  //   )
   void dataInfoDialogDisplay() {
     showDialog(
       context: context,
@@ -830,20 +836,49 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ElevatedButton(
-                  onPressed: (isExistDataInfoFromAPI &&
-                          _responseDataInfo?["result"]["catches"].length != 0)
-                      ? () {
-                          setState(() {
-                            _showDetails = false;
-                            _showOwnerList = false;
-                            _showGearsList = false;
-                            _showManagementUnitsList = false;
-                            _showCatches = true;
-                            _showLandings = false;
-                          });
-                          Navigator.of(context).pop();
-                        }
-                      : null,
+                  onPressed: () {
+                    (isExistDataInfoFromAPI &&
+                            _responseDataInfo?["result"]["catches"].length != 0)
+                        ? Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GenericDisplayList(
+                                forStockData: true,
+                                items: const [],
+                                identity: _identitySection(false),
+                                listTitle: 'Catches',
+                                searchHint: 'Search Catch',
+                                sortOptions: const [
+                                  SortOption(
+                                      value: 'Value', label: 'Order by Value'),
+                                  SortOption(
+                                      value: 'Unit', label: 'Order by Unit'),
+                                  SortOption(
+                                      value: 'Data Owner',
+                                      label: 'Order by Data Owner'),
+                                  // SortOption(value: 'Type', label: 'Order by Type'),
+                                  SortOption(
+                                      value: 'Ref. Year',
+                                      label: 'Order by Ref. Year'),
+                                  SortOption(
+                                      value: 'Rep. Year',
+                                      label: 'Order by Rep. Year'),
+                                ],
+                                itemBuilder: (data) => listViewItemStockData(
+                                  data["value"]?.toString() ?? "",
+                                  data["unit"] ?? "",
+                                  data["type"] ?? "",
+                                  data["db_source"] ?? "",
+                                  data["reporting_year"]?.toString() ?? "",
+                                  data["reference_year"]?.toString() ?? "",
+                                ),
+                                stockdataList: List.from(
+                                    _responseDataInfo!["result"]['catches']),
+                              ),
+                            ),
+                          )
+                        : null;
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff16425B),
                     shape: RoundedRectangleBorder(
@@ -859,20 +894,62 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: (isExistDataInfoFromAPI &&
-                          _responseDataInfo?["result"]["landings"].length != 0)
-                      ? () {
-                          setState(() {
-                            _showDetails = false;
-                            _showOwnerList = false;
-                            _showGearsList = false;
-                            _showManagementUnitsList = false;
-                            _showCatches = false;
-                            _showLandings = true;
-                          });
-                          Navigator.of(context).pop();
-                        }
-                      : null,
+                  onPressed: () {
+                    (isExistDataInfoFromAPI &&
+                            _responseDataInfo?["result"]["landings"].length !=
+                                0)
+                        ? Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GenericDisplayList(
+                                forStockData: true,
+                                items: const [],
+                                identity: _identitySection(false),
+                                listTitle: 'Landings',
+                                searchHint: 'Search Landing',
+                                sortOptions: const [
+                                  SortOption(
+                                      value: 'Value', label: 'Order by Value'),
+                                  SortOption(
+                                      value: 'Unit', label: 'Order by Unit'),
+                                  SortOption(
+                                      value: 'Data Owner',
+                                      label: 'Order by Data Owner'),
+                                  // SortOption(value: 'Type', label: 'Order by Type'),
+                                  SortOption(
+                                      value: 'Ref. Year',
+                                      label: 'Order by Ref. Year'),
+                                  SortOption(
+                                      value: 'Rep. Year',
+                                      label: 'Order by Rep. Year'),
+                                ],
+                                itemBuilder: (data) => listViewItemStockData(
+                                  data["value"]?.toString() ?? "",
+                                  data["unit"] ?? "",
+                                  data["type"] ?? "",
+                                  data["db_source"] ?? "",
+                                  data["reporting_year"]?.toString() ?? "",
+                                  data["reference_year"]?.toString() ?? "",
+                                ),
+                                stockdataList: List.from(
+                                    _responseDataInfo!["result"]['landings']),
+                              ),
+                            ),
+                          )
+                        : null;
+                  },
+                  // onPressed: (isExistDataInfoFromAPI &&
+                  //         _responseDataInfo?["result"]["landings"].length != 0)
+                  //     ? () {
+                  //         setState(() {
+                  //           _showDetails = false;
+                  //           _showManagementUnitsList = false;
+                  //           _showCatches = false;
+                  //           _showLandings = true;
+                  //         });
+                  //         Navigator.of(context).pop();
+                  //       }
+                  //     : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff16425B),
                     shape: RoundedRectangleBorder(
@@ -1030,9 +1107,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     );
   }
 
-  Widget _stockDataList({required String stockData}) {
-    if (isExistDataInfoFromAPI &&
-        _responseDataInfo?["result"][stockData].length == 0) {
+  Widget _stockDataList({required List<dynamic> list}) {
+    if (list.isEmpty) {
       return const Center(
         child: Text(
           'No data available',
@@ -1041,8 +1117,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
       );
     }
 
-    final List<dynamic> list =
-        List.from(_responseDataInfo!["result"][stockData]);
+    // final List<dynamic> list =
+    //     List.from(_responseDataInfo!["result"][stockData]);
 
     final filteredData = list
         .where((data) =>

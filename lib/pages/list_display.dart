@@ -5,6 +5,7 @@ import 'package:grsfApp/widgets/global_ui.dart';
 
 class GenericDisplayList<T> extends StatefulWidget {
   final List<T>? items;
+  final List<dynamic> stockdataList;
   final Widget identity;
   final String listTitle;
   final String searchHint;
@@ -21,6 +22,7 @@ class GenericDisplayList<T> extends StatefulWidget {
     required this.sortOptions,
     required this.itemBuilder,
     this.forStockData = false,
+    required this.stockdataList,
   });
 
   @override
@@ -78,14 +80,20 @@ class _GenericDisplayListState<T> extends State<GenericDisplayList<T>> {
                   Expanded(
                     child: _displayList(
                       searchHint: widget.searchHint,
-                      listDisplay: dataList<T>(
-                        items: widget.items,
-                        searchQuery: _searchQuery,
-                        sortField: _selectedOrder,
-                        sortOrder: _sortOrder,
-                        listViewItem: ({required item}) =>
-                            widget.itemBuilder(item),
-                      ),
+                      listDisplay: (widget.forStockData)
+                          ? stockDataList(
+                              list: widget.stockdataList,
+                              searchQuery: _searchQuery,
+                              sortField: _selectedOrder,
+                              sortOrder: _sortOrder)
+                          : dataList<T>(
+                              items: widget.items,
+                              searchQuery: _searchQuery,
+                              sortField: _selectedOrder,
+                              sortOrder: _sortOrder,
+                              listViewItem: ({required item}) =>
+                                  widget.itemBuilder(item),
+                            ),
                       displayDropDown: widget.sortOptions.isNotEmpty,
                       forStockData: widget.forStockData,
                     ),
@@ -117,7 +125,7 @@ class _GenericDisplayListState<T> extends State<GenericDisplayList<T>> {
           Column(
             children: [
               _searchField(hint: searchHint),
-              if (displayDropDown) _orderByDropdown(),
+              if (displayDropDown) _orderByDropdown()
             ],
           ),
           Expanded(
@@ -251,11 +259,9 @@ class _GenericDisplayListState<T> extends State<GenericDisplayList<T>> {
   }
 }
 
-// Helper class for sort options
 class SortOption {
   final String value;
   final String label;
 
   const SortOption({required this.value, required this.label});
 }
-
