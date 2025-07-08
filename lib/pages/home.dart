@@ -124,9 +124,21 @@ class HomePageState extends State<HomePage> {
                           ],
                         ),
                       ),
-                      Text(
-                        _databaseInfo,
-                        style: const TextStyle(color: Color(0xffd9dcd6),fontSize: 14),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 16.0, horizontal: 8.0),
+                        decoration: BoxDecoration(
+                          color: const Color(0xffd9dcd6).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        child: Text(
+                          'Database : $_databaseInfo',
+                          style: const TextStyle(
+                              color: Color(0xffd9dcd6), fontSize: 16),
+                        ),
                       ),
                     ],
                   ),

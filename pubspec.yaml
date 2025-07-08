@@ -2,7 +2,7 @@ name: grsfApp
 description: "A grsf mobile app."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -46,12 +46,18 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  flutter_launcher_icons: ^0.13.1 # or latest
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/grsf.jpg"
+
   flutter_lints: ^4.0.0
 
 flutter:
-
   uses-material-design: true
-  assets : 
+  assets:
     - assets/icons/fisheries.png
     - assets/icons/gear.png
     - assets/icons/area.png
@@ -60,4 +66,3 @@ flutter:
     - assets/icons/grsf.jpg
     - assets/icons/sync.png
     - assets/icons/map.png
-

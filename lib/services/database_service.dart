@@ -58,7 +58,8 @@ class DatabaseService {
         int daysSinceModified = DateTime.now().difference(lastModified).inDays;
 
         //return 'Database exists\nPath: $path\nLast modified: $lastModified\nAge: $daysSinceModified days';
-        return daysSinceModified.toString();
+        //return daysSinceModified.toString();
+        return lastModified.toString();
       } else {
         return 'Database does not exist';
       }
