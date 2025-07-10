@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/global.dart';
 import 'package:grsfApp/widgets/global_ui.dart';
 
 class IdentityCard extends StatefulWidget {

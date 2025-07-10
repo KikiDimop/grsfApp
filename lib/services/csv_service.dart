@@ -2,15 +2,13 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:csv/csv.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
 class CsvService {
   static Future<void> downloadCsvData(url) async {
     String filename = 'data.csv';
-    String filePath = await downloadAndSaveCSV(url, filename);
-    //debugPrint('CSV saved to: $filePath');
+    await downloadAndSaveCSV(url, filename);
   }
 
   static Future<List<Map<String, dynamic>>> loadCsvData(String filePath) async {
@@ -21,9 +19,6 @@ class CsvService {
       }
 
       final rawData = await file.readAsString(encoding: utf8);
-
-      // final rawBytes = await file.readAsBytes();
-      // final rawData = utf8.decode(rawBytes); // Explicit UTF-8 decode
 
       List<List<dynamic>> parsedData = const CsvToListConverter().convert(
         rawData,
@@ -88,20 +83,5 @@ class CsvService {
     } catch (e) {
       throw Exception('Error downloading and saving CSV: $e');
     }
-  }
-
-  static Future<bool> csvFileExists(String filename) async {
-    try {
-      final directory = await getApplicationDocumentsDirectory();
-      final filePath = '${directory.path}/$filename';
-      return File(filePath).exists();
-    } catch (e) {
-      return false;
-    }
-  }
-
-  static Future<String> getCSVFilePath(String filename) async {
-    final directory = await getApplicationDocumentsDirectory();
-    return '${directory.path}/$filename';
   }
 }

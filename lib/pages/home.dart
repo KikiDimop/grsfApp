@@ -1,4 +1,4 @@
-import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/global.dart';
 import 'package:grsfApp/pages/areas.dart';
 import 'package:grsfApp/pages/fisheries.dart';
 import 'package:grsfApp/pages/fishing_gears.dart';
@@ -96,18 +96,6 @@ class HomePageState extends State<HomePage> {
                         ),
                         child: Column(
                           children: [
-                            buildImageButton(context, 'assets/icons/area.png',
-                                'Areas', const Areas()),
-                            buildImageButton(
-                                context,
-                                'assets/icons/species.png',
-                                'Species',
-                                const DisplaySpecies()),
-                            buildImageButton(
-                                context,
-                                'assets/icons/fisheries.png',
-                                'Fisheries',
-                                Fisheries(search: SearchFishery())),
                             buildImageButton(
                                 context,
                                 'assets/icons/stocks.png',
@@ -117,10 +105,29 @@ class HomePageState extends State<HomePage> {
                                     forSpecies: false,
                                     timeseries: '',
                                     refYear: '')),
-                            buildImageButton(context, 'assets/icons/gear.png',
-                                'Fishing Gear', const FishingGears()),
-                            buildImageButton(context, 'assets/icons/sync.png',
-                                'Sync Data', const UpdateDataScreen()),
+                            buildImageButton(
+                                context,
+                                'assets/icons/fisheries.png',
+                                'Fisheries',
+                                Fisheries(
+                                    search: SearchFishery(), timeseries: '',refYear: '',)), // Fisheries
+                            buildImageButton(
+                                context,
+                                'assets/icons/species.png',
+                                'Species',
+                                const DisplaySpecies()), // Species
+                            buildImageButton(context, 'assets/icons/area.png',
+                                'Areas', const Areas()), // Areas
+                            buildImageButton(
+                                context,
+                                'assets/icons/gear.png',
+                                'Fishing Gears',
+                                const FishingGears()), // Fishing Gears
+                            buildImageButton(
+                                context,
+                                'assets/icons/sync.png',
+                                'Sync Data',
+                                const UpdateDataScreen()), // Sync Data
                           ],
                         ),
                       ),

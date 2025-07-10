@@ -17,15 +17,15 @@ class AreasForStock {
     this.areaName,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'uuid': uuid,
-      'area_type': areaType,
-      'area_code': areaCode,
-      'area_name': areaName,
-    };
-  }
+  // Map<String, dynamic> toMap() {
+  //   return {
+  //     'id': id,
+  //     'uuid': uuid,
+  //     'area_type': areaType,
+  //     'area_code': areaCode,
+  //     'area_name': areaName,
+  //   };
+  // }
 
   factory AreasForStock.fromMap(Map<String, dynamic> map) {
     return AreasForStock(

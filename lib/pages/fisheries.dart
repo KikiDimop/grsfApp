@@ -1,5 +1,5 @@
 import 'package:grsfApp/models/fishery.dart';
-import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/global.dart';
 import 'package:grsfApp/pages/search_fisheries.dart';
 import 'package:grsfApp/pages/single_fishery.dart';
 import 'package:grsfApp/services/database_service.dart';
@@ -9,8 +9,13 @@ import 'package:grsfApp/widgets/global_ui.dart';
 
 class Fisheries extends StatefulWidget {
   final dynamic search;
+  final String timeseries, refYear;
 
-  const Fisheries({super.key, required this.search});
+  const Fisheries(
+      {super.key,
+      required this.search,
+      required this.timeseries,
+      required this.refYear});
 
   @override
   State<Fisheries> createState() => _FisheriesState();
@@ -23,6 +28,7 @@ class _FisheriesState extends State<Fisheries> {
   bool isLoading = true;
   bool isLoading2 = false;
   String? error;
+  Map<String, dynamic>? _responseData;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
@@ -30,6 +36,10 @@ class _FisheriesState extends State<Fisheries> {
   void initState() {
     super.initState();
     _fetchData();
+    if (widget.timeseries.isNotEmpty) {
+      isLoading2 = true;
+      _fetchDataFromAPI().then((_) => _mergeAndFilterData());
+    }
   }
 
   Future<void> _fetchData() async {
@@ -42,12 +52,68 @@ class _FisheriesState extends State<Fisheries> {
       setState(() {
         fisheries = results[0];
         isLoading = false;
-        if (fisheries?.isEmpty ?? true) _showNoResultsDialog();
+        if (fisheries?.isEmpty ?? true && widget.timeseries == '')
+          _showNoResultsDialog();
       });
     } catch (e) {
       setState(() {
         error = e.toString();
         isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchDataFromAPI() async {
+    String link =
+        'https://isl.ics.forth.gr/grsf/grsf-api/resources/getfisherieswithtimeseries?timeseries=${widget.timeseries.replaceAll(' ', '%20')}';
+    if (widget.refYear.isNotEmpty) link += '&reference_year=${widget.refYear}';
+    final data = await getApiData(link);
+
+    setState(() {
+      _responseData = data;
+      isLoading2 = false;
+    });
+  }
+
+  Future<void> _showNoResultsDialog() async {
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('No Results'),
+          content: const Text(
+              'No fisheries were found matching your search criteria.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _mergeAndFilterData() async {
+    try {
+      fisheries = mergedata(
+              datalist: fisheries,
+              getUuid: (fishery) => fishery.uuid,
+              responsedata: _responseData)
+          .cast<Fishery>();
+      ;
+      setState(() {
+        isLoading2 = false;
+        if (fisheries!.isEmpty) _showNoResultsDialog();
+      });
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+        isLoading2 = false;
       });
     }
   }
@@ -68,7 +134,7 @@ class _FisheriesState extends State<Fisheries> {
           ),
         ],
       ),
-      body: (isLoading)
+      body: (isLoading || isLoading2)
           ? const Center(child: CircularProgressIndicator())
           : error != null
               ? Center(
@@ -160,29 +226,6 @@ class _FisheriesState extends State<Fisheries> {
     );
   }
 
-  Future<void> _showNoResultsDialog() async {
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('No Results'),
-          content: const Text(
-              'No fisheries were found matching your search criteria.'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Widget _results() {
     if (fisheries == null) {
       return const Center(
@@ -239,7 +282,7 @@ class _FisheriesState extends State<Fisheries> {
               child: Text(
                 'No fisheries found',
                 style: TextStyle(
-                    color: Color(0xff16425B)), // Adjusted for visibility
+                    color: Color(0xff16425B)), 
               ),
             )
           : ListView.builder(

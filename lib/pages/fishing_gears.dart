@@ -1,5 +1,5 @@
 import 'package:grsfApp/models/fishingGear.dart';
-import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/global.dart';
 import 'package:grsfApp/pages/fisheries.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -393,7 +393,7 @@ class _FishingGearsState extends State<FishingGears> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => Fisheries(
-                          search: searchFishery,
+                          search: searchFishery, timeseries: '', refYear: '',
                         ),
                       ),
                     );

@@ -1,12 +1,10 @@
-import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/global.dart';
 import 'package:grsfApp/models/stock.dart';
 import 'package:grsfApp/pages/search_stocks.dart';
 import 'package:grsfApp/pages/single_stock.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class Stocks extends StatefulWidget {
   final dynamic search;
@@ -30,7 +28,6 @@ class _StocksState extends State<Stocks> {
   String _sortOrder = 'asc';
   bool isLoading = true;
   bool isLoading2 = false;
-  bool isExistDataFromAPI = false;
   String? error;
   Map<String, dynamic>? _responseData;
   String _searchQuery = '';
@@ -42,7 +39,7 @@ class _StocksState extends State<Stocks> {
     _fetchData();
     if (widget.timeseries.isNotEmpty) {
       isLoading2 = true;
-      _fetchDataFromAPI().then((_) => _mergeAndFilterStocks());
+      _fetchDataFromAPI().then((_) => _mergeAndFilterData());
     }
   }
 
@@ -59,7 +56,7 @@ class _StocksState extends State<Stocks> {
       setState(() {
         stocks = results[0];
         isLoading = false;
-        if (stocks?.isEmpty ?? true && widget.timeseries == 'None') {
+        if (stocks?.isEmpty ?? true && widget.timeseries == '') {
           _showNoResultsDialog();
         }
       });
@@ -73,31 +70,14 @@ class _StocksState extends State<Stocks> {
 
   Future<void> _fetchDataFromAPI() async {
     String link =
-        'https://isl.ics.forth.gr/grsf/grsf-api/resources/getstockswithtimeseries?timeseries=${widget.timeseries.replaceAll(' ', '&')}';
+        'https://isl.ics.forth.gr/grsf/grsf-api/resources/getstockswithtimeseries?timeseries=${widget.timeseries.replaceAll(' ', '%20')}';
     if (widget.refYear.isNotEmpty) link += '&reference_year=${widget.refYear}';
-    try {
-      final response = await http.get(Uri.parse(link));
+    final data = await getApiData(link);
 
-      if (response.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-        setState(() {
-          _responseData = data;
-          isLoading2 = false;
-          isExistDataFromAPI = true;
-        });
-      } else {
-        setState(() {
-          _responseData = null;
-          isLoading2 = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _responseData = null;
-        isLoading2 = false;
-      });
-      //debugPrint('Error fetching API data: $e');
-    }
+    setState(() {
+      _responseData = data;
+      isLoading2 = false;
+    });
   }
 
   Future<void> _showNoResultsDialog() async {
@@ -123,38 +103,23 @@ class _StocksState extends State<Stocks> {
     );
   }
 
-  Future<void> _mergeAndFilterStocks() async {
+  Future<void> _mergeAndFilterData() async {
     try {
-      List<String> apiIds = [];
-      if (_responseData != null && _responseData?['result'] != null) {
-        apiIds = List<String>.from(_responseData?['result']);
-      }
-
-      Set<String> apiIdSet = apiIds.toSet();
-      ////debugPrint(apiIdSet.toString());
-
-      List<Stock> filteredStocks = stocks
-              ?.where((stock) =>
-                  stock.uuid != null && apiIdSet.contains(stock.uuid))
-              .toList() ??
-          [];
-
-      // for (var s in filteredStocks) {
-      //   //debugPrint(s .uuid);
-      // }
-
+      stocks = mergedata(
+              datalist: stocks,
+              getUuid: (stock) => stock.uuid,
+              responsedata: _responseData)
+          .cast<Stock>();
+      ;
       setState(() {
-        stocks = filteredStocks;
         isLoading2 = false;
-        isExistDataFromAPI = apiIds.isNotEmpty;
-        if (filteredStocks.isEmpty) _showNoResultsDialog();
+        if (stocks!.isEmpty) _showNoResultsDialog();
       });
     } catch (e) {
       setState(() {
         error = e.toString();
         isLoading2 = false;
       });
-      //debugPrint('Error merging and filtering stocks: $e');
     }
   }
 
@@ -317,8 +282,8 @@ class _StocksState extends State<Stocks> {
         child: filteredStocks.isEmpty
             ? const Center(
                 child: Text(
-                  'Wait for the data to be loaded',
-                  style: TextStyle(color: Color(0xffd9dcd6)),
+                  'No stocks found',
+                  style: TextStyle(color: Color(0xff16425B)),
                 ),
               )
             : ListView.builder(

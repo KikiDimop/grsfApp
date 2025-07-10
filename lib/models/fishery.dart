@@ -44,29 +44,29 @@ class Fishery {
     this.questionnaireCode,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'uuid': uuid,
-      'grsfName': grsfName,
-      'grsfSemanticID': grsfSemanticID,
-      'shortName': shortName,
-      'type': type,
-      'status': status,
-      'traceabilityFlag': traceabilityFlag,
-      'speciesCode': speciesCode,
-      'speciesType': speciesType,
-      'speciesName': speciesName,
-      'gearType': gearType,
-      'gearCode': gearCode,
-      'flagCode': flagCode,
-      'managementEntities': managementEntities,
-      'parentAreas': parentAreas,
-      'firmsCode': firmsCode,
-      'fishsourceCode': fishsourceCode,
-      'questionnaireCode': questionnaireCode,
-    };
-  }
+  // Map<String, dynamic> toMap() {
+  //   return {
+  //     'id': id,
+  //     'uuid': uuid,
+  //     'grsfName': grsfName,
+  //     'grsfSemanticID': grsfSemanticID,
+  //     'shortName': shortName,
+  //     'type': type,
+  //     'status': status,
+  //     'traceabilityFlag': traceabilityFlag,
+  //     'speciesCode': speciesCode,
+  //     'speciesType': speciesType,
+  //     'speciesName': speciesName,
+  //     'gearType': gearType,
+  //     'gearCode': gearCode,
+  //     'flagCode': flagCode,
+  //     'managementEntities': managementEntities,
+  //     'parentAreas': parentAreas,
+  //     'firmsCode': firmsCode,
+  //     'fishsourceCode': fishsourceCode,
+  //     'questionnaireCode': questionnaireCode,
+  //   };
+  // }
 
   factory Fishery.fromMap(Map<String, dynamic> map) {
     return Fishery(
@@ -92,47 +92,47 @@ class Fishery {
     );
   }
 
-  Fishery copyWith({
-    int? id,
-    String? uuid,
-    String? grsfName,
-    String? grsfSemanticID,
-    String? shortName,
-    String? type,
-    String? status,
-    String? traceabilityFlag,
-    String? speciesCode,
-    String? speciesType,
-    String? speciesName,
-    String? gearType,
-    String? gearCode,
-    String? flagCode,
-    String? managementEntities,
-    String? parentAreas,
-    String? firmsCode,
-    String? fishsourceCode,
-    String? questionnaireCode,
-  }) {
-    return Fishery(
-      id: id ?? this.id,
-      uuid: uuid ?? this.uuid,
-      grsfName: grsfName ?? this.grsfName,
-      grsfSemanticID: grsfSemanticID ?? this.grsfSemanticID,
-      shortName: shortName ?? this.shortName,
-      type: type ?? this.type,
-      status: status ?? this.status,
-      traceabilityFlag: traceabilityFlag ?? this.traceabilityFlag,
-      speciesCode: speciesCode ?? this.speciesCode,
-      speciesName: speciesName ?? this.speciesName,
-      speciesType: speciesType ?? this.speciesType,
-      gearType: gearType ?? this.gearType,
-      gearCode: gearCode ?? this.gearCode,
-      flagCode: flagCode ?? this.flagCode,
-      managementEntities: managementEntities ?? this.managementEntities,
-      parentAreas: parentAreas ?? this.parentAreas,
-      firmsCode: firmsCode ?? this.firmsCode,
-      fishsourceCode: fishsourceCode ?? this.fishsourceCode,
-      questionnaireCode: questionnaireCode ?? this.questionnaireCode,
-    );
-  }
+  // Fishery copyWith({
+  //   int? id,
+  //   String? uuid,
+  //   String? grsfName,
+  //   String? grsfSemanticID,
+  //   String? shortName,
+  //   String? type,
+  //   String? status,
+  //   String? traceabilityFlag,
+  //   String? speciesCode,
+  //   String? speciesType,
+  //   String? speciesName,
+  //   String? gearType,
+  //   String? gearCode,
+  //   String? flagCode,
+  //   String? managementEntities,
+  //   String? parentAreas,
+  //   String? firmsCode,
+  //   String? fishsourceCode,
+  //   String? questionnaireCode,
+  // }) {
+  //   return Fishery(
+  //     id: id ?? this.id,
+  //     uuid: uuid ?? this.uuid,
+  //     grsfName: grsfName ?? this.grsfName,
+  //     grsfSemanticID: grsfSemanticID ?? this.grsfSemanticID,
+  //     shortName: shortName ?? this.shortName,
+  //     type: type ?? this.type,
+  //     status: status ?? this.status,
+  //     traceabilityFlag: traceabilityFlag ?? this.traceabilityFlag,
+  //     speciesCode: speciesCode ?? this.speciesCode,
+  //     speciesName: speciesName ?? this.speciesName,
+  //     speciesType: speciesType ?? this.speciesType,
+  //     gearType: gearType ?? this.gearType,
+  //     gearCode: gearCode ?? this.gearCode,
+  //     flagCode: flagCode ?? this.flagCode,
+  //     managementEntities: managementEntities ?? this.managementEntities,
+  //     parentAreas: parentAreas ?? this.parentAreas,
+  //     firmsCode: firmsCode ?? this.firmsCode,
+  //     fishsourceCode: fishsourceCode ?? this.fishsourceCode,
+  //     questionnaireCode: questionnaireCode ?? this.questionnaireCode,
+  //   );
+  // }
 }

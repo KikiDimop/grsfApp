@@ -1,4 +1,4 @@
-import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/global.dart';
 import 'package:grsfApp/pages/fisheries.dart';
 import 'package:grsfApp/pages/stocks.dart';
 import 'package:flutter/material.dart';
@@ -110,7 +110,7 @@ class SpeciesDetailsScreen extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => Fisheries(
-                          search: searchFishery,
+                          search: searchFishery, timeseries: '', refYear: '',
                         ),
                       ),
                     );

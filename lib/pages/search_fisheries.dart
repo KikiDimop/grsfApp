@@ -1,4 +1,4 @@
-import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/global.dart';
 import 'package:grsfApp/pages/fisheries.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:flutter/material.dart';
@@ -261,11 +261,16 @@ class _SearchfisheriesState extends State<Searchfisheries> {
           selectedResourceStatus: rStatus,
           flagCode: flagCode,
         );
-        Navigator.pop(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
-            builder: (context) => Fisheries(search: searchFishery),
+            builder: (context) => Fisheries(
+              search: searchFishery,
+              timeseries: '',
+              refYear: '',
+            ),
           ),
+          (route) => route.isFirst,
         );
       },
       style: ElevatedButton.styleFrom(

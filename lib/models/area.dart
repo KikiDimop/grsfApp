@@ -20,17 +20,17 @@ class Area {
     this.fisheryOccurrences,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'area_code': areaCode,
-      'area_code_type': areaCodeType,
-      'area_name': areaName,
-      'total_occurrences': totalOccurrences,
-      'stock_occurrences': stockOccurrences,
-      'fishery_occurrences': fisheryOccurrences,
-    };
-  }
+  // Map<String, dynamic> toMap() {
+  //   return {
+  //     'id': id,
+  //     'area_code': areaCode,
+  //     'area_code_type': areaCodeType,
+  //     'area_name': areaName,
+  //     'total_occurrences': totalOccurrences,
+  //     'stock_occurrences': stockOccurrences,
+  //     'fishery_occurrences': fisheryOccurrences,
+  //   };
+  // }
 
   factory Area.fromMap(Map<String, dynamic> map) {
     return Area(
@@ -44,23 +44,23 @@ class Area {
     );
   }
 
-  Area copyWith({
-    int? id,
-    String? areaCode,
-    String? areaCodeType,
-    String? areaName,
-    String? totalOccurrences,
-    String? stockOccurrences,
-    String? fisheryOccurrences,
-  }) {
-    return Area(
-      id: id ?? this.id,
-      areaCode: areaCode ?? this.areaCode,
-      areaCodeType: areaCodeType ?? this.areaCodeType,
-      areaName: areaName ?? this.areaName,
-      totalOccurrences: totalOccurrences ?? this.totalOccurrences,
-      stockOccurrences: stockOccurrences ?? this.stockOccurrences,
-      fisheryOccurrences: fisheryOccurrences ?? this.fisheryOccurrences,
-    );
-  }
+  // Area copyWith({
+  //   int? id,
+  //   String? areaCode,
+  //   String? areaCodeType,
+  //   String? areaName,
+  //   String? totalOccurrences,
+  //   String? stockOccurrences,
+  //   String? fisheryOccurrences,
+  // }) {
+  //   return Area(
+  //     id: id ?? this.id,
+  //     areaCode: areaCode ?? this.areaCode,
+  //     areaCodeType: areaCodeType ?? this.areaCodeType,
+  //     areaName: areaName ?? this.areaName,
+  //     totalOccurrences: totalOccurrences ?? this.totalOccurrences,
+  //     stockOccurrences: stockOccurrences ?? this.stockOccurrences,
+  //     fisheryOccurrences: fisheryOccurrences ?? this.fisheryOccurrences,
+  //   );
+  // }
 }

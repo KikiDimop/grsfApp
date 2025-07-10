@@ -4,7 +4,7 @@ import 'package:grsfApp/models/areasForStock.dart';
 import 'package:grsfApp/models/faoMajorArea.dart';
 import 'package:grsfApp/models/fisheryOwner.dart';
 import 'package:grsfApp/models/fishingGear.dart';
-import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/global.dart';
 import 'package:grsfApp/models/speciesForStock.dart';
 import 'package:grsfApp/models/stockOwner.dart';
 
@@ -342,7 +342,6 @@ Widget stockDataList({
     );
   }
 
-
   final filteredData = list
       .where((data) =>
           searchQuery.isEmpty ||
@@ -534,5 +533,108 @@ Widget textField(String label, TextEditingController controller) {
         ),
       ),
     ],
+  );
+}
+
+// Item builder for FAO categories
+Widget listViewItemFAOCategory(String category) {
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 5),
+    padding: const EdgeInsets.all(15),
+    decoration: BoxDecoration(
+      color: const Color(0xffd9dcd6),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Row(
+      children: [
+        const Icon(
+          Icons.category,
+          color: Color(0xff16425B),
+          size: 24,
+        ),
+        const SizedBox(width: 15),
+        Expanded(
+          child: Text(
+            category,
+            style: const TextStyle(
+              color: Color(0xff16425B),
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+// Item builder for state and trend
+Widget listViewItemStateAndTrend(String stateInfo) {
+  // Parse the reference year from the string if it exists
+  final refYearMatch = RegExp(r'\[Ref\. Year: (\d+)\]').firstMatch(stateInfo);
+  final refYear = refYearMatch?.group(1) ?? '';
+
+  // Remove the reference year part from the main text for cleaner display
+  final cleanText =
+      stateInfo.replaceAll(RegExp(r'\[Ref\. Year: \d+\]'), '').trim();
+
+  // Remove HTML tags for display
+  final displayText = cleanText.replaceAll(RegExp(r'<[^>]*>'), ' ').trim();
+
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 8),
+    padding: const EdgeInsets.all(15),
+    decoration: BoxDecoration(
+      color: const Color(0xffd9dcd6),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(
+              Icons.trending_up,
+              color: Color(0xff16425B),
+              size: 24,
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'State & Trend',
+              style: TextStyle(
+                color: Color(0xff16425B),
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Spacer(),
+            if (refYear.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xff16425B).withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  'Ref. Year: $refYear',
+                  style: const TextStyle(
+                    color: Color(0xff16425B),
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Text(
+          displayText,
+          style: const TextStyle(
+            color: Color(0xff16425B),
+            fontSize: 14,
+            height: 1.4,
+          ),
+        ),
+      ],
+    ),
   );
 }

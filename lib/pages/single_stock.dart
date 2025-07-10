@@ -1,6 +1,6 @@
 import 'package:grsfApp/models/areasForStock.dart';
 import 'package:grsfApp/models/faoMajorArea.dart';
-import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/global.dart';
 import 'package:grsfApp/models/speciesForStock.dart';
 import 'package:grsfApp/models/stock.dart';
 import 'package:grsfApp/models/stockOwner.dart';
@@ -9,8 +9,6 @@ import 'package:grsfApp/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:grsfApp/widgets/identity_card.dart';
 import 'package:grsfApp/widgets/global_ui.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class DisplaySingleStock extends StatefulWidget {
   final Stock stock;
@@ -27,6 +25,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   List<SpeciesForStock>? species;
   bool isLoading = true;
   bool isLoading2 = true;
+  bool isLoading3 = true;
   bool isExistDataFromAPI = false;
   bool isExistDataInfoFromAPI = false;
   String? error;
@@ -43,6 +42,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     setState(() {
       isLoading = true;
       isLoading2 = true;
+      isLoading3 = true;
     });
 
     try {
@@ -97,68 +97,34 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   }
 
   Future<void> _fetchDataFromAPI() async {
-    try {
-      final response = await http.get(Uri.parse(
-          'https://isl.ics.forth.gr/grsf/grsf-api/resources/getstockbasic?uuid=${widget.stock.uuid}&response_type=JSON'));
-
-      if (response.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-        setState(() {
-          _responseData = data;
-          isLoading2 = false;
-          isExistDataFromAPI = true;
-
-          //Fill lists from api data
-          final rawSpecies = _responseData!['result']['species'];
-          final rawAreas = _responseData!['result']['assessment_areas'];
-
-          final List<dynamic> speciesList =
-              rawSpecies is List ? rawSpecies : [rawSpecies];
-          final List<dynamic> areaList =
-              rawAreas is List ? rawAreas : [rawAreas];
-
-          species = speciesList
-              .map((item) => SpeciesForStock.fromJson(item))
-              .toList();
-          areas = areaList.map((item) => AreasForStock.fromJson(item)).toList();
-        });
-      } else {
-        setState(() {
-          _responseData = null;
-          isLoading2 = false;
-        });
+    final data = await getApiData(
+        'https://isl.ics.forth.gr/grsf/grsf-api/resources/getstockbasic?uuid=${widget.stock.uuid}&response_type=JSON');
+    setState(() {
+      _responseData = data;
+      isLoading2 = false;
+      isExistDataFromAPI = data != null;
+      if (_responseData != null) {
+        //Fill lists from api data
+        final rawSpecies = _responseData!['result']['species'];
+        final rawAreas = _responseData!['result']['assessment_areas'];
+        final List<dynamic> speciesList =
+            rawSpecies is List ? rawSpecies : [rawSpecies];
+        final List<dynamic> areaList = rawAreas is List ? rawAreas : [rawAreas];
+        species =
+            speciesList.map((item) => SpeciesForStock.fromJson(item)).toList();
+        areas = areaList.map((item) => AreasForStock.fromJson(item)).toList();
       }
-    } catch (e) {
-      setState(() {
-        _responseData = null;
-        isLoading2 = false;
-      });
-      //debugPrint('Error fetching API data: $e');
-    }
+    });
   }
 
   Future<void> _fetchDataInfoFromAPI() async {
-    try {
-      final response = await http.get(Uri.parse(
-          'https://isl.ics.forth.gr/grsf/grsf-api/resources/getstock?uuid=${widget.stock.uuid}&response_type=JSON'));
-
-      if (response.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-        setState(() {
-          _responseDataInfo = data;
-          isExistDataInfoFromAPI = true;
-        });
-      } else {
-        setState(() {
-          _responseDataInfo = null;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _responseDataInfo = null;
-      });
-      //debugPrint('Error fetching API data: $e');
-    }
+    final data = await getApiData(
+        'https://isl.ics.forth.gr/grsf/grsf-api/resources/getstock?uuid=${widget.stock.uuid}&response_type=JSON');
+    setState(() {
+      _responseDataInfo = data;
+      isLoading3 = false;
+      isExistDataInfoFromAPI = data != null;
+    });
   }
 
   String stockDataTitle = '';
@@ -186,12 +152,15 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
           ),
         ],
       ),
-      body: (isLoading || isLoading2)
+      body: (isLoading || isLoading2 || isLoading3)
           ? const Center(child: CircularProgressIndicator())
           : error != null
               ? Center(
-                  child: Text('Error: $error',
-                      style: const TextStyle(color: Colors.red)))
+                  child: Text(
+                    'Error: $error',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                )
               : SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -493,7 +462,10 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
               ),
             ),
           ],
-        )
+        ),
+        const SizedBox(
+          height: 10,
+        ),
       ],
     );
   }
@@ -502,30 +474,55 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => GenericDisplayList(
-          forStockData: true,
-          items: const [],
-          identity: _identitySection(),
-          listTitle: stockDataTitle,
-          searchHint: 'Search $stockDataTitle',
-          sortOptions: const [
-            SortOption(value: 'Value', label: 'Order by Value'),
-            SortOption(value: 'Unit', label: 'Order by Unit'),
-            SortOption(value: 'Data Owner', label: 'Order by Data Owner'),
-            // SortOption(value: 'Type', label: 'Order by Type'),
-            SortOption(value: 'Ref. Year', label: 'Order by Ref. Year'),
-            SortOption(value: 'Rep. Year', label: 'Order by Rep. Year'),
-          ],
-          itemBuilder: (data) => listViewItemStockData(
-            data["value"]?.toString() ?? "",
-            data["unit"] ?? "",
-            data["type"] ?? "",
-            data["db_source"] ?? "",
-            data["reporting_year"]?.toString() ?? "",
-            data["reference_year"]?.toString() ?? "",
-          ),
-          stockdataList: List.from(_responseDataInfo!["result"][stockData]),
-        ),
+        builder: (context) {
+          if (stockData == 'fao_categories') {
+            return GenericDisplayList<String>(
+              forStockData: false,
+              items: List<String>.from(_responseDataInfo!["result"][stockData]),
+              identity: _identitySection(),
+              listTitle: stockDataTitle,
+              searchHint: '',
+              sortOptions: const [],
+              itemBuilder: (category) => listViewItemFAOCategory(category),
+              stockdataList: const [],
+            );
+          } else if (stockData == 'state_and_trend') {
+            return GenericDisplayList<String>(
+              forStockData: false,
+              items: List<String>.from(_responseDataInfo!["result"][stockData]),
+              identity: _identitySection(),
+              listTitle: stockDataTitle,
+              searchHint: '',
+              sortOptions: const [],
+              itemBuilder: (stateInfo) => listViewItemStateAndTrend(stateInfo),
+              stockdataList: const [],
+            );
+          } else {
+            return GenericDisplayList(
+              forStockData: true,
+              items: const [],
+              identity: _identitySection(),
+              listTitle: stockDataTitle,
+              searchHint: 'Search $stockDataTitle',
+              sortOptions: const [
+                SortOption(value: 'Value', label: 'Order by Value'),
+                SortOption(value: 'Unit', label: 'Order by Unit'),
+                SortOption(value: 'Data Owner', label: 'Order by Data Owner'),
+                SortOption(value: 'Ref. Year', label: 'Order by Ref. Year'),
+                SortOption(value: 'Rep. Year', label: 'Order by Rep. Year'),
+              ],
+              itemBuilder: (data) => listViewItemStockData(
+                data["value"]?.toString() ?? "",
+                data["unit"] ?? "",
+                data["type"] ?? "",
+                data["db_source"] ?? "",
+                data["reporting_year"]?.toString() ?? "",
+                data["reference_year"]?.toString() ?? "",
+              ),
+              stockdataList: List.from(_responseDataInfo!["result"][stockData]),
+            );
+          }
+        },
       ),
     );
   }
@@ -536,13 +533,14 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
     }
 
     final result = _responseDataInfo!["result"];
+    // debugPrint(result.toString());
     List<Widget> buttons = [];
 
     // Helper method to create buttons conditionally
-    void addButtonIfDataExists(String key, String label, String title) {
+    void addButtonIfDataExists(String key, String title) {
       if (result[key]?.isNotEmpty == true) {
         buttons.add(customButton(
-          label: label,
+          label: key,
           onPressed: () {
             stockDataTitle = title;
             stockData = key;
@@ -552,22 +550,20 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
       }
     }
 
+    addButtonIfDataExists('scientific_advices', 'Scientific Advices');
+    addButtonIfDataExists('assessment_methods', 'Assessment Methods');
+    addButtonIfDataExists('abundance_level', 'Abundance Level');
     addButtonIfDataExists(
-        'scientific_advices', 'scientific_advices', 'Scientific Advices');
-    addButtonIfDataExists(
-        'assessment_methods', 'assessment_methods', 'Assessment Methods');
-    addButtonIfDataExists(
-        'abundance_level', 'abundance_level', 'Abundance Level');
-    addButtonIfDataExists('abundance_level_standard',
         'abundance_level_standard', 'Abundance Level Standard');
+    addButtonIfDataExists('fishing_pressure', 'Fishing Pressure');
     addButtonIfDataExists(
-        'fishing_pressure', 'fishing_pressure', 'Fishing Pressure');
-    addButtonIfDataExists('fishing_pressure_standard',
         'fishing_pressure_standard', 'Fishing Pressure Standard');
-    addButtonIfDataExists('catches', 'catches', 'Catches');
-    addButtonIfDataExists('landings', 'landings', 'Landings');
-    addButtonIfDataExists('landed_volumes', 'landed_volumes', 'Landed Volumes');
-    addButtonIfDataExists('biomass', 'biomass', 'Biomass');
+    addButtonIfDataExists('catches', 'Catches');
+    addButtonIfDataExists('landings', 'Landings');
+    addButtonIfDataExists('landed_volumes', 'Landed Volumes');
+    addButtonIfDataExists('biomass', 'Biomass');
+    addButtonIfDataExists('state_and_trend', 'State And Trend');
+    addButtonIfDataExists('fao_categories', 'FAO Stock Status Category');
 
     return Column(children: buttons);
   }

@@ -1,5 +1,5 @@
 import 'package:grsfApp/models/area.dart';
-import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/global.dart';
 import 'package:grsfApp/pages/fisheries.dart';
 import 'package:grsfApp/pages/stocks.dart';
 import 'package:grsfApp/services/database_service.dart';
@@ -400,8 +400,11 @@ class _AreasState extends State<Areas> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        Fisheries(search: searchFishery),
+                                    builder: (context) => Fisheries(
+                                      search: searchFishery,
+                                      timeseries: '',
+                                      refYear: '',
+                                    ),
                                   ),
                                 );
                               },

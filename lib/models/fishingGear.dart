@@ -24,18 +24,18 @@ class Gear {
   });
 
   // Convert a Gear object to a map for database operations
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'fishing_gear_type': fishingGearType,
-      'fishing_gear_id': fishingGearId,
-      'fishing_gear_abbreviation': fishingGearAbbreviation,
-      'fishing_gear_name': fishingGearName,
-      'fishing_gear_group_type': fishingGearGroupType,
-      'fishing_gear_group_id': fishingGearGroupId,
-      'fishing_gear_group_name': fishingGearGroupName,
-    };
-  }
+  // Map<String, dynamic> toMap() {
+  //   return {
+  //     'id': id,
+  //     'fishing_gear_type': fishingGearType,
+  //     'fishing_gear_id': fishingGearId,
+  //     'fishing_gear_abbreviation': fishingGearAbbreviation,
+  //     'fishing_gear_name': fishingGearName,
+  //     'fishing_gear_group_type': fishingGearGroupType,
+  //     'fishing_gear_group_id': fishingGearGroupId,
+  //     'fishing_gear_group_name': fishingGearGroupName,
+  //   };
+  // }
 
   // Convert a map to a Gear object (used when reading data from the database)
   factory Gear.fromMap(Map<String, dynamic> map) {
@@ -60,26 +60,26 @@ class Gear {
   }
 
   // Copy method to create a new Gear object with some modified fields
-  Gear copyWith({
-    int? id,
-    String? fishingGearType,
-    String? fishingGearId,
-    String? fishingGearAbbreviation,
-    String? fishingGearName,
-    String? fishingGearGroupType,
-    String? fishingGearGroupId,
-    String? fishingGearGroupName,
-  }) {
-    return Gear(
-      id: id ?? this.id,
-      fishingGearType: fishingGearType ?? this.fishingGearType,
-      fishingGearId: fishingGearId ?? this.fishingGearId,
-      fishingGearAbbreviation:
-          fishingGearAbbreviation ?? this.fishingGearAbbreviation,
-      fishingGearName: fishingGearName ?? this.fishingGearName,
-      fishingGearGroupType: fishingGearGroupType ?? this.fishingGearGroupType,
-      fishingGearGroupId: fishingGearGroupId ?? this.fishingGearGroupId,
-      fishingGearGroupName: fishingGearGroupName ?? this.fishingGearGroupName,
-    );
-  }
+  // Gear copyWith({
+  //   int? id,
+  //   String? fishingGearType,
+  //   String? fishingGearId,
+  //   String? fishingGearAbbreviation,
+  //   String? fishingGearName,
+  //   String? fishingGearGroupType,
+  //   String? fishingGearGroupId,
+  //   String? fishingGearGroupName,
+  // }) {
+  //   return Gear(
+  //     id: id ?? this.id,
+  //     fishingGearType: fishingGearType ?? this.fishingGearType,
+  //     fishingGearId: fishingGearId ?? this.fishingGearId,
+  //     fishingGearAbbreviation:
+  //         fishingGearAbbreviation ?? this.fishingGearAbbreviation,
+  //     fishingGearName: fishingGearName ?? this.fishingGearName,
+  //     fishingGearGroupType: fishingGearGroupType ?? this.fishingGearGroupType,
+  //     fishingGearGroupId: fishingGearGroupId ?? this.fishingGearGroupId,
+  //     fishingGearGroupName: fishingGearGroupName ?? this.fishingGearGroupName,
+  //   );
+  // }
 }

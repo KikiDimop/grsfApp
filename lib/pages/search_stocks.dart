@@ -1,4 +1,4 @@
-import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/global.dart';
 import 'package:grsfApp/pages/stocks.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:flutter/material.dart';
@@ -236,7 +236,7 @@ class _SearchstocksState extends State<Searchstocks> {
           selectedResourceStatus: rStatus,
         );
 
-        Navigator.pop(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (context) => Stocks(
@@ -245,23 +245,22 @@ class _SearchstocksState extends State<Searchstocks> {
                 timeseries: timeserie,
                 refYear: refYear.text),
           ),
+          (route) => route.isFirst,
         );
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xffd9dcd6), // Background color
+        backgroundColor: const Color(0xffd9dcd6),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8), // Rounded edges
+          borderRadius: BorderRadius.circular(8),
         ),
-        padding: const EdgeInsets.symmetric(
-            horizontal: 16, vertical: 8), // Button padding
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
       child: const Text(
         'Search',
         style: TextStyle(
             fontSize: 14,
             color: Color(0xff16425B),
-            fontWeight: FontWeight.bold // Text color
-            ),
+            fontWeight: FontWeight.bold),
       ),
     );
   }

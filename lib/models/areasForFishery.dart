@@ -16,15 +16,15 @@ class AreasForFishery {
     this.areaName,
   });
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'uuid': uuid,
-      'areaType': areaType,
-      'areaCode': areaCode,
-      'areaName': areaName,
-    };
-  }
+  // Map<String, dynamic> toMap() {
+  //   return {
+  //     'id': id,
+  //     'uuid': uuid,
+  //     'areaType': areaType,
+  //     'areaCode': areaCode,
+  //     'areaName': areaName,
+  //   };
+  // }
 
   factory AreasForFishery.fromMap(Map<String, dynamic> map) {
     return AreasForFishery(
@@ -44,19 +44,19 @@ class AreasForFishery {
     );
   }
 
-  AreasForFishery copyWith({
-    int? id,
-    String? uuid,
-    String? areaType,
-    String? areaCode,
-    String? areaName,
-  }) {
-    return AreasForFishery(
-      id: id ?? this.id,
-      uuid: uuid ?? this.uuid,
-      areaType: areaType ?? this.areaType,
-      areaCode: areaCode ?? this.areaCode,
-      areaName: areaName ?? this.areaName,
-    );
-  }
+  // AreasForFishery copyWith({
+  //   int? id,
+  //   String? uuid,
+  //   String? areaType,
+  //   String? areaCode,
+  //   String? areaName,
+  // }) {
+  //   return AreasForFishery(
+  //     id: id ?? this.id,
+  //     uuid: uuid ?? this.uuid,
+  //     areaType: areaType ?? this.areaType,
+  //     areaCode: areaCode ?? this.areaCode,
+  //     areaName: areaName ?? this.areaName,
+  //   );
+  // }
 }

@@ -1,19 +1,15 @@
-import 'dart:ffi';
-
 import 'package:grsfApp/models/areasForFishery.dart';
 import 'package:grsfApp/models/faoMajorArea.dart';
 import 'package:grsfApp/models/fishery.dart';
 import 'package:grsfApp/models/fisheryOwner.dart';
 import 'package:grsfApp/models/fishingGear.dart';
 import 'package:grsfApp/models/flag.dart';
-import 'package:grsfApp/models/global.dart';
+import 'package:grsfApp/global.dart';
 import 'package:grsfApp/pages/list_display.dart';
 import 'package:grsfApp/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:grsfApp/widgets/identity_card.dart';
 import 'package:grsfApp/widgets/global_ui.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 class DisplaySingleFishery extends StatefulWidget {
   final Fishery fishery;
@@ -31,6 +27,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   List<Gear>? gears;
   bool isLoading = true;
   bool isLoading2 = true;
+  bool isLoading3 = true;
   bool isExistDataFromAPI = false;
   bool isExistDataInfoFromAPI = false;
   String? error;
@@ -47,6 +44,7 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
     setState(() {
       isLoading = true;
       isLoading2 = true;
+      isLoading3 = true;
     });
 
     try {
@@ -103,72 +101,37 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   }
 
   Future<void> _fetchDataFromAPI() async {
-    try {
-      final response = await http.get(Uri.parse(
-          'https://isl.ics.forth.gr/grsf/grsf-api/resources/getfisherybasic?uuid=${widget.fishery.uuid}&response_type=JSON'));
+    final data = await getApiData(
+        'https://isl.ics.forth.gr/grsf/grsf-api/resources/getfisherybasic?uuid=${widget.fishery.uuid}&response_type=JSON');
+    setState(() {
+      _responseData = data;
+      isLoading2 = false;
+      isExistDataFromAPI = data != null;
+      if (_responseData != null) {
+        final rawGears = _responseData!['result']['fishing_gears'];
+        final rawAreas = _responseData!['result']['assessment_areas'];
+        final rawFlagStates = _responseData!['result']['flag_states'];
 
-      if (response.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-        setState(() {
-          _responseData = data;
-          isLoading2 = false;
-          isExistDataFromAPI = true;
+        final List<dynamic> gearList = rawGears is List ? rawGears : [rawGears];
+        final List<dynamic> areaList = rawAreas is List ? rawAreas : [rawAreas];
+        final List<dynamic> flagStateList =
+            rawFlagStates is List ? rawFlagStates : [rawFlagStates];
 
-          //Fill lists from api data
-          final rawGears = _responseData!['result']['fishing_gears'];
-          final rawAreas = _responseData!['result']['assessment_areas'];
-          final rawFlagStates = _responseData!['result']['flag_states'];
-
-          final List<dynamic> gearList =
-              rawGears is List ? rawGears : [rawGears];
-          final List<dynamic> areaList =
-              rawAreas is List ? rawAreas : [rawAreas];
-          final List<dynamic> flagStateList =
-              rawFlagStates is List ? rawFlagStates : [rawFlagStates];
-
-          gears = gearList.map((item) => Gear.fromJson(item)).toList();
-          areas =
-              areaList.map((item) => AreasForFishery.fromJson(item)).toList();
-          flags =
-              flagStateList.map((item) => FlagStates.fromJson(item)).toList();
-        });
-      } else {
-        setState(() {
-          _responseData = null;
-          isLoading2 = false;
-        });
+        gears = gearList.map((item) => Gear.fromJson(item)).toList();
+        areas = areaList.map((item) => AreasForFishery.fromJson(item)).toList();
+        flags = flagStateList.map((item) => FlagStates.fromJson(item)).toList();
       }
-    } catch (e) {
-      setState(() {
-        _responseData = null;
-        isLoading2 = false;
-      });
-      //debugPrint('Error fetching API data: $e');
-    }
+    });
   }
 
   Future<void> _fetchDataInfoFromAPI() async {
-    try {
-      final response = await http.get(Uri.parse(
-          'https://isl.ics.forth.gr/grsf/grsf-api/resources/getfishery?uuid=${widget.fishery.uuid}&response_type=JSON'));
-
-      if (response.statusCode == 200) {
-        Map<String, dynamic> data = jsonDecode(response.body);
-        setState(() {
-          _responseDataInfo = data;
-          isExistDataInfoFromAPI = true;
-        });
-      } else {
-        setState(() {
-          _responseDataInfo = null;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _responseDataInfo = null;
-      });
-      //debugPrint('Error fetching API data: $e');
-    }
+    final data = await getApiData(
+        'https://isl.ics.forth.gr/grsf/grsf-api/resources/getfishery?uuid=${widget.fishery.uuid}&response_type=JSON');
+    setState(() {
+      _responseDataInfo = data;
+      isLoading3 = false;
+      isExistDataInfoFromAPI = data != null;
+    });
   }
 
   @override
@@ -193,19 +156,25 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
           ),
         ],
       ),
-      body: (isLoading || isLoading2)
+      body: (isLoading || isLoading2 || isLoading3)
           ? const Center(child: CircularProgressIndicator())
           : error != null
               ? Center(
-                  child: Text('Error: $error',
-                      style: const TextStyle(color: Colors.red)))
+                  child: Text(
+                    'Error: $error',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                )
               : SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _identitySection(true),
                       const SizedBox(height: 5),
-                      _detailsSection(context)
+                      _detailsSection(context),
+                      const SizedBox(
+                        height: 15,
+                      ),
                     ],
                   ),
                 ),
@@ -562,47 +531,45 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    (isExistDataInfoFromAPI &&
-                            _responseDataInfo?["result"]["catches"].length != 0)
-                        ? Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => GenericDisplayList(
-                                forStockData: true,
-                                items: const [],
-                                identity: _identitySection(false),
-                                listTitle: 'Catches',
-                                searchHint: 'Search Catch',
-                                sortOptions: const [
-                                  SortOption(
-                                      value: 'Value', label: 'Order by Value'),
-                                  SortOption(
-                                      value: 'Unit', label: 'Order by Unit'),
-                                  SortOption(
-                                      value: 'Data Owner',
-                                      label: 'Order by Data Owner'),
-                                  // SortOption(value: 'Type', label: 'Order by Type'),
-                                  SortOption(
-                                      value: 'Ref. Year',
-                                      label: 'Order by Ref. Year'),
-                                  SortOption(
-                                      value: 'Rep. Year',
-                                      label: 'Order by Rep. Year'),
-                                ],
-                                itemBuilder: (data) => listViewItemStockData(
-                                  data["value"]?.toString() ?? "",
-                                  data["unit"] ?? "",
-                                  data["type"] ?? "",
-                                  data["db_source"] ?? "",
-                                  data["reporting_year"]?.toString() ?? "",
-                                  data["reference_year"]?.toString() ?? "",
-                                ),
-                                stockdataList: List.from(
-                                    _responseDataInfo!["result"]['catches']),
-                              ),
+                    if (isExistDataInfoFromAPI &&
+                        _responseDataInfo?["result"]["catches"].length != 0)
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GenericDisplayList(
+                            forStockData: true,
+                            items: const [],
+                            identity: _identitySection(false),
+                            listTitle: 'Catches',
+                            searchHint: 'Search Catch',
+                            sortOptions: const [
+                              SortOption(
+                                  value: 'Value', label: 'Order by Value'),
+                              SortOption(value: 'Unit', label: 'Order by Unit'),
+                              SortOption(
+                                  value: 'Data Owner',
+                                  label: 'Order by Data Owner'),
+                              // SortOption(value: 'Type', label: 'Order by Type'),
+                              SortOption(
+                                  value: 'Ref. Year',
+                                  label: 'Order by Ref. Year'),
+                              SortOption(
+                                  value: 'Rep. Year',
+                                  label: 'Order by Rep. Year'),
+                            ],
+                            itemBuilder: (data) => listViewItemStockData(
+                              data["value"]?.toString() ?? "",
+                              data["unit"] ?? "",
+                              data["type"] ?? "",
+                              data["db_source"] ?? "",
+                              data["reporting_year"]?.toString() ?? "",
+                              data["reference_year"]?.toString() ?? "",
                             ),
-                          )
-                        : null;
+                            stockdataList: List.from(
+                                _responseDataInfo!["result"]['catches']),
+                          ),
+                        ),
+                      );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff16425B),

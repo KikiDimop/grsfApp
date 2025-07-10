@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:grsfApp/models/area.dart';
 import 'package:grsfApp/models/areasForFishery.dart';
@@ -12,6 +14,7 @@ import 'package:grsfApp/models/stock.dart';
 import 'package:grsfApp/models/stockOwner.dart';
 import 'package:grsfApp/services/csv_service.dart';
 import 'package:grsfApp/services/database_service.dart';
+import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 const String urlStockPng =
@@ -359,9 +362,42 @@ Future<void> updateAllTables() async {
       tableName: 'FaoMajorArea',
       fromMap: FaoMajorArea.fromMap,
     );
-  } catch (e) {
-    debugPrint(e.toString());
-  } finally {
+
     debugPrint("All data updated successfully!");
+  } catch (e) {
+    debugPrint("Error updating tables: $e");
+    rethrow;
+  }
+}
+
+List<T> mergedata<T>(
+    {required List<T>? datalist,
+    required String? Function(T) getUuid,
+    required Map<String, dynamic>? responsedata}) {
+  List<String> apiIds = [];
+
+  if (responsedata != null && responsedata['result'] != null) {
+    apiIds = List<String>.from(responsedata['result']);
+  }
+
+  Set<String> apiIdSet = apiIds.toSet();
+  List<T> filteredData = datalist!.where((item) {
+    String? uuid = getUuid(item);
+    return uuid != null && apiIdSet.contains(uuid);
+  }).toList();
+  return filteredData;
+}
+
+Future<Map<String, dynamic>?> getApiData(String link) async {
+  try {
+    final response = await http.get(Uri.parse(link));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      return null;
+    }
+  } catch (e) {
+    print('API Error: $e');
+    return null;
   }
 }

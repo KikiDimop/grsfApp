@@ -1,6 +1,5 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
-import 'package:grsfApp/models/areasForFishery.dart';
 import 'package:grsfApp/widgets/global_ui.dart';
 
 class GenericDisplayList<T> extends StatefulWidget {
@@ -124,7 +123,7 @@ class _GenericDisplayListState<T> extends State<GenericDisplayList<T>> {
         children: [
           Column(
             children: [
-              _searchField(hint: searchHint),
+              if (!searchHint.isEmpty) _searchField(hint: searchHint),
               if (displayDropDown) _orderByDropdown()
             ],
           ),
