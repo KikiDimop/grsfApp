@@ -15,15 +15,6 @@ class StockOwner {
     this.sourceName,
   });
 
-  // Map<String, dynamic> toMap() {
-  //   return {
-  //     'id': id,
-  //     'uuid': uuid,
-  //     'owner': owner,
-  //     'sourceName': sourceName,
-  //   };
-  // }
-
   factory StockOwner.fromMap(Map<String, dynamic> map) {
     return StockOwner(
       id: map['id'],
@@ -33,17 +24,4 @@ class StockOwner {
     );
   }
 
-  // StockOwner copyWith({
-  //   int? id,
-  //   String? uuid,
-  //   String? owner,
-  //   String? sourceName,
-  // }) {
-  //   return StockOwner(
-  //     id: id ?? this.id,
-  //     uuid: uuid ?? this.uuid,
-  //     owner: owner ?? this.owner,
-  //     sourceName: sourceName ?? this.sourceName,
-  //   );
-  // }
 }

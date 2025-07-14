@@ -34,24 +34,6 @@ class Stock {
     this.questionnaireCode,
   });
 
-  // Map<String, dynamic> toMap() {
-  //   return {
-  //     'id': id,
-  //     'uuid': uuid,
-  //     'grsfName': grsfName,
-  //     'grsfSemanticID': grsfSemanticID,
-  //     'shortName': shortName,
-  //     'type': type,
-  //     'status': status,
-  //     'parentAreas': parentAreas,
-  //     'sdgFlag': sdgFlag,
-  //     'jurisdictionalDistribution': jurisdictionalDistribution,
-  //     'firmsCode': firmsCode,
-  //     'ramCode': ramCode,
-  //     'fishsourceCode': fishsourceCode,
-  //     'questionnaireCode': questionnaireCode,
-  //   };
-  // }
 
   factory Stock.fromMap(Map<String, dynamic> map) {
     return Stock(
@@ -71,39 +53,4 @@ class Stock {
       questionnaireCode: map['FAO_SDG14_4_1_questionnaire_code'],
     );
   }
-
-  // Stock copyWith({
-  //   int? id,
-  //   String? uuid,
-  //   String? grsfName,
-  //   String? grsfSemanticID,
-  //   String? shortName,
-  //   String? type,
-  //   String? status,
-  //   String? parentAreas,
-  //   String? sdgFlag,
-  //   String? jurisdictionalDistribution,
-  //   String? firmsCode,
-  //   String? ramCode,
-  //   String? fishsourceCode,
-  //   String? questionnaireCode,
-  // }) {
-  //   return Stock(
-  //     id: id ?? this.id,
-  //     uuid: uuid ?? this.uuid,
-  //     grsfName: grsfName ?? this.grsfName,
-  //     grsfSemanticID: grsfSemanticID ?? this.grsfSemanticID,
-  //     shortName: shortName ?? this.shortName,
-  //     type: type ?? this.type,
-  //     status: status ?? this.status,
-  //     parentAreas: parentAreas ?? this.parentAreas,
-  //     sdgFlag: sdgFlag ?? this.sdgFlag,
-  //     jurisdictionalDistribution:
-  //     jurisdictionalDistribution ?? this.jurisdictionalDistribution,
-  //     firmsCode: firmsCode ?? this.firmsCode,
-  //     ramCode: ramCode ?? this.ramCode,
-  //     fishsourceCode: fishsourceCode ?? this.fishsourceCode,
-  //     questionnaireCode: questionnaireCode ?? this.questionnaireCode,
-  //   );
-  // }
 }

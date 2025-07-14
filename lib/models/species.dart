@@ -15,7 +15,6 @@ class Species {
   final String? iucnCharacterization;
   final String? commonNames;
 
-  // Constructor for the Species class
   Species({
     this.id,
     required this.scientificName,
@@ -30,24 +29,6 @@ class Species {
     this.commonNames,
   });
 
-  // // Convert a Species object to a map for database operations
-  // Map<String, dynamic> toMap() {
-  //   return {
-  //     'id': id,
-  //     'scientific_name': scientificName,
-  //     'asfis_id': asfisId,
-  //     'aphia_id': aphiaId,
-  //     'fishbase_id': fishbaseId,
-  //     'tsn_id': tsnId,
-  //     'gbif_id': gbifId,
-  //     'taxonomic_id': taxonomicId,
-  //     'iucn_id': iucnId,
-  //     'iucn_characterization': iucnCharacterization,
-  //     'common_names': commonNames,
-  //   };
-  // }
-
-  // Convert a map to a Species object (used when reading data from the database)
   factory Species.fromMap(Map<String, dynamic> map) {
     return Species(
       id: map['id'],
@@ -64,32 +45,4 @@ class Species {
     );
   }
 
-  // Copy method to create a new Species object with some modified fields
-  // Species copyWith({
-  //   int? id,
-  //   String? scientificName,
-  //   String? asfisId,
-  //   String? aphiaId,
-  //   String? fishbaseId,
-  //   String? tsnId,
-  //   String? gbifId,
-  //   String? taxonomicId,
-  //   String? iucnId,
-  //   String? iucnCharacterization,
-  //   String? commonNames,
-  // }) {
-  //   return Species(
-  //     id: id ?? this.id,
-  //     scientificName: scientificName ?? this.scientificName,
-  //     asfisId: asfisId ?? this.asfisId,
-  //     aphiaId: aphiaId ?? this.aphiaId,
-  //     fishbaseId: fishbaseId ?? this.fishbaseId,
-  //     tsnId: tsnId ?? this.tsnId,
-  //     gbifId: gbifId ?? this.gbifId,
-  //     taxonomicId: taxonomicId ?? this.taxonomicId,
-  //     iucnId: iucnId ?? this.iucnId,
-  //     iucnCharacterization: iucnCharacterization ?? this.iucnCharacterization,
-  //     commonNames: commonNames ?? this.commonNames,
-  //   );
-  // }
 }

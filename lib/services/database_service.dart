@@ -292,10 +292,8 @@ class DatabaseService {
       final db = await database;
       final result =
           await db.query(tableName, columns: columns, where: where ?? '1=1');
-      ////debugPrint(result);
       return result.map((json) => fromMap(json)).toList();
     } catch (e) {
-      //debugPrint("Error in readAll for table $tableName: $e");
       return [];
     }
   }

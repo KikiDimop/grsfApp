@@ -17,16 +17,6 @@ class SpeciesForStock {
     this.speciesName,
   });
 
-  // Map<String, dynamic> toMap() {
-  //   return {
-  //     'id': id,
-  //     'uuid': uuid,
-  //     'speciesType': speciesType,
-  //     'speciesCode': speciesCode,
-  //     'speciesName': speciesName,
-  //   };
-  // }
-
   factory SpeciesForStock.fromMap(Map<String, dynamic> map) {
     return SpeciesForStock(
       id: map['id'],
@@ -45,19 +35,4 @@ class SpeciesForStock {
     );
   }
 
-  // SpeciesForStock copyWith({
-  //   int? id,
-  //   String? uuid,
-  //   String? speciesType,
-  //   String? speciesCode,
-  //   String? speciesName,
-  // }) {
-  //   return SpeciesForStock(
-  //     id: id ?? this.id,
-  //     uuid: uuid ?? this.uuid,
-  //     speciesType: speciesType ?? this.speciesType,
-  //     speciesCode: speciesCode ?? this.speciesCode,
-  //     speciesName: speciesName ?? this.speciesName,
-  //   );
-  // }
 }

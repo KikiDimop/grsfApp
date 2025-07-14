@@ -13,15 +13,6 @@ class FaoMajorArea {
     this.faoMajorAreaName,
   });
 
-  // Map<String, dynamic> toMap() {
-  //   return {
-  //     'id': id,
-  //     'area_code': faoMajorAreaConcat,
-  //     'area_code_type': faoMajorAreaCode,
-  //     'area_name': faoMajorAreaName,
-  //   };
-  // }
-
   factory FaoMajorArea.fromMap(Map<String, dynamic> map) {
     return FaoMajorArea(
       id: map['id'],
@@ -31,17 +22,4 @@ class FaoMajorArea {
     );
   }
 
-  // FaoMajorArea copyWith({
-  //   int? id,
-  //   String? faoMajorAreaConcat,
-  //   String? faoMajorAreaCode,
-  //   String? faoMajorAreaName,
-  // }) {
-  //   return FaoMajorArea(
-  //     id: id ?? this.id,
-  //     faoMajorAreaConcat: faoMajorAreaConcat ?? this.faoMajorAreaConcat,
-  //     faoMajorAreaCode: faoMajorAreaCode ?? this.faoMajorAreaCode,
-  //     faoMajorAreaName: faoMajorAreaName ?? this.faoMajorAreaName,
-  //   );
-  // }
 }
