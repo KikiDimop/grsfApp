@@ -5,6 +5,7 @@ import 'package:grsfApp/widgets/global_ui.dart';
 class IdentityCard extends StatefulWidget {
   final String name, id, title, uuid, type, status;
   final String? url;
+  final bool map;
   const IdentityCard(
       {super.key,
       required this.name,
@@ -13,7 +14,8 @@ class IdentityCard extends StatefulWidget {
       required this.uuid,
       required this.type,
       required this.status,
-      this.url});
+      this.url,
+      this.map = false});
 
   @override
   State<IdentityCard> createState() => _IdentityCardState();
@@ -38,15 +40,30 @@ class _IdentityCardState extends State<IdentityCard> {
           dataDisplay(label: 'Semantic Title', value: widget.title),
           dataDisplay(label: 'UUID', value: widget.uuid),
           dataDisplay(label: 'Type', value: widget.type),
-          if (widget.url != null)
-            Align(
-              alignment: Alignment.centerRight,
-              child: iButton(
-                  icon: Icons.link,
-                  onPressed: () => openSourceLink(widget.url ?? ''),
-                  assetPath: '',
-                  iconSize: 24),
-            )
+          Row(
+            children: [
+              if (widget.map)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: iButton(
+                      icon: Icons.map_outlined,
+                      onPressed: () =>
+                          showMap(context, 'Stock Map', widget.uuid),
+                      assetPath: '',
+                      iconSize: 24),
+                ),
+              Spacer(),
+              if (widget.url != null)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: iButton(
+                      icon: Icons.link,
+                      onPressed: () => openSourceLink(widget.url ?? ''),
+                      assetPath: '',
+                      iconSize: 24),
+                ),
+            ],
+          )
         ],
       ),
     );

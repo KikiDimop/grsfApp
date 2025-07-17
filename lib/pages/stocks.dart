@@ -243,7 +243,7 @@ class _StocksState extends State<Stocks> {
 
     final filteredStocks = stocks!.where((s) {
       final query = _searchQuery.toLowerCase();
-      // Search all fields of the Fishery record
+      // Search all fields of the Stock record
       return _searchQuery.isEmpty ||
           (s.uuid?.toLowerCase().contains(query) ?? false) ||
           (s.grsfName?.toLowerCase().contains(query) ?? false) ||

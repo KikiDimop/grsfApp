@@ -215,7 +215,7 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
                     type: widget.stock.type ?? '',
                     status: _responseData!["result"]["status"],
                     url: _responseData!["result"]["source_urls"][0] ?? '',
-                  )
+                    map: true)
           ],
         ),
       ],
