@@ -61,7 +61,7 @@ class HomePageState extends State<HomePage> {
                       Container(
                         padding: const EdgeInsets.all(10.0),
                         decoration: BoxDecoration(
-                          color: const Color(0xffd9dcd6).withOpacity(0.1),
+                          color: const Color(0xffd9dcd6).withAlpha(25),
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         height: 70,
@@ -91,7 +91,7 @@ class HomePageState extends State<HomePage> {
                         padding: const EdgeInsets.symmetric(
                             vertical: 16.0, horizontal: 8.0),
                         decoration: BoxDecoration(
-                          color: const Color(0xffd9dcd6).withOpacity(0.1),
+                          color: const Color(0xffd9dcd6).withAlpha(25),
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                         child: Column(
@@ -138,7 +138,7 @@ class HomePageState extends State<HomePage> {
                         padding: const EdgeInsets.symmetric(
                             vertical: 16.0, horizontal: 8.0),
                         decoration: BoxDecoration(
-                          color: const Color(0xffd9dcd6).withOpacity(0.1),
+                          color: const Color(0xffd9dcd6).withAlpha(25),
                           borderRadius: BorderRadius.circular(12.0),
                         ),
                         child: Text(

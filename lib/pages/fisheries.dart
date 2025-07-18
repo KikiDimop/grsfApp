@@ -170,7 +170,7 @@ class _FisheriesState extends State<Fisheries> {
               style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
               decoration: InputDecoration(
                 filled: true,
-                fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
+                fillColor: const Color(0xffd9dcd6).withAlpha(25),
                 contentPadding: const EdgeInsets.all(15),
                 hintText: 'Search Fisheries',
                 hintStyle: const TextStyle(
@@ -367,7 +367,7 @@ class _FisheriesState extends State<Fisheries> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
-                color: const Color(0xffd9dcd6).withOpacity(0.1),
+                color: const Color(0xffd9dcd6).withAlpha(25),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: DropdownButtonHideUnderline(

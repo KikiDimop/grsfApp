@@ -116,7 +116,7 @@ class _GenericDisplayListState<T> extends State<GenericDisplayList<T>> {
       margin: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xffd9dcd6).withOpacity(0.1),
+        color: const Color(0xffd9dcd6).withAlpha(25),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(

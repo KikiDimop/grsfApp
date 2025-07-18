@@ -85,7 +85,7 @@ class _AreasState extends State<Areas> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
-                color: const Color(0xffd9dcd6).withOpacity(0.1),
+                color: const Color(0xffd9dcd6).withAlpha(25),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: DropdownButtonHideUnderline(
@@ -202,7 +202,7 @@ class _AreasState extends State<Areas> {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xffd9dcd6).withOpacity(0.1),
+        color: const Color(0xffd9dcd6).withAlpha(25),
         borderRadius: BorderRadius.circular(12),
       ),
       child: filteredAreas.isEmpty
@@ -475,7 +475,7 @@ class _AreasState extends State<Areas> {
         style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
         decoration: InputDecoration(
           filled: true,
-          fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
+          fillColor: const Color(0xffd9dcd6)..withAlpha(25),
           contentPadding: const EdgeInsets.all(15),
           hintText: 'Search Area',
           hintStyle: const TextStyle(

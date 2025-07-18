@@ -612,7 +612,7 @@ Widget listViewItemStateAndTrend(String stateInfo) {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xff16425B).withOpacity(0.2),
+                  color: const Color(0xff16425B).withAlpha(51),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(

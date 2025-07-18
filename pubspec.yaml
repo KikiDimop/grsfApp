@@ -31,7 +31,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.8
   sqflite: ^2.4.1
   path: ^1.9.0
   csv: ^5.0.1
@@ -39,21 +38,20 @@ dependencies:
   http: ^1.2.2
   dropdown_button2: ^2.3.9
   url_launcher: ^6.3.1
-  icons_plus: ^5.0.0
-  dropdown_search: ^6.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_launcher_icons: ^0.13.1 # or latest
+  flutter_lints: ^6.0.0
 
 flutter_icons:
   android: true
   ios: true
   image_path: "assets/icons/grsf.jpg"
 
-  flutter_lints: ^4.0.0
+  
 
 flutter:
   uses-material-design: true

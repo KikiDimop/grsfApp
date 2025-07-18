@@ -176,7 +176,7 @@ class _StocksState extends State<Stocks> {
               style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
               decoration: InputDecoration(
                 filled: true,
-                fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
+                fillColor: const Color(0xffd9dcd6).withAlpha(25),
                 contentPadding: const EdgeInsets.all(15),
                 hintText: 'Search Stocks',
                 hintStyle: const TextStyle(
@@ -389,7 +389,7 @@ class _StocksState extends State<Stocks> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
-                color: const Color(0xffd9dcd6).withOpacity(0.1),
+                color: const Color(0xffd9dcd6).withAlpha(25),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: DropdownButtonHideUnderline(

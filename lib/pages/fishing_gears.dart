@@ -86,7 +86,7 @@ class _FishingGearsState extends State<FishingGears> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
-                color: const Color(0xffd9dcd6).withOpacity(0.1),
+                color: const Color(0xffd9dcd6).withAlpha(25),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: DropdownButtonHideUnderline(
@@ -214,7 +214,7 @@ class _FishingGearsState extends State<FishingGears> {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xffd9dcd6).withOpacity(0.1),
+        color: const Color(0xffd9dcd6).withAlpha(25),
         borderRadius: BorderRadius.circular(12),
       ),
       child: filteredFishingGears.isEmpty
@@ -249,7 +249,7 @@ class _FishingGearsState extends State<FishingGears> {
         style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
         decoration: InputDecoration(
           filled: true,
-          fillColor: const Color(0xffd9dcd6).withOpacity(0.1),
+          fillColor: const Color(0xffd9dcd6).withAlpha(25),
           contentPadding: const EdgeInsets.all(15),
           hintText: 'Search Fishing Gear',
           hintStyle: const TextStyle(
