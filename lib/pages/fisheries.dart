@@ -22,6 +22,8 @@ class Fisheries extends StatefulWidget {
 }
 
 class _FisheriesState extends State<Fisheries> {
+  final sw = Stopwatch();
+
   List<Fishery>? fisheries;
   String _selectedOrder = 'Short Name';
   String _sortOrder = 'asc';
@@ -34,15 +36,12 @@ class _FisheriesState extends State<Fisheries> {
 
   @override
   void initState() {
+    sw.start();
     super.initState();
-    _fetchData();
-    if (widget.timeseries.isNotEmpty) {
-      isLoading2 = true;
-      _fetchDataFromAPI().then((_) => _mergeAndFilterData());
-    }
+    _loadData();
   }
 
-  Future<void> _fetchData() async {
+  Future<void> _loadData() async {
     try {
       final results = await Future.wait([
         DatabaseService.instance
@@ -52,8 +51,9 @@ class _FisheriesState extends State<Fisheries> {
       setState(() {
         fisheries = results[0];
         isLoading = false;
-        if (fisheries?.isEmpty ?? true && widget.timeseries == '')
+        if (fisheries?.isEmpty ?? true && widget.timeseries == '') {
           _showNoResultsDialog();
+        }
       });
     } catch (e) {
       setState(() {
@@ -61,6 +61,16 @@ class _FisheriesState extends State<Fisheries> {
         isLoading = false;
       });
     }
+
+    if (widget.timeseries.isNotEmpty) {
+      isLoading2 = true;
+      _fetchDataFromAPI().then((_) => _mergeAndFilterData());
+    }
+
+    // After loading is complete:
+    sw.stop();
+    debugPrint('Fisheries page loaded in ${sw.elapsedMilliseconds} ms');
+    setState(() {});
   }
 
   Future<void> _fetchDataFromAPI() async {
@@ -281,8 +291,7 @@ class _FisheriesState extends State<Fisheries> {
           ? const Center(
               child: Text(
                 'No fisheries found',
-                style: TextStyle(
-                    color: Color(0xff16425B)), 
+                style: TextStyle(color: Color(0xff16425B)),
               ),
             )
           : ListView.builder(

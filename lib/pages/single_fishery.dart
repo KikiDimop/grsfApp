@@ -33,9 +33,11 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
   String? error;
   Map<String, dynamic>? _responseData;
   Map<String, dynamic>? _responseDataInfo;
+  final sw = Stopwatch();
 
   @override
   void initState() {
+    sw.start();
     super.initState();
     _initializeData();
   }
@@ -53,6 +55,8 @@ class _DisplaySingleFisheryState extends State<DisplaySingleFishery> {
         _fetchDataFromAPI(),
         _fetchDataInfoFromAPI(),
       ]);
+      sw.stop();
+      debugPrint('SingleFishery page loaded in ${sw.elapsedMilliseconds} ms');
     } catch (e) {
       setState(() {
         error = e.toString();

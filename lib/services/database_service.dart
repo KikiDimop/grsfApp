@@ -50,7 +50,7 @@ class DatabaseService {
 
       if (await dbFile.exists()) {
         DateTime lastModified = await dbFile.lastModified();
-        int daysSinceModified = DateTime.now().difference(lastModified).inDays;
+        //int daysSinceModified = DateTime.now().difference(lastModified).inDays;
 
         //return 'Database exists\nPath: $path\nLast modified: $lastModified\nAge: $daysSinceModified days';
         //return daysSinceModified.toString();
@@ -241,7 +241,7 @@ class DatabaseService {
       debugPrint(
         'Database created',
       );
-      updateAllTables();
+      // updateAllTables();
     }
   }
 
@@ -430,8 +430,8 @@ class DatabaseService {
     }
     query += ' GROUP BY s.UUID';
 
-    // debugPrint(query);
-    // print(parameters);
+    debugPrint(query);
+    print(parameters);
 
     final result = await db.rawQuery(query, parameters);
 
@@ -512,7 +512,7 @@ class DatabaseService {
       query += " AND ${conditions.join(" AND ")}";
     }
 
-    //debugPrint(query);
+    // debugPrint(query);
     // print(parameters);
     final result = await db.rawQuery(query, parameters);
     return result.map((json) => fromMap(json)).toList();

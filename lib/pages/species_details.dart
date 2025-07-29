@@ -10,6 +10,13 @@ class SpeciesDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sw = Stopwatch()..start();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      sw.stop();
+      debugPrint('SpeciesDetails page loaded in ${sw.elapsedMilliseconds} ms');
+    });
+
     return Scaffold(
       backgroundColor: const Color(0xff16425B),
       appBar: AppBar(
@@ -27,113 +34,115 @@ class SpeciesDetailsScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            _buildExpandableCard(
-                title: "Codes",
-                content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildRow('ASFIS ID', species.asfisId),
-                    _buildRow('Aphia ID', species.aphiaId),
-                    _buildRow('FishBase ID', species.fishbaseId),
-                    _buildRow('TSN ID', species.tsnId),
-                    _buildRow('GBIF ID', species.gbifId),
-                    _buildRow('Taxonomic ID', species.taxonomicId),
-                    _buildRow('IUCN ID', species.iucnId),
-                    _buildRow(
-                        'IUCN Characterization', species.iucnCharacterization),
-                  ],
-                ),
-                isExpanded: true),
-            const SizedBox(height: 16),
-            if (species.commonNames != null &&
-                species.commonNames!.trim().isNotEmpty)
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
               _buildExpandableCard(
-                  title: "Common Names",
-                  content: _buildCommonNamesList(species.commonNames!),
+                  title: "Codes",
+                  content: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildRow('ASFIS ID', species.asfisId),
+                      _buildRow('Aphia ID', species.aphiaId),
+                      _buildRow('FishBase ID', species.fishbaseId),
+                      _buildRow('TSN ID', species.tsnId),
+                      _buildRow('GBIF ID', species.gbifId),
+                      _buildRow('Taxonomic ID', species.taxonomicId),
+                      _buildRow('IUCN ID', species.iucnId),
+                      _buildRow(
+                          'IUCN Characterization', species.iucnCharacterization),
+                    ],
+                  ),
                   isExpanded: true),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    SearchStockForSpecies searchStock =
-                        SearchStockForSpecies(species.scientificName);
+              const SizedBox(height: 16),
+              if (species.commonNames != null &&
+                  species.commonNames!.trim().isNotEmpty)
+                _buildExpandableCard(
+                    title: "Common Names",
+                    content: _buildCommonNamesList(species.commonNames!),
+                    isExpanded: true),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      SearchStockForSpecies searchStock =
+                          SearchStockForSpecies(species.scientificName);
 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Stocks(
-                          search: searchStock,
-                          forSpecies: true,
-                          timeseries: '',
-                          refYear: '',
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Stocks(
+                            search: searchStock,
+                            forSpecies: true,
+                            timeseries: '',
+                            refYear: '',
+                          ),
                         ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xffd9dcd6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xffd9dcd6),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     ),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: const Text(
+                      'Related Stocks',
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xff16425B),
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: const Text(
-                    'Related Stocks',
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const Spacer(),
-                ElevatedButton(
-                  onPressed: () {
-                    SearchFishery searchFishery = SearchFishery(
-                        selectedSpeciesSystem: 'All',
-                        speciesCode: '',
-                        speciesName: species.scientificName,
-                        selectedAreaSystem: 'All',
-                        areaCode: '',
-                        areaName: '',
-                        selectedGearSystem: 'All',
-                        gearCode: '',
-                        gearName: '',
-                        selectedFAOMajorArea: 'All',
-                        selectedResourceType: 'All',
-                        selectedResourceStatus: 'All',
-                        flagCode: '');
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Fisheries(
-                          search: searchFishery, timeseries: '', refYear: '',
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      SearchFishery searchFishery = SearchFishery(
+                          selectedSpeciesSystem: '',
+                          speciesCode: '',
+                          speciesName: species.scientificName,
+                          selectedAreaSystem: '',
+                          areaCode: '',
+                          areaName: '',
+                          selectedGearSystem: '',
+                          gearCode: '',
+                          gearName: '',
+                          selectedFAOMajorArea: '',
+                          selectedResourceType: '',
+                          selectedResourceStatus: '',
+                          flagCode: '');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Fisheries(
+                            search: searchFishery, timeseries: '', refYear: '',
+                          ),
                         ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xffd9dcd6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xffd9dcd6),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     ),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  ),
-                  child: const Text(
-                    'Related Fisheries',
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xff16425B),
-                        fontWeight: FontWeight.bold),
-                  ),
-                )
-              ],
-            ),
-          ],
+                    child: const Text(
+                      'Related Fisheries',
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Color(0xff16425B),
+                          fontWeight: FontWeight.bold),
+                    ),
+                  )
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

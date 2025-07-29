@@ -247,9 +247,9 @@ class _SearchfisheriesState extends State<Searchfisheries> {
     return ElevatedButton(
       onPressed: () {
         SearchFishery searchFishery = SearchFishery(
-          selectedSpeciesSystem: spType, //speciesSystemController,
-          speciesCode: spCode, //speciesCodeController.text,
-          speciesName: spName, //speciesNameController.text,
+          selectedSpeciesSystem: spType, 
+          speciesCode: spCode, 
+          speciesName: spName, 
           selectedAreaSystem: aType,
           areaCode: aCode,
           areaName: aName,

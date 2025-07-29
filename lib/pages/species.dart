@@ -20,8 +20,11 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
   bool isLoading = true;
   String? error;
 
+  final sw = Stopwatch();
+
   @override
   void initState() {
+    sw.start();
     super.initState();
     _fetchData();
   }
@@ -42,6 +45,8 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
         isLoading = false;
       });
     }
+    sw.stop();
+    debugPrint('Species page loaded in ${sw.elapsedMilliseconds} ms');
   }
 
   @override
@@ -112,7 +117,7 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xffd9dcd6)..withAlpha(25),
+        color: const Color(0xffd9dcd6).withAlpha(25),
         borderRadius: BorderRadius.circular(12),
       ),
       child: filteredSpecies.isEmpty
@@ -268,7 +273,6 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
                   size: 30,
                 ),
               ),
-
             ],
           ),
         ),
@@ -276,7 +280,6 @@ class _DisplaySpeciesState extends State<DisplaySpecies> {
     );
   }
 }
-
 
 Future<void> _openSourceLink(String link) async {
   final Uri url = Uri.parse(link);

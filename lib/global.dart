@@ -392,7 +392,7 @@ Future<Map<String, dynamic>?> getApiData(String link) async {
   try {
     final response = await http.get(Uri.parse(link));
     if (response.statusCode == 200) {
-      final decoded = utf8.decode(response.bodyBytes); 
+      final decoded = utf8.decode(response.bodyBytes);
       return jsonDecode(decoded) as Map<String, dynamic>;
     } else {
       return null;

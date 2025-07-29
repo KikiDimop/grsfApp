@@ -33,6 +33,7 @@ class _GenericDisplayListState<T> extends State<GenericDisplayList<T>> {
   String _searchQuery = '';
   late String _selectedOrder;
   String _sortOrder = 'asc';
+  final sw = Stopwatch();
 
   @override
   void initState() {
@@ -43,6 +44,15 @@ class _GenericDisplayListState<T> extends State<GenericDisplayList<T>> {
 
   @override
   Widget build(BuildContext context) {
+    sw.start();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (sw.isRunning) {
+        sw.stop();
+        debugPrint('ListDisplay page loaded in ${sw.elapsedMilliseconds} ms');
+      }
+    });
+
     return Scaffold(
       backgroundColor: const Color(0xff16425B),
       appBar: AppBar(
@@ -135,12 +145,84 @@ class _GenericDisplayListState<T> extends State<GenericDisplayList<T>> {
     );
   }
 
+  // Widget _orderByDropdown() {
+  //   return Padding(
+  //     padding: const EdgeInsets.symmetric(horizontal: 10),
+  //     child: Row(
+  //       children: [
+  //         Expanded(
+  //           child: Container(
+  //             padding: const EdgeInsets.symmetric(horizontal: 10),
+  //             decoration: BoxDecoration(
+  //               color: const Color(0xff16425B),
+  //               borderRadius: BorderRadius.circular(10),
+  //             ),
+  //             child: DropdownButtonHideUnderline(
+  //               child: DropdownButton2<String>(
+  //                 value: _selectedOrder,
+  //                 onChanged: (value) {
+  //                   setState(() {
+  //                     _selectedOrder = value ?? widget.sortOptions.first.value;
+  //                   });
+  //                 },
+  //                 buttonStyleData: const ButtonStyleData(
+  //                   padding: EdgeInsets.symmetric(horizontal: 10),
+  //                 ),
+  //                 dropdownStyleData: DropdownStyleData(
+  //                   maxHeight: 200,
+  //                   offset: const Offset(0, 8),
+  //                   decoration: BoxDecoration(
+  //                     color: const Color(0xff16425B),
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                 ),
+  //                 iconStyleData: const IconStyleData(
+  //                   icon: Icon(Icons.arrow_drop_down,
+  //                       color: Color(0xffd9dcd6), size: 30),
+  //                 ),
+  //                 menuItemStyleData: const MenuItemStyleData(
+  //                   padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+  //                 ),
+  //                 items: widget.sortOptions.map((option) {
+  //                   return DropdownMenuItem(
+  //                     value: option.value,
+  //                     child: Text(
+  //                       option.label,
+  //                       style: const TextStyle(color: Color(0xffd9dcd6)),
+  //                     ),
+  //                   );
+  //                 }).toList(),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //         const SizedBox(width: 10),
+  //         IconButton(
+  //           icon: Icon(
+  //             _sortOrder == 'asc'
+  //                 ? Icons.arrow_circle_up
+  //                 : Icons.arrow_circle_down,
+  //             color: const Color(0xffd9dcd6),
+  //             size: 40,
+  //           ),
+  //           onPressed: () {
+  //             setState(() {
+  //               _sortOrder = _sortOrder == 'asc' ? 'desc' : 'asc';
+  //             });
+  //           },
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
   Widget _orderByDropdown() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
         children: [
           Expanded(
+            flex: 4, // Give more space to the dropdown
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(
@@ -156,7 +238,8 @@ class _GenericDisplayListState<T> extends State<GenericDisplayList<T>> {
                     });
                   },
                   buttonStyleData: const ButtonStyleData(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8), // Reduced padding
                   ),
                   dropdownStyleData: DropdownStyleData(
                     maxHeight: 200,
@@ -168,17 +251,23 @@ class _GenericDisplayListState<T> extends State<GenericDisplayList<T>> {
                   ),
                   iconStyleData: const IconStyleData(
                     icon: Icon(Icons.arrow_drop_down,
-                        color: Color(0xffd9dcd6), size: 30),
+                        color: Color(0xffd9dcd6),
+                        size: 24), // Slightly smaller icon
                   ),
                   menuItemStyleData: const MenuItemStyleData(
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                    padding: EdgeInsets.symmetric(
+                        vertical: 8, horizontal: 12), // Reduced padding
                   ),
                   items: widget.sortOptions.map((option) {
                     return DropdownMenuItem(
                       value: option.value,
                       child: Text(
                         option.label,
-                        style: const TextStyle(color: Color(0xffd9dcd6)),
+                        style: const TextStyle(
+                          color: Color(0xffd9dcd6),
+                          fontSize: 14, // Slightly smaller font
+                        ),
+                        overflow: TextOverflow.ellipsis, // Handle long text
                       ),
                     );
                   }).toList(),
@@ -186,20 +275,23 @@ class _GenericDisplayListState<T> extends State<GenericDisplayList<T>> {
               ),
             ),
           ),
-          const SizedBox(width: 10),
-          IconButton(
-            icon: Icon(
-              _sortOrder == 'asc'
-                  ? Icons.arrow_circle_up
-                  : Icons.arrow_circle_down,
-              color: const Color(0xffd9dcd6),
-              size: 40,
+          const SizedBox(width: 8), // Reduced spacing
+          Flexible(
+            // Use Flexible instead of fixed IconButton
+            child: IconButton(
+              icon: Icon(
+                _sortOrder == 'asc'
+                    ? Icons.arrow_circle_up
+                    : Icons.arrow_circle_down,
+                color: const Color(0xffd9dcd6),
+                size: 36, // Slightly smaller icon
+              ),
+              onPressed: () {
+                setState(() {
+                  _sortOrder = _sortOrder == 'asc' ? 'desc' : 'asc';
+                });
+              },
             ),
-            onPressed: () {
-              setState(() {
-                _sortOrder = _sortOrder == 'asc' ? 'desc' : 'asc';
-              });
-            },
           ),
         ],
       ),

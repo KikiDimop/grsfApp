@@ -1,0 +1,26 @@
+*Times with access to internet (api calls)
+
+-Stocks page loaded in 332 ms
+    --Time to display single_stock page: 23566ms
+-Fisheries page loaded in 2947 ms
+    --SingleFishery page loaded in 18246 ms
+-Species page loaded in 153 ms
+    --SpeciesDetails page loaded in 21 ms
+-Areas page loaded in 46 ms
+-FishingGears page loaded in 32 ms
+
+
+*Times without access to internet (local db use only)
+
+-Stocks page loaded in 233 ms
+    --SingleStock page loaded in  48 ms
+-Fisheries page loaded in 2952 ms
+    --SingleFishery page loaded in 43 ms
+-Species page loaded in 159 ms
+   --SpeciesDetails page loaded in 31 ms
+-Areas page loaded in 48 ms
+-FishingGears page loaded in 38 ms
+
+
+
+*ListDisplay avg time : 30 ms

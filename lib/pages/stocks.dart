@@ -23,6 +23,7 @@ class Stocks extends StatefulWidget {
 }
 
 class _StocksState extends State<Stocks> {
+  final sw = Stopwatch();
   List<Stock>? stocks;
   String _selectedOrder = 'Short Name';
   String _sortOrder = 'asc';
@@ -35,15 +36,12 @@ class _StocksState extends State<Stocks> {
 
   @override
   void initState() {
+    sw.start();
     super.initState();
-    _fetchData();
-    if (widget.timeseries.isNotEmpty) {
-      isLoading2 = true;
-      _fetchDataFromAPI().then((_) => _mergeAndFilterData());
-    }
+    _loadData();
   }
 
-  Future<void> _fetchData() async {
+  Future<void> _loadData() async {
     try {
       final results = await Future.wait([
         DatabaseService.instance.searchStock(
@@ -66,6 +64,8 @@ class _StocksState extends State<Stocks> {
         isLoading = false;
       });
     }
+    sw.stop();
+    debugPrint('Stocks page loaded in ${sw.elapsedMilliseconds} ms');
   }
 
   Future<void> _fetchDataFromAPI() async {
@@ -297,7 +297,6 @@ class _StocksState extends State<Stocks> {
   Widget _listViewItem({required Stock item}) {
     return GestureDetector(
       onTap: () {
-        // Define what happens when the item is clicked
         Navigator.push(
           context,
           MaterialPageRoute(

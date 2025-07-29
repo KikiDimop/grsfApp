@@ -32,8 +32,11 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
   Map<String, dynamic>? _responseData;
   Map<String, dynamic>? _responseDataInfo;
 
+  final sw = Stopwatch();
+
   @override
   void initState() {
+    sw.start();
     super.initState();
     _initializeData();
   }
@@ -132,6 +135,11 @@ class _DisplaySingleStockState extends State<DisplaySingleStock> {
 
   @override
   Widget build(BuildContext context) {
+    if (!(isLoading || isLoading2 || isLoading3)) {
+      sw.stop();
+      debugPrint(
+          'Time to display single_stock page: ${sw.elapsedMilliseconds}ms');
+    }
     return Scaffold(
       backgroundColor: const Color(0xff16425B),
       appBar: AppBar(

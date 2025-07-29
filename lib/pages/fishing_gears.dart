@@ -15,6 +15,8 @@ class FishingGears extends StatefulWidget {
 }
 
 class _FishingGearsState extends State<FishingGears> {
+  final sw = Stopwatch();
+
   List<Gear>? gears;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -25,11 +27,12 @@ class _FishingGearsState extends State<FishingGears> {
 
   @override
   void initState() {
+    sw.start();
     super.initState();
-    _fetchData();
+    _loadData();
   }
 
-  Future<void> _fetchData() async {
+  Future<void> _loadData() async {
     try {
       final results = await Future.wait([
         DatabaseService.instance
@@ -45,6 +48,9 @@ class _FishingGearsState extends State<FishingGears> {
         isLoading = false;
       });
     }
+    sw.stop();
+    debugPrint('FishingGears page loaded in ${sw.elapsedMilliseconds} ms');
+    setState(() {});
   }
 
   @override
@@ -375,18 +381,18 @@ class _FishingGearsState extends State<FishingGears> {
                   label: 'Show related fisheries',
                   onPressed: () {
                     SearchFishery searchFishery = SearchFishery(
-                        selectedSpeciesSystem: 'All',
+                        selectedSpeciesSystem: '',
                         speciesCode: '',
                         speciesName: '',
-                        selectedAreaSystem: 'All',
+                        selectedAreaSystem: '',
                         areaCode: '',
                         areaName: '',
-                        selectedGearSystem: 'All',
+                        selectedGearSystem: '',
                         gearCode: g.fishingGearId ?? '',
                         gearName: g.fishingGearName ?? '',
-                        selectedFAOMajorArea: 'All',
-                        selectedResourceType: 'All',
-                        selectedResourceStatus: 'All',
+                        selectedFAOMajorArea: '',
+                        selectedResourceType: '',
+                        selectedResourceStatus: '',
                         flagCode: '');
 
                     Navigator.push(

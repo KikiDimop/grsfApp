@@ -224,6 +224,8 @@ class _SearchstocksState extends State<Searchstocks> {
   ElevatedButton searchButton() {
     return ElevatedButton(
       onPressed: () {
+        final sw = Stopwatch();
+        sw.start();
         final searchStock = SearchStock(
           selectedSpeciesSystem: spType,
           speciesCode: spCode,
@@ -246,7 +248,11 @@ class _SearchstocksState extends State<Searchstocks> {
                 refYear: refYear.text),
           ),
           (route) => route.isFirst,
-        );
+        ).then((_) {
+          sw.stop();
+          debugPrint(
+              'Time to perform stock search: ${sw.elapsedMilliseconds}ms');
+        });
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xffd9dcd6),

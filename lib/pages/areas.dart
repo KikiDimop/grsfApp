@@ -14,6 +14,8 @@ class Areas extends StatefulWidget {
 }
 
 class _AreasState extends State<Areas> {
+  final sw = Stopwatch();
+
   List<Area>? areas;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -24,11 +26,12 @@ class _AreasState extends State<Areas> {
 
   @override
   void initState() {
+    sw.start();
     super.initState();
-    _fetchData();
+    _loadData();
   }
 
-  Future<void> _fetchData() async {
+  Future<void> _loadData() async {
     try {
       final results = await Future.wait([
         DatabaseService.instance
@@ -44,6 +47,8 @@ class _AreasState extends State<Areas> {
         isLoading = false;
       });
     }
+    sw.stop();
+    debugPrint('Areas page loaded in ${sw.elapsedMilliseconds} ms');
   }
 
   @override
@@ -341,15 +346,15 @@ class _AreasState extends State<Areas> {
                             ElevatedButton(
                               onPressed: () {
                                 SearchStock searchStock = SearchStock(
-                                  selectedSpeciesSystem: 'All',
+                                  selectedSpeciesSystem: '',
                                   speciesCode: '',
                                   speciesName: '',
-                                  selectedAreaSystem: a.areaCodeType ?? 'All',
+                                  selectedAreaSystem: a.areaCodeType ?? '',
                                   areaCode: a.areaCode ?? '',
                                   areaName: a.areaName ?? '',
-                                  selectedFAOMajorArea: 'All',
-                                  selectedResourceType: 'All',
-                                  selectedResourceStatus: 'All',
+                                  selectedFAOMajorArea: '',
+                                  selectedResourceType: '',
+                                  selectedResourceStatus: '',
                                 );
 
                                 Navigator.push(
@@ -382,18 +387,18 @@ class _AreasState extends State<Areas> {
                             ElevatedButton(
                               onPressed: () {
                                 SearchFishery searchFishery = SearchFishery(
-                                  selectedSpeciesSystem: 'All',
+                                  selectedSpeciesSystem: '',
                                   speciesCode: '',
                                   speciesName: '',
-                                  selectedAreaSystem: a.areaCodeType ?? 'All',
+                                  selectedAreaSystem: a.areaCodeType ?? '',
                                   areaCode: a.areaCode ?? '',
                                   areaName: a.areaName ?? '',
-                                  selectedGearSystem: 'All',
+                                  selectedGearSystem: '',
                                   gearCode: '',
                                   gearName: '',
-                                  selectedFAOMajorArea: 'All',
-                                  selectedResourceType: 'All',
-                                  selectedResourceStatus: 'All',
+                                  selectedFAOMajorArea: '',
+                                  selectedResourceType: '',
+                                  selectedResourceStatus: '',
                                   flagCode: '',
                                 );
 
@@ -475,7 +480,7 @@ class _AreasState extends State<Areas> {
         style: const TextStyle(color: Color(0xffd9dcd6)), // Text color
         decoration: InputDecoration(
           filled: true,
-          fillColor: const Color(0xffd9dcd6)..withAlpha(25),
+          fillColor: const Color(0xffd9dcd6).withAlpha(25),
           contentPadding: const EdgeInsets.all(15),
           hintText: 'Search Area',
           hintStyle: const TextStyle(
